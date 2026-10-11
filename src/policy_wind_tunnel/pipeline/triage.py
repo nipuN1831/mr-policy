@@ -36,8 +36,9 @@ def _cluster_key(finding: Finding) -> str:
     return f"{finding.kind}|{finding.rule_id}|{finding.expected['outcome']}->{actual}"
 
 
-def _distance(finding: Finding) -> int:
-    return sum(len(str(v)) for v in finding.inputs.values())
+def _distance(finding: Finding) -> tuple[int, int]:
+    outcome_matches = finding.expected["outcome"] == finding.actual.get("outcome")
+    return int(outcome_matches), sum(len(str(v)) for v in finding.inputs.values())
 
 
 def _severity(findings: list[Finding]) -> str:

@@ -10,6 +10,7 @@ from policy_wind_tunnel.contract.models import Contract, FieldSpec
 DISTANCE_WEIGHT = 20
 EQUALITY_WEIGHT = 5
 SAME_FIELD_WEIGHT = 3
+ISOLATION_WEIGHT = 10
 ORDERING_KINDS = (z3.Z3_OP_LE, z3.Z3_OP_GE, z3.Z3_OP_LT, z3.Z3_OP_GT)
 
 
@@ -116,6 +117,7 @@ class SymbolicContract:
         self.domain = [d for fv in self.vars.values() for d in _domain(fv)]
         self._var_field = {v.decl().name(): name for name, fv in self.vars.items() for v in fv.all_vars()}
         self._when: dict[str, Any] = {}
+        self._stage_of: dict[str, int] = {}
         self._fire: dict[str, Any] = {}
         self._stage_any: list[Any] = []
         self._build()
@@ -132,12 +134,13 @@ class SymbolicContract:
         for derived in self.contract.derived:
             env[derived.name] = self._translate(expr.parse(derived.expr), env)
         reach = z3.BoolVal(True)
-        for stage in self.contract.stages:
+        for stage_index, stage in enumerate(self.contract.stages):
             whens = []
             for rule in stage.rules:
                 when = self._as_bool(self._translate(expr.parse(rule.when), env))
                 prior = [z3.Not(p) for p in whens] if stage.mode == "first_match" else []
                 self._when[rule.id] = when
+                self._stage_of[rule.id] = stage_index
                 self._fire[rule.id] = z3.And(reach, when, *prior)
                 whens.append(when)
             any_fire = z3.Or(*whens)
@@ -396,6 +399,10 @@ class SymbolicContract:
         opt.add(z3.Not(second(atom.term)))
         for term in self._anchors(skip=field_name):
             opt.add_soft(term)
+        for other_id, when in self._when.items():
+            if other_id != rule_id and self._stage_of[other_id] <= self._stage_of[rule_id]:
+                opt.add_soft(z3.Not(when), weight=ISOLATION_WEIGHT)
+                opt.add_soft(z3.Not(second(when)), weight=ISOLATION_WEIGHT)
         self._add_pair_preferences(opt, atom, self.vars[field_name], copy, second)
         if opt.check() != z3.sat:
             return None

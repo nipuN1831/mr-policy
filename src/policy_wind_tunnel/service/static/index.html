@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Policy Wind Tunnel</title>
+<style>
+  :root { --bg:#0f1419; --panel:#171e26; --line:#2a3541; --text:#e6edf3; --muted:#8b98a5; --accent:#4cc2ff; --bad:#ff6b6b; --good:#3ddc97; --warn:#ffc857; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  header { padding:20px 28px; border-bottom:1px solid var(--line); }
+  header h1 { margin:0; font-size:22px; }
+  header p { margin:4px 0 0; color:var(--muted); }
+  main { display:grid; grid-template-columns: 1fr 1fr; gap:20px; padding:20px 28px; max-width:1500px; margin:auto; }
+  @media (max-width: 1000px) { main { grid-template-columns: 1fr; } }
+  section { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:16px 18px; }
+  section.wide { grid-column: 1 / -1; }
+  h2 { margin:0 0 10px; font-size:16px; display:flex; align-items:center; gap:10px; }
+  .step { background:var(--accent); color:#04202e; border-radius:50%; width:24px; height:24px; display:inline-flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; }
+  pre, textarea { background:#0b1015; border:1px solid var(--line); border-radius:8px; color:var(--text); padding:10px; font:12.5px/1.45 ui-monospace, Menlo, monospace; overflow:auto; }
+  textarea { width:100%; height:260px; resize:vertical; }
+  pre { margin:8px 0 0; max-height:320px; white-space:pre-wrap; }
+  button, select { background:var(--accent); color:#04202e; border:0; border-radius:8px; padding:9px 14px; font-weight:600; cursor:pointer; font-size:14px; }
+  select { background:#0b1015; color:var(--text); border:1px solid var(--line); font-weight:400; max-width:100%; }
+  button.secondary { background:transparent; color:var(--text); border:1px solid var(--line); }
+  button:disabled { opacity:.5; cursor:wait; }
+  .row { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin:8px 0; }
+  .muted { color:var(--muted); font-size:13px; }
+  .pill { display:inline-block; padding:2px 9px; border-radius:99px; font-size:12px; font-weight:600; }
+  .high { background:#4a1f24; color:var(--bad); } .medium { background:#4a3a14; color:var(--warn); } .low { background:#16352a; color:var(--good); }
+  .ok { color:var(--good); } .err { color:var(--bad); }
+  .finding { border:1px solid var(--line); border-radius:8px; padding:12px; margin-top:10px; background:#12181f; }
+  .finding h3 { margin:0 0 6px; font-size:14px; }
+  .quote { border-left:3px solid var(--accent); padding:4px 10px; margin:8px 0; color:#cbd5df; font-style:italic; white-space:pre-wrap; }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  th, td { text-align:left; padding:6px 8px; border-bottom:1px solid var(--line); }
+  th { color:var(--muted); font-weight:600; }
+  .bar { height:10px; border-radius:6px; background:#0b1015; border:1px solid var(--line); overflow:hidden; margin:4px 0 10px; }
+  .bar > span { display:block; height:100%; }
+  .amb { border:1px solid var(--line); border-radius:8px; padding:8px 10px; margin-top:8px; }
+  .amb .q { font-weight:600; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Policy Wind Tunnel</h1>
+  <p>Turn a written policy into an approved contract, attack the software that implements it, and keep every proven failure as a regression test.</p>
+  <p class="muted" id="status">Checking service...</p>
+</header>
+<main>
+  <section>
+    <h2><span class="step">1</span>Policy document</h2>
+    <textarea id="policy" spellcheck="false"></textarea>
+    <div class="row">
+      <button id="extract">Extract contract</button>
+      <label class="muted"><input type="checkbox" id="useGold"> use bundled hand-written contract</label>
+    </div>
+    <div class="muted" id="extractNote"></div>
+  </section>
+
+  <section>
+    <h2><span class="step">2</span>Policy contract and approval</h2>
+    <div class="muted" id="critique">Extract a contract to review it.</div>
+    <div id="ambiguities"></div>
+    <pre id="contractJson" hidden></pre>
+    <div class="row"><button class="secondary" id="toggleJson" hidden>Show contract JSON</button></div>
+  </section>
+
+  <section>
+    <h2><span class="step">3</span>Attack an implementation</h2>
+    <div class="row">
+      <select id="target"></select>
+      <button id="run" disabled>Generate tests and run</button>
+    </div>
+    <div class="muted" id="runNote">Pick an implementation. One is correct, ten carry a seeded bug.</div>
+    <div id="summary"></div>
+  </section>
+
+  <section>
+    <h2><span class="step">4</span>Benchmark: generated suite vs hand-written suite</h2>
+    <div class="row"><button class="secondary" id="bench">Run benchmark over all 10 seeded bugs</button></div>
+    <div id="benchOut"></div>
+  </section>
+
+  <section class="wide" id="findingsSection" hidden>
+    <h2>Findings with evidence</h2>
+    <div id="findings"></div>
+    <h2 style="margin-top:18px">Regression tests</h2>
+    <div class="muted" id="regNote"></div>
+    <pre id="regSource"></pre>
+  </section>
+</main>
+<script>
+const $ = (id) => document.getElementById(id);
+let contract = null;
+
+async function api(path, body) {
+  const options = body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : {};
+  const response = await fetch(path, options);
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(typeof data.detail === "string" ? data.detail : JSON.stringify(data.detail || data));
+  return data;
+}
+
+function esc(value) {
+  return String(value).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+async function init() {
+  const [health, demo] = await Promise.all([api("/api/health"), api("/api/demo")]);
+  $("status").innerHTML = health.llm
+    ? '<span class="ok">Gemini connected</span>'
+    : '<span class="err">No Gemini credentials</span> - the bundled hand-written contract is used';
+  if (!health.llm) $("useGold").checked = true;
+  $("policy").value = demo.policy_text;
+  $("target").innerHTML = demo.targets
+    .map((t) => `<option value="${esc(t.id)}">${esc(t.id)}${t.clause ? " (" + t.clause + ")" : ""} - ${esc(t.description)}</option>`)
+    .join("");
+}
+
+function renderAmbiguities() {
+  $("ambiguities").innerHTML = contract.ambiguities
+    .map(
+      (a) => `<div class="amb"><div class="q">${esc(a.clause)}: ${esc(a.question)}</div>
+      <div class="muted">${esc(a.resolution)}</div>
+      <div class="row"><span class="pill ${a.status === "approved" ? "low" : a.status === "rejected" ? "high" : "medium"}">${a.status}</span>
+      <button class="secondary" data-id="${esc(a.id)}" data-status="approved">Approve</button>
+      <button class="secondary" data-id="${esc(a.id)}" data-status="rejected">Reject</button></div></div>`
+    )
+    .join("");
+  document.querySelectorAll("#ambiguities button").forEach((button) => {
+    button.onclick = async () => {
+      const result = await api("/api/approve", { contract, ambiguity_id: button.dataset.id, status: button.dataset.status });
+      contract = result.contract;
+      renderAmbiguities();
+    };
+  });
+}
+
+$("extract").onclick = async () => {
+  $("extract").disabled = true;
+  $("extractNote").textContent = "Extracting...";
+  try {
+    const result = await api("/api/extract", { policy_text: $("policy").value, use_gold: $("useGold").checked });
+    contract = result.contract;
+    const c = result.critique;
+    $("extractNote").innerHTML = `<span class="ok">Contract from ${result.source}</span> after ${result.attempts} attempt(s).`;
+    const issues = [];
+    if (c.uncited_clauses.length) issues.push("clauses with no rule: " + c.uncited_clauses.join(", "));
+    if (c.unreachable_rules.length) issues.push("unreachable rules: " + c.unreachable_rules.join(", "));
+    if (c.uncovered_input) issues.push("an input no rule decides: " + JSON.stringify(c.uncovered_input));
+    $("critique").innerHTML = issues.length
+      ? '<span class="err">Critic found problems:</span> ' + esc(issues.join("; "))
+      : '<span class="ok">Critic: every clause cited, every rule reachable, every input decided (checked with Z3).</span>';
+    renderAmbiguities();
+    $("contractJson").textContent = JSON.stringify(contract, null, 2);
+    $("toggleJson").hidden = false;
+    $("run").disabled = false;
+  } catch (error) {
+    $("extractNote").innerHTML = '<span class="err">' + esc(error.message) + "</span>";
+  } finally {
+    $("extract").disabled = false;
+  }
+};
+
+$("toggleJson").onclick = () => {
+  $("contractJson").hidden = !$("contractJson").hidden;
+  $("toggleJson").textContent = $("contractJson").hidden ? "Show contract JSON" : "Hide contract JSON";
+};
+
+function renderFinding(cluster) {
+  const r = cluster.representative;
+  return `<div class="finding"><h3>${esc(cluster.summary)} <span class="pill ${cluster.severity}">${cluster.severity}</span>
+    <span class="pill ${cluster.verdict === "defect" ? "high" : "medium"}">${cluster.verdict.replace("_", " ")}</span></h3>
+    <div class="quote">${esc(r.source_quote || "(no quote recorded)")}</div>
+    <div class="muted">Policy clause ${esc(cluster.clause)} - rule ${esc(r.rule_id)} - ${cluster.count} failing input(s) in this group</div>
+    <table><tr><th>Minimal failing input</th><th>Expected (contract)</th><th>Actual (implementation)</th></tr>
+    <tr><td><pre>${esc(JSON.stringify(r.inputs, null, 1))}</pre></td>
+    <td><pre>${esc(JSON.stringify(r.expected, null, 1))}</pre></td>
+    <td><pre>${esc(JSON.stringify(r.actual, null, 1))}</pre></td></tr></table></div>`;
+}
+
+$("run").onclick = async () => {
+  $("run").disabled = true;
+  $("runNote").textContent = "Generating boundary tests with Z3 and running...";
+  try {
+    const result = await api("/api/run", { target: $("target").value, contract });
+    $("runNote").innerHTML = "";
+    $("summary").innerHTML = `<table>
+      <tr><th>Generated cases</th><td>${result.cases}</td></tr>
+      <tr><th>Findings</th><td class="${result.findings ? "err" : "ok"}">${result.findings}</td></tr>
+      <tr><th>Distinct defects</th><td>${result.defects}</td></tr>
+      <tr><th>Needing clarification</th><td>${result.needs_clarification}</td></tr>
+      <tr><th>Rules covered</th><td>${result.coverage.uncovered_rules.length === 0 ? '<span class="ok">all</span>' : esc(result.coverage.uncovered_rules.join(", "))}</td></tr></table>`;
+    $("findingsSection").hidden = false;
+    $("findings").innerHTML = result.clusters.length
+      ? result.clusters.map(renderFinding).join("")
+      : '<div class="ok">No discrepancies: the implementation matches the approved contract on every generated case.</div>';
+    const reg = result.regression;
+    $("regNote").innerHTML = reg.tests
+      ? `<span class="ok">${reg.failing_on_buggy}/${reg.tests} fail on this implementation, ${reg.passing_on_fixed}/${reg.tests} pass on the correct one.</span>`
+      : "No defects, so no regression tests.";
+    $("regSource").textContent = reg.source;
+  } catch (error) {
+    $("runNote").innerHTML = '<span class="err">' + esc(error.message) + "</span>";
+  } finally {
+    $("run").disabled = false;
+  }
+};
+
+$("bench").onclick = async () => {
+  $("bench").disabled = true;
+  $("benchOut").textContent = "Running...";
+  try {
+    const b = await api("/api/benchmark");
+    const pct = (x) => Math.round(x * 100);
+    const rows = b.rows
+      .map((r) => `<tr><td>${esc(r.mutant_id)}</td><td>${esc(r.clause)}</td>
+        <td class="${r.generated_killed ? "ok" : "err"}">${r.generated_killed ? "caught" : "missed"}</td>
+        <td class="${r.baseline_killed ? "ok" : "err"}">${r.baseline_killed ? "caught" : "missed"}</td></tr>`)
+      .join("");
+    $("benchOut").innerHTML = `
+      <div>Generated suite (${b.cases} cases): <b>${pct(b.recall)}%</b> of seeded bugs caught, ${pct(b.precision)}% precision, ${b.false_positives} false alarms on the correct engine</div>
+      <div class="bar"><span style="width:${pct(b.recall)}%;background:var(--good)"></span></div>
+      <div>Hand-written suite (${b.baseline_cases} cases): <b>${pct(b.baseline_recall)}%</b></div>
+      <div class="bar"><span style="width:${pct(b.baseline_recall)}%;background:var(--warn)"></span></div>
+      <div class="muted">Contract agrees with the reference engine on ${pct(b.fidelity)}% of random inputs. Regression tests valid: ${pct(b.regression_valid)}%.
+      Seeded bugs measure recall on known failure classes only.</div>
+      <table><tr><th>Seeded bug</th><th>Clause</th><th>Generated</th><th>Hand-written</th></tr>${rows}</table>`;
+  } catch (error) {
+    $("benchOut").innerHTML = '<span class="err">' + esc(error.message) + "</span>";
+  } finally {
+    $("bench").disabled = false;
+  }
+};
+
+init().catch((error) => ($("status").innerHTML = '<span class="err">' + esc(error.message) + "</span>"));
+</script>
+</body>
+</html>
