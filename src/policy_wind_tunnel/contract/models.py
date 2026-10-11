@@ -1,5 +1,5 @@
 import keyword
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -18,6 +18,7 @@ class FieldSpec(Strict):
     min: int | None = None
     max: int | None = None
     values: list[str] = Field(default_factory=list)
+    typical: Any = None
     description: str = ""
 
     @model_validator(mode="after")
