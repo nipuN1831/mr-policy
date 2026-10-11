@@ -66,6 +66,18 @@
     <div class="row"><button class="secondary" id="toggleJson" hidden>Show contract JSON</button></div>
   </section>
 
+  <section class="wide">
+    <h2><span class="step">A</span>What-if: simulate a policy change</h2>
+    <div class="muted">Pick a proposed change. A synthetic applicant population is run through the old and the new policy, and the existing code is tested against the new policy. No behaviour is predicted: people are only re-decided under the new rules.</div>
+    <div class="row">
+      <select id="scenario"></select>
+      <select id="popSize"><option value="2000">2,000 applicants</option><option value="5000" selected>5,000 applicants</option><option value="10000">10,000 applicants</option></select>
+      <button id="simulate">Simulate change</button>
+    </div>
+    <div class="muted" id="scenarioDesc"></div>
+    <div id="whatifOut"></div>
+  </section>
+
   <section>
     <h2><span class="step">3</span>Attack an implementation</h2>
     <div class="row">
@@ -113,6 +125,9 @@ async function init() {
     : '<span class="err">No Gemini credentials</span> - the bundled hand-written contract is used';
   if (!health.llm) $("useGold").checked = true;
   $("policy").value = demo.policy_text;
+  scenarios = demo.scenarios;
+  $("scenario").innerHTML = scenarios.map((s) => `<option value="${esc(s.id)}">${esc(s.title)}</option>`).join("");
+  $("scenarioDesc").textContent = scenarios[0].description;
   $("target").innerHTML = demo.targets
     .map((t) => `<option value="${esc(t.id)}">${esc(t.id)}${t.clause ? " (" + t.clause + ")" : ""} - ${esc(t.description)}</option>`)
     .join("");
@@ -231,6 +246,62 @@ $("bench").onclick = async () => {
     $("benchOut").innerHTML = '<span class="err">' + esc(error.message) + "</span>";
   } finally {
     $("bench").disabled = false;
+  }
+};
+
+let scenarios = [];
+
+function countsTable(counts) {
+  const entries = Object.entries(counts);
+  return entries.length ? entries.map(([k, v]) => `${esc(k)}: <b>${v}</b>`).join(" &nbsp; ") : "none";
+}
+
+function exampleRow(example) {
+  const p = example.inputs;
+  const brief = `age ${p.age}, ${p.employment.replace("_", "-")}, income ${p.monthly_income.toLocaleString()}, score ${p.credit_score ?? "none"}`;
+  return `<tr><td>${esc(brief)}</td><td>${esc(example.before.outcome)} ${esc(example.before.reasons.join(", "))}</td>
+    <td class="err">${esc(example.after.outcome)} ${esc(example.after.reasons.join(", "))}</td></tr>`;
+}
+
+$("scenario").onchange = () => {
+  const chosen = scenarios.find((s) => s.id === $("scenario").value);
+  $("scenarioDesc").textContent = chosen ? chosen.description : "";
+};
+
+$("simulate").onclick = async () => {
+  $("simulate").disabled = true;
+  $("whatifOut").textContent = "Simulating...";
+  try {
+    const b = await api("/api/whatif", {
+      scenario: $("scenario").value,
+      population: Number($("popSize").value),
+      contract: contract || undefined,
+      use_gold: !contract,
+    });
+    const s = b.simulation, code = b.code_impact;
+    const rate = (s.flip_rate * 100).toFixed(1);
+    const health = b.health.uncovered_input || b.health.unreachable_rules.length
+      ? '<span class="err">The changed policy has gaps: ' + esc(JSON.stringify(b.health)) + "</span>"
+      : '<span class="ok">The changed policy is complete: every input is decided and every rule is reachable (Z3).</span>';
+    const outcomeBars = (counts) => Object.entries(counts).map(([k, v]) => {
+      const share = (v / s.population) * 100;
+      return `<div class="muted">${esc(k)} ${v} (${share.toFixed(1)}%)</div><div class="bar"><span style="width:${share}%;background:var(--accent)"></span></div>`;
+    }).join("");
+    $("whatifOut").innerHTML = `
+      <div class="row"><div style="flex:1;min-width:260px"><b>Before</b>${outcomeBars(s.before)}</div>
+      <div style="flex:1;min-width:260px"><b>After</b>${outcomeBars(s.after)}</div></div>
+      <p><b>${s.flipped.toLocaleString()}</b> of ${s.population.toLocaleString()} applicants (${rate}%) get a different decision:
+      ${countsTable(s.transitions)}.<br>
+      <span class="muted">${s.reason_only_changes.toLocaleString()} more keep the same decision but gain or lose a rejection reason: gained ${countsTable(s.reasons_gained)}; lost ${countsTable(s.reasons_lost)}.</span></p>
+      <table><tr><th>Example applicant</th><th>Before</th><th>After</th></tr>${s.examples.map(exampleRow).join("")}</table>
+      <p>${health}</p>
+      <p><b>Impact on the code:</b> ${code.failing_cases === 0
+        ? '<span class="ok">the current implementation already satisfies the new policy.</span>'
+        : `<span class="err">the current implementation fails ${code.failing_cases} of ${code.cases} generated tests under the new policy</span> (clause ${esc(code.clauses.join(", "))}), and ${code.regression_tests} regression test(s) are ready to drive the change.`}</p>`;
+  } catch (error) {
+    $("whatifOut").innerHTML = '<span class="err">' + esc(error.message) + "</span>";
+  } finally {
+    $("simulate").disabled = false;
   }
 };
 

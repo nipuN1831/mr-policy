@@ -15,6 +15,8 @@ from policy_wind_tunnel.evaluation.harness import evaluate_contract
 from policy_wind_tunnel.pipeline.regression import emit_regression_tests, verify_regression
 from policy_wind_tunnel.pipeline.runner import run_suite
 from policy_wind_tunnel.pipeline.triage import triage
+from policy_wind_tunnel.simulation import whatif
+from policy_wind_tunnel.simulation.scenarios import SCENARIOS, Scenario
 
 POLICY_PATH = Path(__file__).resolve().parent.parent / "benchmark" / "lending_policy.md"
 REFERENCE = wrap_engine(decide)
@@ -28,7 +30,10 @@ class UnknownTarget(Exception):
 def demo_payload() -> dict[str, Any]:
     targets = [{"id": "reference", "clause": "", "description": "Correct implementation (should produce no findings)"}]
     targets += [{"id": m.id, "clause": m.clause, "description": m.description} for m in MUTANTS]
-    return {"policy_text": POLICY_PATH.read_text(), "targets": targets}
+    scenarios = [
+        {"id": sc.id, "title": sc.title, "description": sc.description, "changes": sc.changes} for sc in SCENARIOS
+    ]
+    return {"policy_text": POLICY_PATH.read_text(), "targets": targets, "scenarios": scenarios}
 
 
 def implementation_for(target: str):
@@ -105,3 +110,18 @@ def run_payload(contract: Contract, target: str) -> dict[str, Any]:
 
 def benchmark_payload(contract: Contract) -> dict[str, Any]:
     return evaluate_contract(contract)
+
+
+def whatif_payload(
+    contract: Contract, changes: list[dict[str, Any]], population: int, scenario: Scenario | None
+) -> dict[str, Any]:
+    changed = whatif.apply_changes(contract, changes)
+    people = whatif.generate_population(population)
+    result = whatif.simulate(contract, changed, people)
+    return {
+        "scenario": {"id": scenario.id, "title": scenario.title} if scenario else {"id": "custom", "title": "Custom change"},
+        "changes": changes,
+        "simulation": {**asdict(result), "flip_rate": result.flip_rate, "changed": result.changed},
+        "code_impact": whatif.impact_on_code(changed, REFERENCE),
+        "health": whatif.contract_health(changed),
+    }

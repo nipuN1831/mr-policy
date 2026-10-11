@@ -4,7 +4,7 @@ from typing import Any
 
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel, Field, ValidationError
 
 from policy_wind_tunnel.agents.approval import ApprovalError, decide_ambiguity
 from policy_wind_tunnel.agents.extractor import ExtractionError
@@ -12,6 +12,8 @@ from policy_wind_tunnel.agents.llm import LLM, GeminiLLM
 from policy_wind_tunnel.contract.gold import LENDING_CONTRACT
 from policy_wind_tunnel.contract.models import Contract
 from policy_wind_tunnel.service import orchestrator
+from policy_wind_tunnel.simulation.scenarios import scenario_by_id
+from policy_wind_tunnel.simulation.whatif import ChangeError
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 _UNSET = object()
@@ -24,6 +26,14 @@ class ExtractRequest(BaseModel):
 
 class RunRequest(BaseModel):
     target: str
+    contract: dict[str, Any] | None = None
+    use_gold: bool = False
+
+
+class WhatIfRequest(BaseModel):
+    scenario: str | None = None
+    changes: list[dict[str, Any]] | None = None
+    population: int = Field(default=2000, ge=100, le=20000)
     contract: dict[str, Any] | None = None
     use_gold: bool = False
 
@@ -81,6 +91,24 @@ def create_app(llm: Any = _UNSET) -> FastAPI:
             return orchestrator.run_payload(contract, request.target)
         except orchestrator.UnknownTarget as error:
             raise HTTPException(404, detail=f"unknown target {request.target}") from error
+
+    @app.post("/api/whatif")
+    def whatif(request: WhatIfRequest):
+        contract = _load_contract(request.contract, request.use_gold)
+        scenario = None
+        changes = request.changes
+        if request.scenario:
+            try:
+                scenario = scenario_by_id(request.scenario)
+            except KeyError as error:
+                raise HTTPException(404, detail=f"unknown scenario {request.scenario}") from error
+            changes = scenario.changes
+        if not changes:
+            raise HTTPException(422, detail="supply a scenario or changes")
+        try:
+            return orchestrator.whatif_payload(contract, changes, request.population, scenario)
+        except ChangeError as error:
+            raise HTTPException(422, detail=str(error)) from error
 
     @app.post("/api/approve")
     def approve(request: ApproveRequest):
