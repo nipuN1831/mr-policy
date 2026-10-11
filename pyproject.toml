@@ -1,0 +1,34 @@
+[project]
+name = "policy-wind-tunnel"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Nipun Gupta", email = "nipun.gupta4@piramal.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "allpairspy>=2.5.1",
+    "google-adk>=2.11.0",
+    "google-genai>=2.29.0",
+    "hypothesis>=6.169.0",
+    "pydantic>=2.14.0",
+    "z3-solver>=5.1.0.0",
+]
+
+[project.scripts]
+policy-wind-tunnel = "policy_wind_tunnel:main"
+
+[build-system]
+requires = ["uv_build>=0.13.0,<0.14.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "mutmut>=3.8.0",
+    "pytest>=9.1.1",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["tests/benchmark"]
+testpaths = ["tests"]
