@@ -9,6 +9,11 @@ from pydantic import BaseModel, Field, ValidationError
 from policy_wind_tunnel.agents.approval import ApprovalError, decide_ambiguity
 from policy_wind_tunnel.agents.extractor import ExtractionError
 from policy_wind_tunnel.agents.llm import LLM, GeminiLLM
+from policy_wind_tunnel.civic import eligibility as civic_eligibility
+from policy_wind_tunnel.civic.counterfactual import nearest_changes
+from policy_wind_tunnel.civic.lookup import find_problems, find_representatives
+from policy_wind_tunnel.civic.packs import available_countries, load_pack
+from policy_wind_tunnel.contract.evaluator import ContractError
 from policy_wind_tunnel.contract.gold import LENDING_CONTRACT
 from policy_wind_tunnel.contract.models import Contract
 from policy_wind_tunnel.service import orchestrator
@@ -36,6 +41,16 @@ class WhatIfRequest(BaseModel):
     population: int = Field(default=2000, ge=100, le=20000)
     contract: dict[str, Any] | None = None
     use_gold: bool = False
+
+
+class CheckRequest(BaseModel):
+    inputs: dict[str, Any]
+
+
+class ChangeRequest(BaseModel):
+    inputs: dict[str, Any]
+    targets: list[str] | None = None
+    lock: list[str] | None = None
 
 
 class ApproveRequest(BaseModel):
@@ -123,6 +138,69 @@ def create_app(llm: Any = _UNSET) -> FastAPI:
     @app.get("/api/benchmark")
     def benchmark():
         return orchestrator.benchmark_payload(LENDING_CONTRACT)
+
+    def _pack(code: str):
+        try:
+            return load_pack(code)
+        except KeyError as error:
+            raise HTTPException(404, detail=f"unknown country {code}") from error
+
+    def _scheme_call(scheme_id: str, action):
+        try:
+            return action()
+        except civic_eligibility.UnknownScheme as error:
+            raise HTTPException(404, detail=str(error)) from error
+        except civic_eligibility.NotCheckable as error:
+            raise HTTPException(422, detail=str(error)) from error
+        except (ContractError, ValueError) as error:
+            raise HTTPException(422, detail=str(error)) from error
+
+    @app.get("/api/civic/countries")
+    def civic_countries():
+        return available_countries()
+
+    @app.get("/api/civic/countries/{code}")
+    def civic_country(code: str):
+        pack = _pack(code)
+        checkable = {s["id"] for s in civic_eligibility.list_schemes() if s["self_check"]}
+        data = pack.model_dump()
+        for scheme in data["schemes"]:
+            scheme["self_check"] = scheme["id"] in checkable
+        return data
+
+    @app.get("/api/civic/countries/{code}/problems")
+    def civic_problems(code: str, text: str = ""):
+        return {"matches": [p.model_dump() for p in find_problems(_pack(code), text)]}
+
+    @app.get("/api/civic/countries/{code}/representatives")
+    def civic_representatives(code: str, constituency: str = ""):
+        pack = _pack(code)
+        found = find_representatives(pack, constituency) if constituency else pack.representatives
+        return {
+            "demo": True,
+            "notice": "These representatives are fictional demo data. No real person is shown.",
+            "representatives": [r.model_dump() for r in found],
+        }
+
+    @app.get("/api/civic/schemes")
+    def civic_schemes():
+        return civic_eligibility.list_schemes()
+
+    @app.get("/api/civic/schemes/{scheme_id}/form")
+    def civic_form(scheme_id: str):
+        return _scheme_call(scheme_id, lambda: civic_eligibility.form_spec(scheme_id))
+
+    @app.post("/api/civic/schemes/{scheme_id}/check")
+    def civic_check(scheme_id: str, request: CheckRequest):
+        return _scheme_call(scheme_id, lambda: civic_eligibility.check(scheme_id, request.inputs))
+
+    @app.post("/api/civic/schemes/{scheme_id}/change")
+    def civic_change(scheme_id: str, request: ChangeRequest):
+        def run():
+            spec = civic_eligibility.get_scheme(scheme_id)
+            return nearest_changes(spec, request.inputs, request.targets, request.lock).as_dict()
+
+        return _scheme_call(scheme_id, run)
 
     @app.get("/", response_class=HTMLResponse)
     def index():

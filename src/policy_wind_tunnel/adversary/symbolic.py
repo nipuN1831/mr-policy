@@ -118,6 +118,7 @@ class SymbolicContract:
         self._var_field = {v.decl().name(): name for name, fv in self.vars.items() for v in fv.all_vars()}
         self._when: dict[str, Any] = {}
         self._stage_of: dict[str, int] = {}
+        self._decides: dict[str, Any] = {}
         self._fire: dict[str, Any] = {}
         self._stage_any: list[Any] = []
         self._build()
@@ -142,6 +143,7 @@ class SymbolicContract:
                 self._when[rule.id] = when
                 self._stage_of[rule.id] = stage_index
                 self._fire[rule.id] = z3.And(reach, when, *prior)
+                self._decides[rule.id] = z3.And(reach, when, *[z3.Not(p) for p in whens])
                 whens.append(when)
             any_fire = z3.Or(*whens)
             self._stage_any.append(any_fire)
@@ -267,6 +269,10 @@ class SymbolicContract:
         if isinstance(right, tuple):
             return z3.Or(*[self._equals(left, element) for element in right]) if right else z3.BoolVal(False)
         raise Unsupported("'in' needs a set field or a tuple")
+
+    def outcome_in(self, outcomes: list[str]) -> Any:
+        wanted = [self._decides[rule.id] for _, rule in self.contract.all_rules() if rule.outcome in outcomes]
+        return z3.Or(*wanted) if wanted else z3.BoolVal(False)
 
     def rule_ids(self) -> list[str]:
         return list(self._fire)

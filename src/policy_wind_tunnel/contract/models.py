@@ -20,6 +20,9 @@ class FieldSpec(Strict):
     values: list[str] = Field(default_factory=list)
     typical: Any = None
     description: str = ""
+    labels: dict[str, str] = Field(default_factory=dict)
+    changeable: bool = True
+    change_cost: int = Field(default=1, ge=1)
 
     @model_validator(mode="after")
     def check(self) -> "FieldSpec":

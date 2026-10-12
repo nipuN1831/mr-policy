@@ -226,3 +226,18 @@ PACK = {
         },
     ],
 }
+
+PACK["schemes"] = PACK["schemes"][:0] + [
+    {
+        "id": "in_pmuy",
+        "name": "Ujjwala (PMUY 2.0): free LPG connection",
+        "summary": "A woman from a poor household can apply for a free LPG connection.",
+        "policy_text": (
+            "PM Ujjwala Yojana 2.0 (PMUY), eligibility as listed on pmuy.gov.in. "
+            "The applicant must be a woman who has attained 18 years of age. "
+            "There should be no other LPG connection from any Oil Marketing Company (OMC) within the same household. "
+            "The adult woman must belong to a poor household based on submission of a deprivation declaration (as per prescribed format)."
+        ),
+        "source": PMUY,
+    }
+]

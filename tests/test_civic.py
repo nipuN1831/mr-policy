@@ -43,17 +43,38 @@ def test_unknown_country_raises_key_error():
         load_pack("zz")
 
 
-def test_every_pack_has_tiers_problems_rights_and_a_disclaimer():
+def test_every_pack_has_a_disclaimer_and_some_sourced_content():
     for pack in all_packs():
-        assert len(pack.tiers) >= 2, pack.code
-        assert len(pack.problems) >= 5, pack.code
-        assert len(pack.rights) >= 3, pack.code
         assert "not legal advice" in pack.disclaimer.lower(), pack.code
+        assert pack.problems or pack.schemes or pack.rights, pack.code
+
+
+def test_partial_packs_say_what_is_missing():
+    for pack in all_packs():
+        if pack.status == "partial":
+            assert pack.notes, pack.code
+
+
+def test_verified_status_requires_full_coverage():
+    for pack in all_packs():
+        if pack.status == "verified":
+            assert len(pack.tiers) >= 2 and len(pack.problems) >= 5 and len(pack.rights) >= 3, pack.code
+            assert all(p.verified for p in pack.problems), pack.code
+
+
+def test_india_pack_is_the_most_complete():
+    pack = load_pack("in")
+    assert len(pack.tiers) >= 2 and len(pack.problems) >= 5 and len(pack.rights) >= 3
+
+
+def test_five_countries_are_available():
+    codes = {c["code"] for c in available_countries()}
+    assert {"in", "sg", "au", "ph", "id"} <= codes
 
 
 def test_every_source_is_https_and_dated():
     for pack in all_packs():
-        sources = [t.source for t in pack.tiers] + [p.source for p in pack.problems] + [r.source for r in pack.rights]
+        sources = [t.source for t in pack.tiers] + [p.source for p in pack.problems] + [r.source for r in pack.rights] + [x.source for x in pack.schemes]
         for item in sources:
             assert item.url.startswith("https://"), (pack.code, item.url)
             assert len(item.as_of) == 10 and item.as_of[4] == "-", (pack.code, item.as_of)
