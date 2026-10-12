@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Policy Wind Tunnel - Citizen</title>
+<style>
+  :root { --bg:#0f1419; --panel:#171e26; --line:#2a3541; --text:#e6edf3; --muted:#8b98a5; --accent:#4cc2ff; --bad:#ff6b6b; --good:#3ddc97; --warn:#ffc857; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:15px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  a { color:var(--accent); }
+  header { padding:18px 28px; border-bottom:1px solid var(--line); display:flex; flex-wrap:wrap; gap:14px; align-items:center; justify-content:space-between; }
+  header h1 { margin:0; font-size:20px; }
+  nav a { margin-right:14px; text-decoration:none; }
+  .wrap { max-width:1100px; margin:0 auto; padding:20px 28px 60px; }
+  .banner { background:#3a2f12; border:1px solid #6b5518; color:#ffe9a8; border-radius:8px; padding:8px 12px; margin-bottom:14px; font-size:13px; }
+  .tabs { display:flex; flex-wrap:wrap; gap:8px; margin:14px 0; }
+  .tabs button, button, select, input { font:inherit; }
+  .tabs button { background:var(--panel); color:var(--text); border:1px solid var(--line); border-radius:8px; padding:8px 14px; cursor:pointer; }
+  .tabs button.on { background:var(--accent); color:#04202e; border-color:var(--accent); font-weight:600; }
+  section { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:16px 18px; margin-bottom:16px; }
+  section[hidden] { display:none; }
+  h2 { margin:0 0 8px; font-size:17px; }
+  h3 { margin:14px 0 6px; font-size:15px; }
+  .muted { color:var(--muted); font-size:13px; }
+  .row { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin:8px 0; }
+  button.primary { background:var(--accent); color:#04202e; border:0; border-radius:8px; padding:9px 16px; font-weight:600; cursor:pointer; }
+  button.ghost { background:transparent; color:var(--text); border:1px solid var(--line); border-radius:8px; padding:8px 14px; cursor:pointer; }
+  button:disabled { opacity:.5; cursor:wait; }
+  select, input[type=text], input[type=number] { background:#0b1015; color:var(--text); border:1px solid var(--line); border-radius:8px; padding:8px 10px; max-width:100%; }
+  input[type=number] { width:150px; }
+  .grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap:12px; }
+  .card { border:1px solid var(--line); border-radius:8px; padding:12px 14px; background:#12181f; min-width:0; overflow-wrap:anywhere; }
+  .card h3 { margin-top:0; }
+  .pill { display:inline-block; padding:2px 9px; border-radius:99px; font-size:12px; font-weight:600; margin-right:4px; }
+  .ok { color:var(--good); } .err { color:var(--bad); } .warn { color:var(--warn); }
+  .pill.good { background:#16352a; color:var(--good); } .pill.bad { background:#4a1f24; color:var(--bad); } .pill.warn { background:#4a3a14; color:var(--warn); }
+  .quote { border-left:3px solid var(--accent); padding:4px 10px; margin:8px 0; color:#cbd5df; font-style:italic; white-space:pre-wrap; overflow-wrap:anywhere; }
+  .field { display:flex; flex-direction:column; gap:4px; min-width:0; }
+  .field label { font-size:13px; color:var(--muted); }
+  .form { display:grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap:12px; }
+  .result { border:2px solid var(--line); border-radius:10px; padding:14px; margin-top:12px; }
+  .result.good { border-color:var(--good); } .result.bad { border-color:var(--bad); }
+  pre { background:#0b1015; border:1px solid var(--line); border-radius:8px; padding:10px; overflow:auto; white-space:pre-wrap; overflow-wrap:anywhere; font:12.5px/1.45 ui-monospace, Menlo, monospace; max-height:260px; }
+  ul { margin:6px 0 6px 20px; padding:0; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Policy Wind Tunnel &middot; Citizen</h1>
+  <nav><a href="/">Officials</a><a href="/citizen">Citizens</a></nav>
+</header>
+<div class="wrap">
+  <div class="banner">Information only. Not legal advice and not an official decision. Nothing you enter is stored. All representatives shown are fictional demo data.</div>
+  <div class="row">
+    <label for="country">Country</label>
+    <select id="country"></select>
+    <span class="muted" id="status"></span>
+  </div>
+  <div class="muted" id="notes"></div>
+  <div class="tabs" id="tabs">
+    <button data-tab="qualify" class="on">Do I qualify?</button>
+    <button data-tab="decides">Who decides this?</button>
+    <button data-tab="rights">Know my rights</button>
+    <button data-tab="bodies">How government is organised</button>
+    <button data-tab="leaders">Who represents me? (demo)</button>
+  </div>
+
+  <section id="tab-qualify">
+    <h2>Do I qualify?</h2>
+    <div class="row"><select id="scheme"></select></div>
+    <div class="muted" id="schemeSummary"></div>
+    <div class="form" id="form"></div>
+    <div class="row">
+      <button class="primary" id="checkBtn">Check</button>
+      <button class="ghost" id="changeBtn" disabled>What would change my answer?</button>
+    </div>
+    <div id="result"></div>
+    <div id="change"></div>
+    <h3>The rule, as published</h3>
+    <div class="muted" id="sourceLine"></div>
+    <pre id="policyText"></pre>
+    <div id="assumptions"></div>
+  </section>
+
+  <section id="tab-decides" hidden>
+    <h2>Who decides this?</h2>
+    <div class="row"><input type="text" id="problemText" size="50" placeholder="Describe your problem, e.g. my bank refused a refund"><button class="primary" id="findBtn">Find</button></div>
+    <div id="matches"></div>
+    <h3>All problems</h3>
+    <div class="grid" id="allProblems"></div>
+  </section>
+
+  <section id="tab-rights" hidden>
+    <h2>Know my rights</h2>
+    <div class="grid" id="rights"></div>
+  </section>
+
+  <section id="tab-bodies" hidden>
+    <h2>How government is organised</h2>
+    <div class="grid" id="bodies"></div>
+  </section>
+
+  <section id="tab-leaders" hidden>
+    <h2>Who represents me? <span class="pill warn">demo data</span></h2>
+    <div class="muted">These people are invented to show the layout. Every fact on a real card would carry a source link and an "as of" date, with no scores or rankings.</div>
+    <div class="grid" id="leaders"></div>
+  </section>
+</div>
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+let pack = null, formSpec = null, lastInputs = null;
+
+async function api(path, body) {
+  const options = body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : {};
+  const response = await fetch(path, options);
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(typeof data.detail === "string" ? data.detail : JSON.stringify(data.detail || data));
+  return data;
+}
+
+const sourceLink = (s) => `<a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">${esc(s.title)}</a> <span class="muted">(as of ${esc(s.as_of)})</span>`;
+
+function showTab(name) {
+  document.querySelectorAll("#tabs button").forEach((b) => b.classList.toggle("on", b.dataset.tab === name));
+  ["qualify", "decides", "rights", "bodies", "leaders"].forEach((t) => ($("tab-" + t).hidden = t !== name));
+}
+document.querySelectorAll("#tabs button").forEach((b) => (b.onclick = () => showTab(b.dataset.tab)));
+
+function empty(text) { return `<div class="muted">${esc(text)}</div>`; }
+
+function renderProblem(p) {
+  const lines = p.helplines.map((h) => `<li><b>${esc(h.name)}</b>: ${esc(h.number)} ${esc(h.hours)}</li>`).join("");
+  return `<div class="card"><h3>${esc(p.title)}</h3>
+    <div class="muted">First: ${esc(p.first_body)}</div>
+    <ul>${p.steps.map((s) => `<li>${esc(s)}</li>`).join("")}</ul>
+    ${lines ? `<ul>${lines}</ul>` : ""}
+    ${p.portal ? `<div><a href="${esc(p.portal)}" target="_blank" rel="noopener noreferrer">Official portal</a></div>` : ""}
+    ${p.legal_basis ? `<div class="muted">Basis: ${esc(p.legal_basis)}</div>` : ""}
+    <div>${p.verified ? '<span class="pill good">verified</span>' : '<span class="pill warn">partly unverified</span>'}</div>
+    ${p.unverified_parts.length ? `<div class="muted">Not verified: ${p.unverified_parts.map(esc).join("; ")}</div>` : ""}
+    <div class="muted">${sourceLink(p.source)}</div></div>`;
+}
+
+function renderPack() {
+  $("status").innerHTML = pack.status === "verified" ? '<span class="pill good">verified</span>' : '<span class="pill warn">partial: some content not yet verified</span>';
+  $("notes").innerHTML = pack.notes.length ? "<ul>" + pack.notes.map((n) => `<li>${esc(n)}</li>`).join("") + "</ul>" : "";
+  $("allProblems").innerHTML = pack.problems.length ? pack.problems.map(renderProblem).join("") : empty("No problems verified for this country yet.");
+  $("matches").innerHTML = "";
+  $("rights").innerHTML = pack.rights.length ? pack.rights.map((r) => `<div class="card"><h3>${esc(r.title)}</h3><p>${esc(r.summary)}</p><div class="muted">How: ${esc(r.how_to_use)}</div>${r.law ? `<div class="muted">Law: ${esc(r.law)}</div>` : ""}<div class="muted">${sourceLink(r.source)}</div></div>`).join("") : empty("No rights verified for this country yet.");
+  $("bodies").innerHTML = pack.tiers.length ? pack.tiers.map((t) => `<div class="card"><h3>${esc(t.name)}</h3><ul>${t.controls.map((c) => `<li>${esc(c)}</li>`).join("")}</ul>${t.note ? `<div class="muted">${esc(t.note)}</div>` : ""}<div class="muted">${sourceLink(t.source)}</div></div>`).join("") : empty("Government structure is not verified for this country yet.");
+  $("leaders").innerHTML = pack.representatives.map((r) => `<div class="card"><h3>${esc(r.name)}</h3><div><span class="pill warn">demo data</span></div>
+    <div>${esc(r.role)}, ${esc(r.body)}</div><div class="muted">${esc(r.constituency)} &middot; ${esc(r.region)} ${r.party ? "&middot; " + esc(r.party) : ""}</div>
+    ${r.terms != null ? `<div class="muted">Terms: ${r.terms}</div>` : ""}
+    ${Object.entries(r.handles).map(([k, v]) => `<div class="muted">${esc(k)}: @${esc(v)} (link only)</div>`).join("")}
+    ${Object.entries(r.links).map(([k, v]) => `<div><a href="${esc(v)}" target="_blank" rel="noopener noreferrer">${esc(k)}</a></div>`).join("")}
+    <div class="muted">Shown for layout only. A real card would give each fact a source link and date.</div></div>`).join("");
+  const checkable = pack.schemes.filter((s) => s.self_check);
+  $("scheme").innerHTML = pack.schemes.map((s) => `<option value="${esc(s.id)}" data-check="${s.self_check}">${esc(s.name)}${s.self_check ? "" : " (information only)"}</option>`).join("");
+  $("scheme").disabled = pack.schemes.length === 0;
+  if (pack.schemes.length === 0) { $("form").innerHTML = ""; $("schemeSummary").textContent = "No scheme with verified numeric rules for this country yet."; $("policyText").textContent = ""; $("sourceLine").innerHTML = ""; $("assumptions").innerHTML = ""; $("result").innerHTML = ""; $("change").innerHTML = ""; $("checkBtn").disabled = true; $("changeBtn").disabled = true; return; }
+  loadScheme();
+}
+
+async function loadCountry(code) {
+  pack = await api("/api/civic/countries/" + code);
+  renderPack();
+}
+
+function fieldInput(f) {
+  const id = "f_" + f.name;
+  const note = f.changeable ? "" : '<span class="muted">(fixed: not something you can change)</span>';
+  if (f.kind === "bool") return `<div class="field"><label for="${id}">${esc(f.label)} ${note}</label><select id="${id}"><option value="false"${f.typical ? "" : " selected"}>No</option><option value="true"${f.typical ? " selected" : ""}>Yes</option></select></div>`;
+  if (f.kind === "enum") return `<div class="field"><label for="${id}">${esc(f.label)} ${note}</label><select id="${id}">${f.options.map((o) => `<option value="${esc(o.value)}"${o.value === f.typical ? " selected" : ""}>${esc(o.label)}</option>`).join("")}</select></div>`;
+  const blank = f.nullable ? '<span class="muted">(leave empty if unknown)</span>' : "";
+  return `<div class="field"><label for="${id}">${esc(f.label)} ${blank} ${note}</label><input type="number" id="${id}" ${f.min != null ? `min="${f.min}"` : ""} ${f.max != null ? `max="${f.max}"` : ""} value="${f.typical ?? ""}"></div>`;
+}
+
+async function loadScheme() {
+  const option = $("scheme").selectedOptions[0];
+  $("result").innerHTML = ""; $("change").innerHTML = "";
+  const chosen = pack.schemes.find((s) => s.id === $("scheme").value);
+  $("schemeSummary").textContent = chosen.summary;
+  if (!chosen.self_check) {
+    formSpec = null; $("form").innerHTML = ""; $("checkBtn").disabled = true; $("changeBtn").disabled = true;
+    $("policyText").textContent = chosen.policy_text; $("sourceLine").innerHTML = sourceLink(chosen.source);
+    $("assumptions").innerHTML = '<div class="muted">No self-check: eligibility is decided by a caseworker or a government database, and no numeric rule could be verified from an official page.</div>';
+    return;
+  }
+  formSpec = await api(`/api/civic/schemes/${chosen.id}/form`);
+  $("form").innerHTML = formSpec.fields.map(fieldInput).join("");
+  $("policyText").textContent = formSpec.policy_text;
+  $("sourceLine").innerHTML = sourceLink(formSpec.source);
+  $("assumptions").innerHTML = formSpec.assumptions.length ? "<h3>Assumptions this check makes</h3><ul>" + formSpec.assumptions.map((a) => `<li><b>${esc(a.question)}</b> ${esc(a.resolution)}</li>`).join("") + "</ul>" : "";
+  $("checkBtn").disabled = false; $("changeBtn").disabled = true;
+}
+
+function readInputs() {
+  const inputs = {};
+  for (const f of formSpec.fields) {
+    const el = $("f_" + f.name);
+    if (f.kind === "bool") inputs[f.name] = el.value === "true";
+    else if (f.kind === "enum" || f.kind === "str") inputs[f.name] = el.value;
+    else inputs[f.name] = el.value === "" ? null : Number(el.value);
+  }
+  return inputs;
+}
+
+$("scheme").onchange = loadScheme;
+$("country").onchange = () => loadCountry($("country").value);
+
+$("checkBtn").onclick = async () => {
+  $("checkBtn").disabled = true; $("change").innerHTML = "";
+  try {
+    lastInputs = readInputs();
+    const r = await api(`/api/civic/schemes/${formSpec.id}/check`, { inputs: lastInputs });
+    const reasons = r.reason_labels.length ? "<ul>" + r.reason_labels.map((x) => `<li>${esc(x)}</li>`).join("") + "</ul>" : "";
+    const clauses = r.clauses.map((c) => `<div class="quote">${esc(c.quote)}</div><div class="muted">${esc(c.clause)}${c.reason ? " &middot; " + esc(c.reason) : ""}</div>`).join("");
+    $("result").innerHTML = `<div class="result ${r.favourable ? "good" : "bad"}"><h3 style="margin-top:0">${esc(r.outcome_label)}</h3>${reasons}<h3>Clause that applied</h3>${clauses}<div class="muted">${esc(r.disclaimer)}</div></div>`;
+    $("changeBtn").disabled = false;
+  } catch (error) {
+    $("result").innerHTML = '<div class="err">' + esc(error.message) + "</div>";
+  } finally { $("checkBtn").disabled = false; }
+};
+
+$("changeBtn").onclick = async () => {
+  $("changeBtn").disabled = true; $("change").innerHTML = "Searching...";
+  try {
+    const r = await api(`/api/civic/schemes/${formSpec.id}/change`, { inputs: lastInputs });
+    if (r.already_met) { $("change").innerHTML = '<div class="ok">You already meet the published criteria. Use the first result above.</div>'; return; }
+    if (!r.alternatives.length) {
+      const fixed = r.blocked_by.length ? `Only a fixed fact blocks this: ${r.blocked_by.map(esc).join(", ")}. It cannot be changed, so no change to your circumstances would make you eligible.` : "No change within the fields you can influence would change the answer.";
+      $("change").innerHTML = `<div class="result bad"><h3 style="margin-top:0">What would change my answer?</h3>${fixed}</div>`;
+      return;
+    }
+    const label = (name) => (formSpec.fields.find((f) => f.name === name) || {}).label || name;
+    const show = (v) => (typeof v === "boolean" ? (v ? "Yes" : "No") : v ?? "none");
+    $("change").innerHTML = `<div class="result good"><h3 style="margin-top:0">What would change my answer?</h3>` + r.alternatives.map((a, i) =>
+      `<div class="card" style="margin-top:8px"><b>Option ${i + 1}</b><ul>${a.changes.map((c) => `<li>${esc(label(c.field))}: ${esc(show(c.from))} &rarr; <b>${esc(show(c.to))}</b></li>`).join("")}</ul><div class="muted">Result: ${esc(a.outcome_label)}</div></div>`).join("") +
+      `<div class="muted">Each option was checked against the same rules. It shows what the published rule would say, not a promise of approval.</div></div>`;
+  } catch (error) {
+    $("change").innerHTML = '<div class="err">' + esc(error.message) + "</div>";
+  } finally { $("changeBtn").disabled = false; }
+};
+
+$("findBtn").onclick = async () => {
+  const text = $("problemText").value.trim();
+  if (!text) { $("matches").innerHTML = ""; return; }
+  const r = await api(`/api/civic/countries/${$("country").value}/problems?text=` + encodeURIComponent(text));
+  $("matches").innerHTML = r.matches.length ? '<div class="grid">' + r.matches.map(renderProblem).join("") + "</div>" : empty("No match. Browse all problems below.");
+};
+$("problemText").addEventListener("keydown", (e) => { if (e.key === "Enter") $("findBtn").click(); });
+
+(async function init() {
+  const countries = await api("/api/civic/countries");
+  $("country").innerHTML = countries.map((c) => `<option value="${esc(c.code)}">${esc(c.name)}${c.status === "partial" ? " (partial)" : ""}</option>`).join("");
+  const preferred = countries.find((c) => c.code === "sg") || countries[0];
+  $("country").value = preferred.code;
+  await loadCountry(preferred.code);
+})().catch((e) => ($("status").innerHTML = '<span class="err">' + esc(e.message) + "</span>"));
+</script>
+</body>
+</html>

@@ -206,6 +206,10 @@ def create_app(llm: Any = _UNSET) -> FastAPI:
     def index():
         return (STATIC_DIR / "index.html").read_text()
 
+    @app.get("/citizen", response_class=HTMLResponse)
+    def citizen_page():
+        return (STATIC_DIR / "citizen.html").read_text()
+
     return app
 
 

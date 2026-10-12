@@ -91,3 +91,9 @@ def test_nothing_the_citizen_enters_is_kept(client):
     client.post("/api/civic/schemes/sg_silver_support/check", json={"inputs": SILVER_INPUTS})
     again = client.get("/api/civic/schemes/sg_silver_support/form").text
     assert "2400" not in again
+
+
+def test_citizen_page_is_served(client):
+    page = client.get("/citizen")
+    assert page.status_code == 200 and "Do I qualify?" in page.text
+    assert "fictional demo data" in page.text.lower()
