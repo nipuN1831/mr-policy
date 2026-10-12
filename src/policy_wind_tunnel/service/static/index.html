@@ -33,7 +33,9 @@
   .finding h3 { margin:0 0 6px; font-size:14px; }
   .quote { border-left:3px solid var(--accent); padding:4px 10px; margin:8px 0; color:#cbd5df; font-style:italic; white-space:pre-wrap; }
   table { width:100%; border-collapse:collapse; font-size:13px; }
-  th, td { text-align:left; padding:6px 8px; border-bottom:1px solid var(--line); }
+  th, td { text-align:left; padding:6px 8px; border-bottom:1px solid var(--line); vertical-align:top; }
+  .finding table { table-layout:fixed; }
+  .finding td pre { max-height:none; margin:0; }
   th { color:var(--muted); font-weight:600; }
   .bar { height:10px; border-radius:6px; background:#0b1015; border:1px solid var(--line); overflow:hidden; margin:4px 0 10px; }
   .bar > span { display:block; height:100%; }
@@ -67,7 +69,7 @@
   </section>
 
   <section class="wide">
-    <h2><span class="step">A</span>What-if: simulate a policy change</h2>
+    <h2><span class="step">&#9654;</span>What-if: simulate a policy change</h2>
     <div class="muted">Pick a proposed change. A synthetic applicant population is run through the old and the new policy, and the existing code is tested against the new policy. No behaviour is predicted: people are only re-decided under the new rules.</div>
     <div class="row">
       <select id="scenario"></select>
@@ -159,7 +161,9 @@ $("extract").onclick = async () => {
     const result = await api("/api/extract", { policy_text: $("policy").value, use_gold: $("useGold").checked });
     contract = result.contract;
     const c = result.critique;
-    $("extractNote").innerHTML = `<span class="ok">Contract from ${result.source}</span> after ${result.attempts} attempt(s).`;
+    $("extractNote").innerHTML = result.source === "gold"
+      ? '<span class="ok">Bundled hand-written contract loaded.</span> <span class="muted">Not extracted by an AI model.</span>'
+      : `<span class="ok">Contract extracted by Gemini</span> in ${result.attempts} attempt(s).`;
     const issues = [];
     if (c.uncited_clauses.length) issues.push("clauses with no rule: " + c.uncited_clauses.join(", "));
     if (c.unreachable_rules.length) issues.push("unreachable rules: " + c.unreachable_rules.join(", "));
