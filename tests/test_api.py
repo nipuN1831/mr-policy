@@ -126,6 +126,20 @@ def test_benchmark_reports_the_headline_numbers(client):
     assert len(body["rows"]) == 10
 
 
-def test_index_page_is_served(client):
+def test_landing_page_offers_both_paths(client):
     page = client.get("/")
     assert page.status_code == 200 and "Policy Wind Tunnel" in page.text
+    assert 'href="/citizen"' in page.text and 'href="/officials"' in page.text
+
+
+def test_officials_page_is_served_with_its_four_tabs(client):
+    page = client.get("/officials")
+    assert page.status_code == 200
+    for label in ("Policy", "What if we change it?", "Test the software", "How well does it work?"):
+        assert label in page.text
+
+
+def test_shared_stylesheet_is_served(client):
+    css = client.get("/static/app.css")
+    assert css.status_code == 200 and "--brand" in css.text
+    assert client.get("/static/does-not-exist.css").status_code == 404

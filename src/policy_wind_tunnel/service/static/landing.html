@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Policy Wind Tunnel</title>
+<link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+<header class="topbar"><div class="inner">
+  <a class="brand" href="/"><span class="logo">&#9783;</span>Policy Wind Tunnel</a>
+  <nav><a href="/citizen">For citizens</a><a href="/officials">For officials</a></nav>
+</div></header>
+<div class="wrap">
+  <div class="hero">
+    <h1>Test a rule before it reaches people.</h1>
+    <p>Public rules are written in words and run as software. Policy Wind Tunnel checks that the two agree, shows who a change would affect, and tells citizens in plain language whether they qualify and why.</p>
+  </div>
+  <div class="banner" id="demoNote">Demonstration with published rules and fictional people. Not legal advice and not an official decision.</div>
+
+  <div class="choice">
+    <a href="/citizen">
+      <div class="emoji">&#128587;</div>
+      <h2>I am a citizen</h2>
+      <p class="muted" style="font-size:16px">Find out what you may be entitled to, who handles your problem, and your rights.</p>
+      <ul>
+        <li><b>Do I qualify?</b> Answer a few questions and see the rule that applied.</li>
+        <li><b>What would change my answer?</b> The smallest change that would make a difference.</li>
+        <li><b>Who decides this?</b> The right office, helpline and next step.</li>
+      </ul>
+      <span class="go">Start as a citizen &rarr;</span>
+    </a>
+    <a href="/officials">
+      <div class="emoji">&#127963;</div>
+      <h2>I work on policy or software</h2>
+      <p class="muted" style="font-size:16px">Try a rule change on a synthetic population and test the code that runs the rule.</p>
+      <ul>
+        <li><b>What if we change it?</b> See who gets a different decision.</li>
+        <li><b>Test the software.</b> Boundary tests built from the rule itself.</li>
+        <li><b>Keep the proof.</b> Every failure becomes a regression test.</li>
+      </ul>
+      <span class="go">Start as an official &rarr;</span>
+    </a>
+  </div>
+
+  <h2 style="margin-top:34px">How it works</h2>
+  <ol class="steps">
+    <li><b>Write the rule down</b><div class="muted">A policy text becomes a contract of exact conditions, each tied to the sentence it came from.</div></li>
+    <li><b>A person approves</b><div class="muted">Unclear wording is flagged. A person decides what it means before anything is treated as a bug.</div></li>
+    <li><b>Run it every way</b><div class="muted">The same contract decides citizens, simulates changes and generates boundary tests.</div></li>
+    <li><b>Show the evidence</b><div class="muted">Every answer quotes the clause, with its source and date.</div></li>
+  </ol>
+  <p class="muted" style="margin-top:22px" id="llmNote"></p>
+</div>
+<script>
+fetch("/api/health").then((r) => r.json()).then((h) => {
+  document.getElementById("llmNote").textContent = h.llm
+    ? "Language model connected: policy text can be turned into a contract automatically."
+    : "Running on bundled, hand-written contracts. The language model is not connected in this session.";
+}).catch(() => {});
+</script>
+</body>
+</html>

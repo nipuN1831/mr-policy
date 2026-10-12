@@ -3,72 +3,40 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Policy Wind Tunnel - Citizen</title>
-<style>
-  :root { --bg:#0f1419; --panel:#171e26; --line:#2a3541; --text:#e6edf3; --muted:#8b98a5; --accent:#4cc2ff; --bad:#ff6b6b; --good:#3ddc97; --warn:#ffc857; }
-  * { box-sizing: border-box; }
-  body { margin:0; background:var(--bg); color:var(--text); font:15px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
-  a { color:var(--accent); }
-  header { padding:18px 28px; border-bottom:1px solid var(--line); display:flex; flex-wrap:wrap; gap:14px; align-items:center; justify-content:space-between; }
-  header h1 { margin:0; font-size:20px; }
-  nav a { margin-right:14px; text-decoration:none; }
-  .wrap { max-width:1100px; margin:0 auto; padding:20px 28px 60px; }
-  .banner { background:#3a2f12; border:1px solid #6b5518; color:#ffe9a8; border-radius:8px; padding:8px 12px; margin-bottom:14px; font-size:13px; }
-  .tabs { display:flex; flex-wrap:wrap; gap:8px; margin:14px 0; }
-  .tabs button, button, select, input { font:inherit; }
-  .tabs button { background:var(--panel); color:var(--text); border:1px solid var(--line); border-radius:8px; padding:8px 14px; cursor:pointer; }
-  .tabs button.on { background:var(--accent); color:#04202e; border-color:var(--accent); font-weight:600; }
-  section { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:16px 18px; margin-bottom:16px; }
-  section[hidden] { display:none; }
-  h2 { margin:0 0 8px; font-size:17px; }
-  h3 { margin:14px 0 6px; font-size:15px; }
-  .muted { color:var(--muted); font-size:13px; }
-  .row { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin:8px 0; }
-  button.primary { background:var(--accent); color:#04202e; border:0; border-radius:8px; padding:9px 16px; font-weight:600; cursor:pointer; }
-  button.ghost { background:transparent; color:var(--text); border:1px solid var(--line); border-radius:8px; padding:8px 14px; cursor:pointer; }
-  button:disabled { opacity:.5; cursor:wait; }
-  select, input[type=text], input[type=number] { background:#0b1015; color:var(--text); border:1px solid var(--line); border-radius:8px; padding:8px 10px; max-width:100%; }
-  input[type=number] { width:150px; }
-  .grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap:12px; }
-  .card { border:1px solid var(--line); border-radius:8px; padding:12px 14px; background:#12181f; min-width:0; overflow-wrap:anywhere; }
-  .card h3 { margin-top:0; }
-  .pill { display:inline-block; padding:2px 9px; border-radius:99px; font-size:12px; font-weight:600; margin-right:4px; }
-  .ok { color:var(--good); } .err { color:var(--bad); } .warn { color:var(--warn); }
-  .pill.good { background:#16352a; color:var(--good); } .pill.bad { background:#4a1f24; color:var(--bad); } .pill.warn { background:#4a3a14; color:var(--warn); }
-  .quote { border-left:3px solid var(--accent); padding:4px 10px; margin:8px 0; color:#cbd5df; font-style:italic; white-space:pre-wrap; overflow-wrap:anywhere; }
-  .field { display:flex; flex-direction:column; gap:4px; min-width:0; }
-  .field label { font-size:13px; color:var(--muted); }
-  .form { display:grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap:12px; }
-  .result { border:2px solid var(--line); border-radius:10px; padding:14px; margin-top:12px; }
-  .result.good { border-color:var(--good); } .result.bad { border-color:var(--bad); }
-  pre { background:#0b1015; border:1px solid var(--line); border-radius:8px; padding:10px; overflow:auto; white-space:pre-wrap; overflow-wrap:anywhere; font:12.5px/1.45 ui-monospace, Menlo, monospace; max-height:260px; }
-  ul { margin:6px 0 6px 20px; padding:0; }
-</style>
+<title>Policy Wind Tunnel - Citizens</title>
+<link rel="stylesheet" href="/static/app.css">
 </head>
 <body>
-<header>
-  <h1>Policy Wind Tunnel &middot; Citizen</h1>
-  <nav><a href="/">Officials</a><a href="/citizen">Citizens</a></nav>
-</header>
+<header class="topbar"><div class="inner">
+  <a class="brand" href="/"><span class="logo">&#9783;</span>Policy Wind Tunnel</a>
+  <nav><a href="/citizen" class="on">For citizens</a><a href="/officials">For officials</a></nav>
+</div></header>
 <div class="wrap">
-  <div class="banner">Information only. Not legal advice and not an official decision. Nothing you enter is stored. All representatives shown are fictional demo data.</div>
+  <div class="hero">
+    <h1>Know what you are entitled to</h1>
+    <p>Check whether you qualify for a scheme, see exactly which rule decided it, and find who handles your problem.</p>
+  </div>
+  <div class="banner">Information only. Not legal advice and not an official decision. Nothing you enter is stored. People shown are fictional demo data.</div>
+
   <div class="row">
-    <label for="country">Country</label>
+    <label for="country"><b>Country</b></label>
     <select id="country"></select>
-    <span class="muted" id="status"></span>
+    <span id="status"></span>
   </div>
   <div class="muted" id="notes"></div>
-  <div class="tabs" id="tabs">
+
+  <div class="tabs" id="tabs" style="margin-top:14px">
     <button data-tab="qualify" class="on">Do I qualify?</button>
-    <button data-tab="decides">Who decides this?</button>
-    <button data-tab="rights">Know my rights</button>
+    <button data-tab="decides">Who handles my problem?</button>
+    <button data-tab="rights">My rights</button>
     <button data-tab="bodies">How government is organised</button>
-    <button data-tab="leaders">Who represents me? (demo)</button>
+    <button data-tab="leaders">My representatives (demo)</button>
   </div>
 
   <section id="tab-qualify">
     <h2>Do I qualify?</h2>
-    <div class="row"><select id="scheme"></select></div>
+    <p class="lead">Pick a scheme and answer the questions. You get an answer and the exact published rule behind it.</p>
+    <div class="row"><select id="scheme" aria-label="Scheme"></select></div>
     <div class="muted" id="schemeSummary"></div>
     <div class="form" id="form"></div>
     <div class="row">
@@ -84,15 +52,16 @@
   </section>
 
   <section id="tab-decides" hidden>
-    <h2>Who decides this?</h2>
-    <div class="row"><input type="text" id="problemText" size="50" placeholder="Describe your problem, e.g. my bank refused a refund"><button class="primary" id="findBtn">Find</button></div>
+    <h2>Who handles my problem?</h2>
+    <p class="lead">Describe it in your own words, or browse the list.</p>
+    <div class="row"><input type="text" id="problemText" size="48" placeholder="For example: my bank refused a refund"><button class="primary" id="findBtn">Find</button></div>
     <div id="matches"></div>
     <h3>All problems</h3>
     <div class="grid" id="allProblems"></div>
   </section>
 
   <section id="tab-rights" hidden>
-    <h2>Know my rights</h2>
+    <h2>My rights</h2>
     <div class="grid" id="rights"></div>
   </section>
 
@@ -102,8 +71,8 @@
   </section>
 
   <section id="tab-leaders" hidden>
-    <h2>Who represents me? <span class="pill warn">demo data</span></h2>
-    <div class="muted">These people are invented to show the layout. Every fact on a real card would carry a source link and an "as of" date, with no scores or rankings.</div>
+    <h2>My representatives <span class="pill warn">demo data</span></h2>
+    <p class="lead">These people are invented to show the layout. On a real card every fact would link to its source with a date, with no scores and no rankings.</p>
     <div class="grid" id="leaders"></div>
   </section>
 </div>
@@ -144,7 +113,7 @@ function renderProblem(p) {
 }
 
 function renderPack() {
-  $("status").innerHTML = pack.status === "verified" ? '<span class="pill good">verified</span>' : '<span class="pill warn">partial: some content not yet verified</span>';
+  $("status").innerHTML = pack.status === "verified" ? '<span class="pill good">verified</span>' : '<span class="pill warn">partial: some content is not yet verified</span>';
   $("notes").innerHTML = pack.notes.length ? "<ul>" + pack.notes.map((n) => `<li>${esc(n)}</li>`).join("") + "</ul>" : "";
   $("allProblems").innerHTML = pack.problems.length ? pack.problems.map(renderProblem).join("") : empty("No problems verified for this country yet.");
   $("matches").innerHTML = "";
@@ -170,7 +139,7 @@ async function loadCountry(code) {
 
 function fieldInput(f) {
   const id = "f_" + f.name;
-  const note = f.changeable ? "" : '<span class="muted">(fixed: not something you can change)</span>';
+  const note = f.changeable ? "" : '<span class="pill warn" title="This cannot be changed, so it is never suggested as a way to qualify">fixed</span>';
   if (f.kind === "bool") return `<div class="field"><label for="${id}">${esc(f.label)} ${note}</label><select id="${id}"><option value="false"${f.typical ? "" : " selected"}>No</option><option value="true"${f.typical ? " selected" : ""}>Yes</option></select></div>`;
   if (f.kind === "enum") return `<div class="field"><label for="${id}">${esc(f.label)} ${note}</label><select id="${id}">${f.options.map((o) => `<option value="${esc(o.value)}"${o.value === f.typical ? " selected" : ""}>${esc(o.label)}</option>`).join("")}</select></div>`;
   const blank = f.nullable ? '<span class="muted">(leave empty if unknown)</span>' : "";
@@ -217,7 +186,7 @@ $("checkBtn").onclick = async () => {
     const r = await api(`/api/civic/schemes/${formSpec.id}/check`, { inputs: lastInputs });
     const reasons = r.reason_labels.length ? "<ul>" + r.reason_labels.map((x) => `<li>${esc(x)}</li>`).join("") + "</ul>" : "";
     const clauses = r.clauses.map((c) => `<div class="quote">${esc(c.quote)}</div><div class="muted">${esc(c.clause)}${c.reason ? " &middot; " + esc(c.reason) : ""}</div>`).join("");
-    $("result").innerHTML = `<div class="result ${r.favourable ? "good" : "bad"}"><h3 style="margin-top:0">${esc(r.outcome_label)}</h3>${reasons}<h3>Clause that applied</h3>${clauses}<div class="muted">${esc(r.disclaimer)}</div></div>`;
+    $("result").innerHTML = `<div class="result ${r.favourable ? "good" : "bad"}"><h3 style="margin-top:0">${esc(r.outcome_label)}</h3>${reasons}<h3>The rule that applied</h3>${clauses}<div class="muted">${esc(r.disclaimer)}</div></div>`;
     $("changeBtn").disabled = false;
   } catch (error) {
     $("result").innerHTML = '<div class="err">' + esc(error.message) + "</div>";

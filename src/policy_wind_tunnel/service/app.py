@@ -4,6 +4,7 @@ from typing import Any
 
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, ValidationError
 
 from policy_wind_tunnel.agents.approval import ApprovalError, decide_ambiguity
@@ -202,9 +203,15 @@ def create_app(llm: Any = _UNSET) -> FastAPI:
 
         return _scheme_call(scheme_id, run)
 
+    app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+
     @app.get("/", response_class=HTMLResponse)
     def index():
-        return (STATIC_DIR / "index.html").read_text()
+        return (STATIC_DIR / "landing.html").read_text()
+
+    @app.get("/officials", response_class=HTMLResponse)
+    def officials_page():
+        return (STATIC_DIR / "officials.html").read_text()
 
     @app.get("/citizen", response_class=HTMLResponse)
     def citizen_page():

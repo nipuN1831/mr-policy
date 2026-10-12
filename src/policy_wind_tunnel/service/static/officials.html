@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Policy Wind Tunnel - Officials</title>
+<link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+<header class="topbar"><div class="inner">
+  <a class="brand" href="/"><span class="logo">&#9783;</span>Policy Wind Tunnel</a>
+  <nav><a href="/citizen">For citizens</a><a href="/officials" class="on">For officials</a></nav>
+</div></header>
+<div class="wrap">
+  <div class="hero">
+    <h1>Test a rule before you ship it</h1>
+    <p>Load a policy, try a change on a synthetic population, and check that the software still follows the rule.</p>
+    <p class="muted" id="status"></p>
+  </div>
+  <div class="banner">The lending policy and every applicant here are fictional and synthetic. Percentages show how the mechanism works, not real-world forecasts.</div>
+
+  <div class="tabs" id="tabs">
+    <button data-tab="policy" class="on"><span class="num">1</span>Policy</button>
+    <button data-tab="whatif"><span class="num">2</span>What if we change it?</button>
+    <button data-tab="test"><span class="num">3</span>Test the software</button>
+    <button data-tab="bench"><span class="num">4</span>How well does it work?</button>
+  </div>
+
+  <div class="pane" id="tab-policy">
+    <section>
+      <h2>The policy and its contract</h2>
+      <p class="lead">The policy is plain text. The contract turns each sentence into an exact, checkable rule. Anything unclear is listed below for a person to decide.</p>
+      <textarea id="policy" spellcheck="false" aria-label="Policy text"></textarea>
+      <div class="row">
+        <button id="extract">Build the contract</button>
+        <label class="muted"><input type="checkbox" id="useGold"> use the bundled hand-written contract</label>
+      </div>
+      <div id="extractNote" class="muted"></div>
+    </section>
+    <section id="contractSection" hidden>
+      <h2>Review</h2>
+      <div id="critique" class="muted"></div>
+      <h3>Wording a person must decide</h3>
+      <div id="ambiguities"></div>
+      <div class="row"><button id="toggleJson" hidden>Show the contract as JSON</button></div>
+      <pre id="contractJson" hidden></pre>
+    </section>
+  </div>
+
+  <div class="pane" id="tab-whatif" hidden>
+    <section>
+      <h2>What happens if we change a rule?</h2>
+      <p class="lead">The same synthetic applicants are decided under the old rule and the new one. Nobody's behaviour is predicted, people are only re-decided.</p>
+      <div class="row">
+        <select id="scenario" aria-label="Proposed change"></select>
+        <select id="popSize" aria-label="Population size"><option value="2000">2,000 applicants</option><option value="5000" selected>5,000 applicants</option><option value="10000">10,000 applicants</option></select>
+        <button id="simulate">Simulate this change</button>
+      </div>
+      <div class="muted" id="scenarioDesc"></div>
+      <div id="whatifOut"></div>
+    </section>
+  </div>
+
+  <div class="pane" id="tab-test" hidden>
+    <section>
+      <h2>Does the software follow the policy?</h2>
+      <p class="lead">Tests are built from the rule's own boundaries: for each condition, two nearly identical people on either side of the line. One implementation is correct, and ten each hide one realistic bug.</p>
+      <div class="row">
+        <select id="target" aria-label="Implementation to test"></select>
+        <button id="run" disabled>Generate tests and run</button>
+      </div>
+      <div class="muted" id="runNote">Build the contract on the Policy tab first.</div>
+      <div id="summary"></div>
+    </section>
+    <section id="findingsSection" hidden>
+      <h2>What was found</h2>
+      <div id="findings"></div>
+      <h3>Regression tests, ready to keep</h3>
+      <div class="muted" id="regNote"></div>
+      <pre id="regSource"></pre>
+    </section>
+  </div>
+
+  <div class="pane" id="tab-bench" hidden>
+    <section>
+      <h2>Generated tests against hand-written tests</h2>
+      <p class="lead">Ten bugs were planted in copies of the lending engine. A hand-written suite and the generated suite each try to catch them.</p>
+      <div class="row"><button id="bench">Run the comparison</button></div>
+      <div id="benchOut"></div>
+    </section>
+  </div>
+</div>
+<script>
+const $ = (id) => document.getElementById(id);
+let contract = null;
+let scenarios = [];
+
+async function api(path, body) {
+  const options = body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : {};
+  const response = await fetch(path, options);
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(typeof data.detail === "string" ? data.detail : JSON.stringify(data.detail || data));
+  return data;
+}
+const esc = (value) => String(value).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+function showTab(name) {
+  document.querySelectorAll("#tabs button").forEach((b) => b.classList.toggle("on", b.dataset.tab === name));
+  ["policy", "whatif", "test", "bench"].forEach((t) => ($("tab-" + t).hidden = t !== name));
+}
+document.querySelectorAll("#tabs button").forEach((b) => (b.onclick = () => showTab(b.dataset.tab)));
+
+async function init() {
+  const [health, demo] = await Promise.all([api("/api/health"), api("/api/demo")]);
+  $("status").innerHTML = health.llm
+    ? '<span class="pill good">Gemini connected</span>'
+    : '<span class="pill warn">Gemini not connected</span> the bundled hand-written contract is used';
+  if (!health.llm) $("useGold").checked = true;
+  $("policy").value = demo.policy_text;
+  scenarios = demo.scenarios;
+  $("scenario").innerHTML = scenarios.map((s) => `<option value="${esc(s.id)}">${esc(s.title)}</option>`).join("");
+  $("scenarioDesc").textContent = scenarios[0].description;
+  $("target").innerHTML = demo.targets
+    .map((t) => `<option value="${esc(t.id)}">${t.id === "reference" ? "Correct implementation" : esc(t.id.replace(/^M\d+_/, "").replace(/_/g, " ")) + " (" + esc(t.clause) + ")"}</option>`)
+    .join("");
+  $("target").title = "";
+}
+
+function renderAmbiguities() {
+  $("ambiguities").innerHTML = contract.ambiguities
+    .map(
+      (a) => `<div class="amb"><div class="q">${esc(a.clause)}: ${esc(a.question)}</div>
+      <div class="muted">${esc(a.resolution)}</div>
+      <div class="row"><span class="pill ${a.status === "approved" ? "good" : a.status === "rejected" ? "bad" : "warn"}">${a.status}</span>
+      <button class="secondary" data-id="${esc(a.id)}" data-status="approved">Approve</button>
+      <button class="secondary" data-id="${esc(a.id)}" data-status="rejected">Reject</button></div></div>`
+    )
+    .join("");
+  document.querySelectorAll("#ambiguities button").forEach((button) => {
+    button.onclick = async () => {
+      const result = await api("/api/approve", { contract, ambiguity_id: button.dataset.id, status: button.dataset.status });
+      contract = result.contract;
+      renderAmbiguities();
+    };
+  });
+}
+
+$("extract").onclick = async () => {
+  $("extract").disabled = true;
+  $("extractNote").textContent = "Working...";
+  try {
+    const result = await api("/api/extract", { policy_text: $("policy").value, use_gold: $("useGold").checked });
+    contract = result.contract;
+    const c = result.critique;
+    $("extractNote").innerHTML = result.source === "gold"
+      ? '<span class="ok">Bundled hand-written contract loaded.</span> It was not extracted by an AI model.'
+      : `<span class="ok">Contract extracted by Gemini</span> in ${result.attempts} attempt(s).`;
+    const issues = [];
+    if (c.uncited_clauses.length) issues.push("clauses with no rule: " + c.uncited_clauses.join(", "));
+    if (c.unreachable_rules.length) issues.push("rules that can never apply: " + c.unreachable_rules.join(", "));
+    if (c.uncovered_input) issues.push("an applicant no rule decides: " + JSON.stringify(c.uncovered_input));
+    $("critique").innerHTML = issues.length
+      ? '<span class="err"><b>Problems found:</b></span> ' + esc(issues.join("; "))
+      : '<span class="ok"><b>Complete.</b></span> Every clause has a rule, every rule can apply, and every applicant gets a decision (checked with a solver).';
+    renderAmbiguities();
+    $("contractSection").hidden = false;
+    $("contractJson").textContent = JSON.stringify(contract, null, 2);
+    $("toggleJson").hidden = false;
+    $("run").disabled = false;
+    $("runNote").textContent = "Pick an implementation and run the tests.";
+  } catch (error) {
+    $("extractNote").innerHTML = '<span class="err">' + esc(error.message) + "</span>";
+  } finally {
+    $("extract").disabled = false;
+  }
+};
+
+$("toggleJson").onclick = () => {
+  $("contractJson").hidden = !$("contractJson").hidden;
+  $("toggleJson").textContent = $("contractJson").hidden ? "Show the contract as JSON" : "Hide the contract JSON";
+};
+
+function renderFinding(cluster) {
+  const r = cluster.representative;
+  return `<div class="finding"><h3>${esc(cluster.summary)}</h3>
+    <div><span class="pill ${cluster.severity}">${cluster.severity}</span><span class="pill ${cluster.verdict === "defect" ? "bad" : "warn"}">${cluster.verdict.replace("_", " ")}</span></div>
+    <div class="quote">${esc(r.source_quote || "(no quote recorded)")}</div>
+    <div class="muted">Policy clause ${esc(cluster.clause)}, rule ${esc(r.rule_id)}, ${cluster.count} failing input(s) in this group</div>
+    <table><tr><th>Smallest failing example</th><th>The contract says</th><th>The software did</th></tr>
+    <tr><td><pre>${esc(JSON.stringify(r.inputs, null, 1))}</pre></td>
+    <td><pre>${esc(JSON.stringify(r.expected, null, 1))}</pre></td>
+    <td><pre>${esc(JSON.stringify(r.actual, null, 1))}</pre></td></tr></table></div>`;
+}
+
+$("run").onclick = async () => {
+  $("run").disabled = true;
+  $("runNote").textContent = "Building boundary tests and running them...";
+  try {
+    const result = await api("/api/run", { target: $("target").value, contract });
+    $("runNote").innerHTML = "";
+    $("summary").innerHTML = `<div class="tiles">
+      <div class="tile"><div class="big">${result.cases}</div><div class="label">tests generated</div></div>
+      <div class="tile ${result.findings ? "bad" : "good"}"><div class="big">${result.findings}</div><div class="label">tests failed</div></div>
+      <div class="tile"><div class="big">${result.defects}</div><div class="label">distinct defects</div></div>
+      <div class="tile"><div class="big">${result.needs_clarification}</div><div class="label">need a person to clarify the wording</div></div></div>`;
+    $("findingsSection").hidden = false;
+    $("findings").innerHTML = result.clusters.length
+      ? result.clusters.map(renderFinding).join("")
+      : '<div class="result good"><h3>No differences found</h3>The software matches the approved contract on every generated test.</div>';
+    const reg = result.regression;
+    $("regNote").innerHTML = reg.tests
+      ? `<span class="ok">${reg.failing_on_buggy} of ${reg.tests} fail on this software and ${reg.passing_on_fixed} of ${reg.tests} pass on the correct one.</span>`
+      : "No defects, so no regression tests are needed.";
+    $("regSource").textContent = reg.source;
+  } catch (error) {
+    $("runNote").innerHTML = '<span class="err">' + esc(error.message) + "</span>";
+  } finally {
+    $("run").disabled = false;
+  }
+};
+
+$("bench").onclick = async () => {
+  $("bench").disabled = true;
+  $("benchOut").textContent = "Running...";
+  try {
+    const b = await api("/api/benchmark");
+    const pct = (x) => Math.round(x * 100);
+    const rows = b.rows
+      .map((r) => `<tr><td>${esc(r.description)}</td><td>${esc(r.clause)}</td>
+        <td class="${r.generated_killed ? "ok" : "err"}">${r.generated_killed ? "caught" : "missed"}</td>
+        <td class="${r.baseline_killed ? "ok" : "err"}">${r.baseline_killed ? "caught" : "missed"}</td></tr>`)
+      .join("");
+    $("benchOut").innerHTML = `
+      <div class="tiles">
+        <div class="tile good"><div class="big">${pct(b.recall)}%</div><div class="label">of planted bugs caught by the generated suite (${b.cases} tests)</div></div>
+        <div class="tile bad"><div class="big">${pct(b.baseline_recall)}%</div><div class="label">caught by the hand-written suite (${b.baseline_cases} tests)</div></div>
+        <div class="tile"><div class="big">${b.false_positives}</div><div class="label">false alarms on the correct software</div></div>
+        <div class="tile"><div class="big">${pct(b.regression_valid)}%</div><div class="label">of regression tests valid</div></div>
+      </div>
+      <table><tr><th>Planted bug</th><th>Clause</th><th>Generated</th><th>Hand-written</th></tr>${rows}</table>
+      <p class="muted">The bugs, the hand-written suite and the generator were all written by the same team, so this shows recall on known kinds of bug only.</p>`;
+  } catch (error) {
+    $("benchOut").innerHTML = '<span class="err">' + esc(error.message) + "</span>";
+  } finally {
+    $("bench").disabled = false;
+  }
+};
+
+const countsTable = (counts) => {
+  const entries = Object.entries(counts);
+  return entries.length ? entries.map(([k, v]) => `${esc(k)}: <b>${v}</b>`).join(" &nbsp; ") : "none";
+};
+const exampleRow = (example) => {
+  const p = example.inputs;
+  const brief = `age ${p.age}, ${p.employment.replace("_", "-")}, income ${p.monthly_income.toLocaleString()}, score ${p.credit_score ?? "none"}`;
+  return `<tr><td>${esc(brief)}</td><td>${esc(example.before.outcome)} ${esc(example.before.reasons.join(", "))}</td>
+    <td class="err">${esc(example.after.outcome)} ${esc(example.after.reasons.join(", "))}</td></tr>`;
+};
+
+$("scenario").onchange = () => {
+  const chosen = scenarios.find((s) => s.id === $("scenario").value);
+  $("scenarioDesc").textContent = chosen ? chosen.description : "";
+};
+
+$("simulate").onclick = async () => {
+  $("simulate").disabled = true;
+  $("whatifOut").textContent = "Simulating...";
+  try {
+    const b = await api("/api/whatif", { scenario: $("scenario").value, population: Number($("popSize").value), contract: contract || undefined, use_gold: !contract });
+    const s = b.simulation, code = b.code_impact;
+    const rate = (s.flip_rate * 100).toFixed(1);
+    const health = b.health.uncovered_input || b.health.unreachable_rules.length
+      ? '<span class="err">The changed policy has gaps: ' + esc(JSON.stringify(b.health)) + "</span>"
+      : '<span class="ok">The changed policy is complete: every applicant is decided and every rule can apply.</span>';
+    const bars = (counts) => Object.entries(counts).map(([k, v]) => {
+      const share = (v / s.population) * 100;
+      return `<div class="muted">${esc(k)}: ${v.toLocaleString()} (${share.toFixed(1)}%)</div><div class="bar"><span style="width:${share}%"></span></div>`;
+    }).join("");
+    $("whatifOut").innerHTML = `
+      <div class="tiles">
+        <div class="tile bad"><div class="big">${s.flipped.toLocaleString()}</div><div class="label">of ${s.population.toLocaleString()} applicants (${rate}%) get a different decision</div></div>
+        <div class="tile"><div class="big">${s.reason_only_changes.toLocaleString()}</div><div class="label">keep their decision but gain or lose a rejection reason</div></div>
+        <div class="tile ${code.failing_cases ? "bad" : "good"}"><div class="big">${code.failing_cases}</div><div class="label">of ${code.cases} software tests would fail under the new rule</div></div>
+      </div>
+      <div class="row" style="align-items:flex-start"><div style="flex:1;min-width:260px"><b>Before</b>${bars(s.before)}</div><div style="flex:1;min-width:260px"><b>After</b>${bars(s.after)}</div></div>
+      <p><b>Who moves:</b> ${countsTable(s.transitions)}</p>
+      <table><tr><th>Example applicant</th><th>Before</th><th>After</th></tr>${s.examples.map(exampleRow).join("")}</table>
+      <p>${health}</p>
+      <p>${code.failing_cases === 0
+        ? '<span class="ok">The current software already satisfies the new rule.</span>'
+        : `<b>The software would need to change</b> for clause ${esc(code.clauses.join(", "))}. ${code.regression_tests} regression test(s) are ready to drive that change.`}</p>`;
+  } catch (error) {
+    $("whatifOut").innerHTML = '<span class="err">' + esc(error.message) + "</span>";
+  } finally {
+    $("simulate").disabled = false;
+  }
+};
+
+init().catch((error) => ($("status").innerHTML = '<span class="err">' + esc(error.message) + "</span>"));
+</script>
+</body>
+</html>
