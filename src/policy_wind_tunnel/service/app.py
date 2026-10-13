@@ -1,3 +1,4 @@
+import datetime
 import os
 from pathlib import Path
 from typing import Any
@@ -14,6 +15,13 @@ from policy_wind_tunnel.civic import eligibility as civic_eligibility
 from policy_wind_tunnel.civic.counterfactual import nearest_changes
 from policy_wind_tunnel.civic.lookup import find_problems, find_representatives
 from policy_wind_tunnel.civic.packs import available_countries, load_pack
+from policy_wind_tunnel.civic.research import (
+    GeminiSearcher,
+    ResearchRefused,
+    lookup_government,
+    lookup_representatives,
+    refuse_if_judgement,
+)
 from policy_wind_tunnel.contract.evaluator import ContractError
 from policy_wind_tunnel.contract.gold import LENDING_CONTRACT
 from policy_wind_tunnel.contract.models import Contract
@@ -54,6 +62,11 @@ class ChangeRequest(BaseModel):
     lock: list[str] | None = None
 
 
+class LeaderLookupRequest(BaseModel):
+    country: str
+    place: str = Field(default="", max_length=120)
+
+
 class ApproveRequest(BaseModel):
     contract: dict[str, Any]
     ambiguity_id: str
@@ -79,8 +92,15 @@ def _load_contract(payload: dict[str, Any] | None, use_gold: bool) -> Contract:
         raise HTTPException(422, detail=error.errors(include_url=False, include_context=False)[:5]) from error
 
 
-def create_app(llm: Any = _UNSET) -> FastAPI:
+def live_leaders_enabled() -> bool:
+    return os.environ.get("PWT_LIVE_LEADERS", "1") != "0"
+
+
+def create_app(llm: Any = _UNSET, searcher: Any = _UNSET) -> FastAPI:
     model = llm_from_environment() if llm is _UNSET else llm
+    if searcher is _UNSET:
+        searcher = GeminiSearcher(os.environ.get("PWT_MODEL", "gemini-3.8-flash")) if model is not None else None
+    lookup_cache: dict[tuple[str, str], dict[str, Any]] = {}
     app = FastAPI(title="Policy Wind Tunnel")
 
     @app.get("/api/health")
@@ -182,6 +202,44 @@ def create_app(llm: Any = _UNSET) -> FastAPI:
             "notice": "These representatives are fictional demo data. No real person is shown.",
             "representatives": [r.model_dump() for r in found],
         }
+
+    def _live() -> bool:
+        return searcher is not None and live_leaders_enabled()
+
+    @app.get("/api/civic/leaders/status")
+    def leaders_status():
+        return {"live": _live()}
+
+    @app.post("/api/civic/leaders/lookup")
+    def leaders_lookup(request: LeaderLookupRequest):
+        if not _live():
+            raise HTTPException(503, detail="Live lookup needs Gemini to be connected, and is switched off otherwise.")
+        pack = _pack(request.country)
+        place = " ".join(request.place.split())
+        if not place:
+            raise HTTPException(422, detail="Enter a place, such as a constituency or town.")
+        try:
+            refuse_if_judgement(place)
+        except ResearchRefused as error:
+            raise HTTPException(422, detail=str(error)) from error
+        key = (pack.code, place.lower())
+        if key not in lookup_cache:
+            as_of = datetime.date.today().isoformat()
+            try:
+                people = lookup_representatives(searcher, pack.name, place, as_of)
+                bodies = lookup_government(searcher, pack.name, place, as_of)
+            except Exception as error:  # noqa: BLE001 - network and model failures must not become a 500
+                raise HTTPException(502, detail=f"The web search did not complete: {type(error).__name__}") from error
+            lookup_cache[key] = {
+                "country": pack.code,
+                "place": place,
+                "representatives": people["representatives"],
+                "bodies": bodies["bodies"],
+                "dropped": people["dropped"] + bodies["dropped"],
+                "notice": people["notice"],
+                "as_of": as_of,
+            }
+        return lookup_cache[key]
 
     @app.get("/api/civic/schemes")
     def civic_schemes():

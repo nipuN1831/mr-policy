@@ -17,6 +17,7 @@ class Source(Strict):
     title: str
     as_of: str
     checked: bool = True
+    grounded: bool = False
 
     @field_validator("url")
     @classmethod
@@ -118,8 +119,8 @@ class Representative(Strict):
     @model_validator(mode="after")
     def real_people_need_checked_sources(self) -> "Representative":
         if not self.fictional:
-            if not self.record or not all(fact.source.checked for fact in self.record):
-                raise ValueError("a real person needs a record in which every fact has a checked source")
+            if not self.record or not all(fact.source.checked or fact.source.grounded for fact in self.record):
+                raise ValueError("a real person needs a record in which every fact has a checked or search-grounded source")
         return self
 
 

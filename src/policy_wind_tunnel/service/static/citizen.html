@@ -33,7 +33,7 @@
     <button data-tab="decides">Who handles my problem?</button>
     <button data-tab="rights">My rights</button>
     <button data-tab="bodies">How government is organised</button>
-    <button data-tab="leaders">My representatives (demo)</button>
+    <button data-tab="leaders">My area: who represents me</button>
   </div>
 
   <section id="tab-qualify">
@@ -61,8 +61,12 @@
   </section>
 
   <section id="tab-leaders" hidden>
-    <h2>My representatives <span class="pill warn">demo data</span></h2>
-    <p class="lead">These people are invented to show the layout. On a real card every fact would link to its source with a date, with no scores and no rankings.</p>
+    <h2>My area: who represents me, and who decides</h2>
+    <p class="lead">Type your constituency, town or district. Live results come from a web search and every fact links to the page it came from.</p>
+    <div id="liveBox"></div>
+    <div id="liveOut" aria-live="polite"></div>
+    <h3>Demo layout <span class="pill warn">fictional people</span></h3>
+    <p class="muted">These people are invented to show the layout. They are always available, even when live search is off.</p>
     <div class="grid" id="leaders"></div>
   </section>
 
@@ -265,6 +269,48 @@ async function showChange() {
   }
 }
 
+async function initLive() {
+  let live = false;
+  try { live = (await api("/api/civic/leaders/status")).live; } catch (e) { live = false; }
+  $("liveBox").innerHTML = live
+    ? `<div class="row"><input type="text" id="placeText" size="40" aria-label="Your constituency, town or district" placeholder="For example: Marine Parade GRC"><button class="primary" id="placeBtn">Look up</button></div>
+       <p class="muted">The search describes the place and its officials. It never rates, ranks or comments on anyone, and it will refuse if asked to.</p>`
+    : `<div class="note">Live lookup is off. It needs Gemini web search, which is not connected in this session, so only the fictional demo layout below is shown.</div>`;
+  if (!live) return;
+  const run = async () => {
+    const place = $("placeText").value.trim();
+    if (!place) { $("liveOut").innerHTML = '<p class="err" role="alert">Enter a place first.</p>'; return; }
+    $("placeBtn").disabled = true;
+    $("liveOut").innerHTML = '<p class="muted" role="status">Searching the web. This can take up to a minute...</p>';
+    try {
+      const r = await api("/api/civic/leaders/lookup", { country: $("country").value, place });
+      renderLive(r);
+    } catch (error) {
+      $("liveOut").innerHTML = `<div class="result bad"><h3 style="margin-top:0">No result</h3><p class="err">${esc(error.message)}</p></div>`;
+    } finally { $("placeBtn").disabled = false; }
+  };
+  $("placeBtn").onclick = run;
+  $("placeText").addEventListener("keydown", (e) => { if (e.key === "Enter") run(); });
+}
+
+function renderLive(r) {
+  const people = r.representatives.map((p) => `<div class="card"><h3>${esc(p.name)}</h3>
+    <span class="pill good">found by search</span>
+    <div>${esc(p.role)}${p.body ? ", " + esc(p.body) : ""}</div>
+    <div class="muted">${esc(p.constituency)}${p.party ? " &middot; " + esc(p.party) : ""}${p.terms != null ? " &middot; terms: " + p.terms : ""}</div>
+    <ul>${p.record.map((f) => `<li><b>${esc(f.label)}:</b> ${esc(f.value)} <a href="${esc(f.source.url)}" target="_blank" rel="noopener noreferrer">${esc(f.source.title)}</a></li>`).join("")}</ul>
+    ${Object.entries(p.handles).map(([k, v]) => `<div class="muted">${esc(k)}: @${esc(v)} (link only)</div>`).join("")}
+    <div class="muted">As of ${esc(r.as_of)}</div></div>`).join("");
+  const bodies = r.bodies.map((b) => `<div class="card"><h3>${esc(b.name)}</h3><span class="pill good">${esc(b.level)}</span>
+    <p class="muted" style="margin:6px 0">Responsible for:</p><ul>${b.handles.map((h) => `<li>${esc(h)}</li>`).join("")}</ul>
+    ${b.contact_url ? `<div><a href="${esc(b.contact_url)}" target="_blank" rel="noopener noreferrer">Official contact page</a></div>` : ""}
+    <div style="margin-top:8px">${sourceChip(b.source)}</div></div>`).join("");
+  $("liveOut").innerHTML = `<div class="note">${esc(r.notice)}</div>
+    <h3>Representatives for ${esc(r.place)}</h3>${people ? '<div class="grid">' + people + "</div>" : empty("No representative could be confirmed from a source for this place.")}
+    <h3>Bodies that decide everyday matters</h3>${bodies ? '<div class="grid">' + bodies + "</div>" : empty("No body could be confirmed from a source for this place.")}
+    ${r.dropped ? `<p class="muted">${r.dropped} item(s) were left out because they had no matching source.</p>` : ""}`;
+}
+
 $("findBtn").onclick = async () => {
   const text = $("problemText").value.trim();
   if (!text) { $("matches").innerHTML = ""; return; }
@@ -275,7 +321,7 @@ $("problemText").addEventListener("keydown", (e) => { if (e.key === "Enter") $("
 
 async function loadCountry(code) { pack = await api("/api/civic/countries/" + code); renderReference(); }
 $("scheme").onchange = openScheme;
-$("country").onchange = () => loadCountry($("country").value);
+$("country").onchange = () => { loadCountry($("country").value); if ($("liveOut")) $("liveOut").innerHTML = ""; };
 
 (async function init() {
   const countries = await api("/api/civic/countries");
@@ -285,6 +331,7 @@ $("country").onchange = () => loadCountry($("country").value);
   await loadCountry(preferred.code);
   const wanted = location.hash.replace("#", "");
   if (["decides", "rights", "bodies", "leaders"].includes(wanted)) showTab(wanted);
+  initLive();
 })().catch((e) => ($("status").innerHTML = '<span class="err">' + esc(e.message) + "</span>"));
 </script>
 </body>
