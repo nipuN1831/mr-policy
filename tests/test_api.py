@@ -23,7 +23,9 @@ def offline_client():
 
 
 def test_health(client):
-    assert client.get("/api/health").json() == {"status": "ok", "llm": True}
+    body = client.get("/api/health").json()
+    assert body["status"] == "ok" and body["llm"] is True
+    assert {"model", "credentials"} <= body.keys()
 
 
 def test_health_reports_missing_llm(offline_client):

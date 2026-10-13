@@ -1,5 +1,4 @@
 import datetime
-import os
 from pathlib import Path
 from typing import Any
 
@@ -8,6 +7,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, ValidationError
 
+from policy_wind_tunnel import settings
 from policy_wind_tunnel.agents.approval import ApprovalError, decide_ambiguity
 from policy_wind_tunnel.agents.extractor import ExtractionError
 from policy_wind_tunnel.agents.llm import LLM, GeminiLLM
@@ -75,10 +75,7 @@ class ApproveRequest(BaseModel):
 
 
 def llm_from_environment() -> LLM | None:
-    configured = os.environ.get("GOOGLE_API_KEY") or os.environ.get("GOOGLE_GENAI_USE_VERTEXAI") or os.environ.get(
-        "GOOGLE_CLOUD_PROJECT"
-    )
-    return GeminiLLM(os.environ.get("PWT_MODEL", "gemini-3.8-flash")) if configured else None
+    return GeminiLLM(settings.model_name()) if settings.credential_mode() != "none" else None
 
 
 def _load_contract(payload: dict[str, Any] | None, use_gold: bool) -> Contract:
@@ -93,19 +90,20 @@ def _load_contract(payload: dict[str, Any] | None, use_gold: bool) -> Contract:
 
 
 def live_leaders_enabled() -> bool:
-    return os.environ.get("PWT_LIVE_LEADERS", "1") != "0"
+    return settings.live_leaders_enabled()
 
 
 def create_app(llm: Any = _UNSET, searcher: Any = _UNSET) -> FastAPI:
     model = llm_from_environment() if llm is _UNSET else llm
     if searcher is _UNSET:
-        searcher = GeminiSearcher(os.environ.get("PWT_MODEL", "gemini-3.8-flash")) if model is not None else None
+        searcher = GeminiSearcher(settings.model_name()) if model is not None else None
     lookup_cache: dict[tuple[str, str], dict[str, Any]] = {}
     app = FastAPI(title="Policy Wind Tunnel")
 
     @app.get("/api/health")
     def health():
-        return {"status": "ok", "llm": model is not None}
+        info = settings.describe()
+        return {"status": "ok", "llm": model is not None, "model": info["model"], "credentials": info["credentials"]}
 
     @app.get("/api/demo")
     def demo():
@@ -282,4 +280,5 @@ def create_app(llm: Any = _UNSET, searcher: Any = _UNSET) -> FastAPI:
     return app
 
 
+settings.load_env()
 app = create_app()
