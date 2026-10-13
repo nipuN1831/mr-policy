@@ -1,6 +1,6 @@
 from typing import Any, Protocol
 
-DEFAULT_MODEL = "gemini-3.8-flash"
+from policy_wind_tunnel.settings import DEFAULT_MODEL
 
 
 class LLM(Protocol):

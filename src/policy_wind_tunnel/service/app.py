@@ -125,6 +125,8 @@ def create_app(llm: Any = _UNSET, searcher: Any = _UNSET) -> FastAPI:
             return orchestrator.run_payload(contract, request.target)
         except orchestrator.UnknownTarget as error:
             raise HTTPException(404, detail=f"unknown target {request.target}") from error
+        except orchestrator.ContractMismatch as error:
+            raise HTTPException(422, detail=str(error)) from error
 
     @app.post("/api/whatif")
     def whatif(request: WhatIfRequest):
@@ -141,7 +143,7 @@ def create_app(llm: Any = _UNSET, searcher: Any = _UNSET) -> FastAPI:
             raise HTTPException(422, detail="supply a scenario or changes")
         try:
             return orchestrator.whatif_payload(contract, changes, request.population, scenario)
-        except ChangeError as error:
+        except (ChangeError, orchestrator.ContractMismatch) as error:
             raise HTTPException(422, detail=str(error)) from error
 
     @app.post("/api/approve")
@@ -228,7 +230,7 @@ def create_app(llm: Any = _UNSET, searcher: Any = _UNSET) -> FastAPI:
                 bodies = lookup_government(searcher, pack.name, place, as_of)
             except Exception as error:  # noqa: BLE001 - network and model failures must not become a 500
                 raise HTTPException(502, detail=f"The web search did not complete: {type(error).__name__}") from error
-            lookup_cache[key] = {
+            found = {
                 "country": pack.code,
                 "place": place,
                 "representatives": people["representatives"],
@@ -238,6 +240,9 @@ def create_app(llm: Any = _UNSET, searcher: Any = _UNSET) -> FastAPI:
                 "notice": people["notice"],
                 "as_of": as_of,
             }
+            if not found["representatives"] and not found["bodies"]:
+                return found
+            lookup_cache[key] = found
         return lookup_cache[key]
 
     @app.get("/api/civic/schemes")

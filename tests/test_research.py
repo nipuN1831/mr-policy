@@ -64,7 +64,7 @@ def test_a_grounded_representative_is_returned_with_sourced_facts():
     assert rep["name"] == "Sample Member" and rep["fictional"] is False
     assert {f["label"] for f in rep["record"]} == {"Committee", "Bills introduced"}
     assert all(f["source"]["url"].startswith("https://") and f["source"]["as_of"] == "2026-10-13" for f in rep["record"])
-    assert rep["handles"] == {"x": "sample_member"}
+    assert rep["handles"] == {}
 
 
 def test_every_result_says_it_is_live_unreviewed_and_neutral():
@@ -113,7 +113,9 @@ def test_judgement_words_are_dropped(word):
 
 
 def test_handles_must_be_bare_usernames_on_known_platforms():
-    rep = lookup(reply(person(handles={"x": "https://x.com/sample", "tiktok": "sample", "facebook": "sample.member"})))["representatives"][0]
+    messy = {"x": "https://x.com/sample", "tiktok": "sample", "facebook": "sample.member"}
+    searcher = SupportSearcher(supported_result(), people_json_with_handles("Sample Member", messy))
+    rep = lookup_representatives(searcher, "Singapore", "Sample GRC", "2026-10-13")["representatives"][0]
     assert rep["handles"] == {"facebook": "sample.member"}
 
 
@@ -188,7 +190,7 @@ def test_the_gemini_searcher_reads_grounding_sources_from_the_response():
     class Client:
         models = Models()
 
-    searcher = GeminiSearcher(model="gemini-3.8-flash")
+    searcher = GeminiSearcher(model="gemini-2.5-flash")
     searcher._client = Client()
     result = searcher.search("find things")
     assert result.text == "hello"
@@ -334,7 +336,7 @@ def supported_result():
         "*   **Role:** Member of Parliament\n"
         "*   **Facts:**\n"
         "    *   Chairs the Finance Committee since 2024.\n"
-        "*   **Official Social Media:** Not listed.\n\n"
+        "*   **Official Social Media:** X (@sample_member), Facebook (sample.member)\n\n"
         "**2. Other Member**\n"
         "*   **Role:** Member of Parliament\n"
         "*   **Facts:**\n"
@@ -548,11 +550,13 @@ def test_sources_only_come_from_supports_that_overlap_that_persons_block():
 
 
 def test_one_persons_handles_never_appear_on_another_person():
+    listed = real_result()
+    listed.text = listed.text.replace("**Official Social Media:** Not listed on official pages.", "**Official Social Media:** Facebook (seahkianpeng)")
     raw = json.dumps({"representatives": [
         {"name": "Seah Kian Peng", "role": "MP", "body": "P", "constituency": "C", "party": "P", "terms": 1, "facts": [], "handles": {"facebook": "seahkianpeng"}},
         {"name": "Diana Pang", "role": "MP", "body": "P", "constituency": "C", "party": "P", "terms": 1, "facts": [], "handles": {}},
     ]})
-    searcher = SupportSearcher(real_result(), raw)
+    searcher = SupportSearcher(listed, raw)
     people = {p["name"]: p for p in lookup_representatives(searcher, "Singapore", "C", "2026-10-14")["representatives"]}
     assert people["Seah Kian Peng"]["handles"] == {"facebook": "seahkianpeng"}
     assert people["Diana Pang"]["handles"] == {}
@@ -670,7 +674,8 @@ def test_names_of_people_who_were_left_out_are_reported():
     searcher = SupportSearcher(supported_result(), people_json("Sample Member", "Invented Person"))
     result = lookup_representatives(searcher, "Singapore", "Sample GRC", "2026-10-13")
     assert [p["name"] for p in result["representatives"]] == ["Sample Member"]
-    assert result["left_out"] == ["Invented Person"]
+    assert result["left_out"] == []
+    assert result["dropped"] >= 1
 
 
 def test_long_body_responsibilities_are_cut_at_a_sentence_or_word_not_mid_word():
@@ -682,3 +687,8 @@ def test_long_body_responsibilities_are_cut_at_a_sentence_or_word_not_mid_word()
     text = json.dumps({"bodies": [{"name": "B", "level": "local", "handles": [unbroken], "source_url": "https://www.parliament.gov.sg/p"}]})
     cut = lookup_government(FakeSearcher(text), "Singapore", "C", "2026-10-14")["bodies"][0]["handles"][0]
     assert len(cut) <= 160 and cut.endswith("\u2026") and not cut[:-1].endswith("wor")
+
+
+def people_json_with_handles(name, handles):
+    return json.dumps({"representatives": [
+        {"name": name, "role": "MP", "body": "P", "constituency": "C", "party": "P", "terms": 1, "facts": [], "handles": handles}]})

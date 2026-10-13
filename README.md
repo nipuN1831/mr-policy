@@ -60,8 +60,8 @@ flowchart LR
 
 | Piece | Where | Why |
 |---|---|---|
-| Gemini (`gemini-3.8-flash`) | `agents/llm.py`, `agents/extractor.py`, `agents/critic.py` | Drafts a contract from policy text, with a repair loop that feeds validation errors back. Every rule must quote the policy verbatim or it is rejected. |
-| Gemini with Google Search grounding | `civic/research.py` | Live lookup of representatives and local bodies. Facts are kept only if their page matches a site the search actually returned. |
+| Gemini (`gemini-2.5-flash`) | `agents/llm.py`, `agents/extractor.py`, `agents/critic.py` | Drafts a contract from policy text, with a repair loop that feeds validation errors back. Every rule must quote the policy verbatim or it is rejected. |
+| Gemini with Google Search grounding | `civic/research.py` | Live lookup of representatives and local bodies in two steps: a grounded free-text search, then a structuring call that may cite only sites the search returned. Each person gets only the pages the search tied to their own entry. Social media and aggregator sites are never cited. |
 | Cloud Run | not deployed yet | Planned host for the FastAPI service. `TODO: add a Dockerfile and deploy notes, then update this row.` |
 | Z3 | `adversary/symbolic.py`, `adversary/mcdc.py` | Gap and dead-rule checks, boundary-pair test generation, and the minimal-change search. |
 
@@ -78,7 +78,7 @@ Measured by the benchmark in `evaluation/harness.py`, and shown live on the land
 | False alarms on the correct software | 0 | n/a |
 | Regression tests valid (fail on bug, pass on fix) | 100% | n/a |
 
-Other checks: **311 automated tests**. The contract evaluator agrees with the reference engine on 30,000 random inputs. The "smallest change" search is compared against a brute-force scan.
+Other checks: **384 automated tests**. The contract evaluator agrees with the reference engine on 30,000 random inputs. The "smallest change" search is compared against a brute-force scan.
 
 **Read this honestly.** The ten planted bugs, the hand-written suite and the generator were all written by the same team, so this shows recall on known kinds of bug, not on unknown ones. The generator has not been run against third-party software yet.
 
@@ -90,7 +90,7 @@ Requires Python 3.12 and [uv](https://docs.astral.sh/uv/).
 git clone <this repo> && cd policy-wind-tunnel
 uv sync
 uv run policy-wind-tunnel            # http://127.0.0.1:8000
-uv run pytest                        # 311 tests
+uv run pytest                        # 384 tests
 ```
 
 It runs without any key. Gemini features are off until you add credentials.
@@ -117,7 +117,7 @@ GOOGLE_CLOUD_LOCATION=us-central1
 |---|---|---|
 | `GOOGLE_API_KEY` | Gemini API key | unset |
 | `GOOGLE_GENAI_USE_VERTEXAI`, `GOOGLE_CLOUD_PROJECT` | Use Vertex AI instead of a key | unset |
-| `PWT_MODEL` | Model for contract drafting and live lookup | `gemini-3.8-flash` |
+| `PWT_MODEL` | Model for contract drafting and live lookup. Tested with the default; other models may not honour the search tool | `gemini-2.5-flash` |
 | `PWT_LIVE_LEADERS` | `0` turns off live web-search lookup | `1` |
 
 `.env` is git-ignored. Real environment variables always win over the file. Check what the app picked up at `/api/health`, which shows the model and the credential mode but never the key.
@@ -145,7 +145,7 @@ Content was read from official pages on 13 October 2026. Anything that could not
 
 | Criterion | Where to look |
 |---|---|
-| **Technical merit and Gen AI implementation (40%)** | Extractor with repair loop and verbatim-quote grounding (`agents/`), Z3 gap checks and boundary generation (`adversary/`), grounded web search with source filtering (`civic/research.py`), benchmark (`evaluation/`), 311 tests |
+| **Technical merit and Gen AI implementation (40%)** | Extractor with repair loop and verbatim-quote grounding (`agents/`), Z3 gap checks and boundary generation (`adversary/`), grounded web search with source filtering (`civic/research.py`), benchmark (`evaluation/`), 384 tests |
 | **Problem alignment and impact (25%)** | Citizen result pages with the deciding sentence and "what would change my answer"; officials' what-if showing who a change moves |
 | **Innovation and creativity (25%)** | One contract powering three jobs; solver-verified smallest-change search; regression tests proven to fail on the bug and pass on the fix |
 | **UX and solution design (10%)** | One question per screen, plain-language results, skip links, visible focus, contrast checked to WCAG AA, phone layout |
@@ -154,7 +154,9 @@ Content was read from official pages on 13 October 2026. Anything that could not
 
 - **Not an official decision.** Results are indicative. The issuing office decides.
 - **Bundled people are fictional.** Live lookup can name real representatives. Those results are a web search that no person has reviewed. Every fact links to its page, and anything without a matching source is left out. It never shows assets, criminal cases or contact details, and it refuses to rate or rank anyone.
-- **Gemini has not been run against the real API yet.** Contract extraction and live lookup are tested with a fake model only.
+- **Gemini was run for real, once per feature, on `gemini-2.5-flash`.** Contract extraction produced a 10-rule contract on the first attempt that agreed with the hand-written contract on 88.2% of 6,000 inputs after field names were mapped by hand. The remaining differences were the same decision with a duplicated reason, which is now removed. This was a single run, not a distribution.
+- **Live lookup varies between runs.** Searching the same place three times found 5, 8 and 5 people. People with no trustworthy page are left out and named as left out. Role, party and handles come from the search notes, never from the model's memory.
+- **Sources support a person's entry as a whole, not each sentence.** No fact was checked against a specific page.
 - **The population is synthetic.** What-if percentages show how the mechanism works. They are not forecasts, and no behaviour is predicted.
 - **The benchmark is self-made**, as described above.
 - **Coverage is partial.** Several countries have few verified entries, and the citizen pages say which parts are unverified.

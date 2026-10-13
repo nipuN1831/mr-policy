@@ -20,6 +20,10 @@ class ChangeError(Exception):
     pass
 
 
+def dedupe_reasons(reasons: list[str]) -> list[str]:
+    return list(dict.fromkeys(reasons))
+
+
 @dataclass
 class SimulationResult:
     population: int

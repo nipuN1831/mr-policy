@@ -40,14 +40,14 @@ def test_a_missing_env_file_is_fine(tmp_path):
 
 
 def test_model_defaults_when_unset_and_follows_the_variable(monkeypatch):
-    assert settings.model_name() == "gemini-3.8-flash"
+    assert settings.model_name() == "gemini-2.5-flash"
     monkeypatch.setenv("PWT_MODEL", "gemini-other")
     assert settings.model_name() == "gemini-other"
 
 
 def test_a_blank_model_falls_back_to_the_default(monkeypatch):
     monkeypatch.setenv("PWT_MODEL", "   ")
-    assert settings.model_name() == "gemini-3.8-flash"
+    assert settings.model_name() == "gemini-2.5-flash"
 
 
 def test_credentials_are_detected_for_an_api_key(monkeypatch):
@@ -76,7 +76,7 @@ def test_describe_never_contains_the_key(monkeypatch):
     monkeypatch.setenv("GOOGLE_API_KEY", "super-secret-value-123")
     text = repr(settings.describe())
     assert "super-secret-value-123" not in text
-    assert settings.describe() == {"model": "gemini-3.8-flash", "credentials": "api_key", "live_leaders": True}
+    assert settings.describe() == {"model": "gemini-2.5-flash", "credentials": "api_key", "live_leaders": True}
 
 
 def test_describe_reports_the_kill_switch(monkeypatch):
@@ -87,7 +87,7 @@ def test_describe_reports_the_kill_switch(monkeypatch):
 def test_health_reports_model_and_credential_mode_but_not_the_key(monkeypatch):
     monkeypatch.setenv("GOOGLE_API_KEY", "super-secret-value-123")
     body = TestClient(create_app()).get("/api/health").json()
-    assert body["llm"] is True and body["model"] == "gemini-3.8-flash" and body["credentials"] == "api_key"
+    assert body["llm"] is True and body["model"] == "gemini-2.5-flash" and body["credentials"] == "api_key"
     assert "super-secret-value-123" not in str(body)
 
 

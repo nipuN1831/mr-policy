@@ -10,6 +10,7 @@ from policy_wind_tunnel.benchmark.adapter import wrap_engine
 from policy_wind_tunnel.benchmark.engine import decide
 from policy_wind_tunnel.benchmark.mutants import MUTANTS, build_mutant
 from policy_wind_tunnel.contract.gold import LENDING_CONTRACT
+from policy_wind_tunnel.contract.evaluator import ContractError
 from policy_wind_tunnel.contract.models import Contract
 from policy_wind_tunnel.evaluation.harness import evaluate_contract
 from policy_wind_tunnel.pipeline.regression import emit_regression_tests, verify_regression
@@ -25,6 +26,24 @@ _MUTANT_IDS = {m.id for m in MUTANTS}
 
 class UnknownTarget(Exception):
     pass
+
+
+class ContractMismatch(Exception):
+    pass
+
+
+def check_contract_fits_software(contract: Contract) -> None:
+    expected = {f.name for f in LENDING_CONTRACT.fields}
+    got = {f.name for f in contract.fields}
+    if expected == got:
+        return
+    missing, extra = sorted(expected - got), sorted(got - expected)
+    raise ContractMismatch(
+        "This contract uses different input field names from the software under test, so it cannot be run against it. "
+        f"The software expects these fields: {', '.join(sorted(expected))}. "
+        f"This contract is missing: {', '.join(missing) or 'none'}; it has unexpected fields: {', '.join(extra) or 'none'}. "
+        "Rename the fields in the contract to match, or test different software."
+    )
 
 
 def demo_payload() -> dict[str, Any]:
@@ -90,6 +109,7 @@ def _cluster_payload(cluster) -> dict[str, Any]:
 
 def run_payload(contract: Contract, target: str) -> dict[str, Any]:
     implementation = implementation_for(target)
+    check_contract_fits_software(contract)
     cases, coverage = generate_mcdc(contract)
     findings = run_suite(contract, cases, implementation)
     report = triage(contract, findings)
@@ -115,6 +135,7 @@ def benchmark_payload(contract: Contract) -> dict[str, Any]:
 def whatif_payload(
     contract: Contract, changes: list[dict[str, Any]], population: int, scenario: Scenario | None
 ) -> dict[str, Any]:
+    check_contract_fits_software(contract)
     changed = whatif.apply_changes(contract, changes)
     people = whatif.generate_population(population)
     result = whatif.simulate(contract, changed, people)

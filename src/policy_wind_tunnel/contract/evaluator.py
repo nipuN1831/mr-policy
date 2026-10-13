@@ -78,7 +78,7 @@ def _run_stage(stage: Stage, env: dict[str, Any]) -> tuple[str, list[str], list[
                 break
     if not fired:
         return None
-    reasons = [rule.reason for rule in fired if rule.reason]
+    reasons = list(dict.fromkeys(rule.reason for rule in fired if rule.reason))
     return fired[0].outcome, reasons, [rule.id for rule in fired]
 
 

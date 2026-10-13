@@ -303,6 +303,32 @@ def _block_bullets(text: str) -> list[tuple[str, str]]:
     return bullets
 
 
+FIELD_LINE = re.compile(r"^\s*[*\-•]\s+\*\*(?P<key>[^*:]+?)\s*:?\*\*\s*:?\s*(?P<value>.+)$")
+PLATFORM_WORDS = {"x": ("twitter", "x (", "x.com", " x "), "facebook": ("facebook",), "instagram": ("instagram",)}
+NOT_LISTED = re.compile(r"\bnot (explicitly |officially )?(listed|available|found|provided)\b|\bnone\b|\bn/a\b|\bunknown\b", re.IGNORECASE)
+
+
+def _block_text(result: SearchResult, name: str) -> str:
+    block = _person_block(result.text, name)
+    return result.text[block[0]:block[1]] if block else ""
+
+
+def _block_field(text: str, *keys: str) -> str:
+    for line in text.splitlines():
+        match = FIELD_LINE.match(line)
+        if match and match.group("key").strip().lower() in keys and len(line) - len(line.lstrip()) < 4:
+            return _clean_text(match.group("value"))
+    return ""
+
+
+def _listed_platforms(text: str) -> set[str]:
+    line = _block_field(text, "official social media", "social media", "official accounts").lower()
+    if not line or NOT_LISTED.search(line):
+        return set()
+    padded = f" {line} "
+    return {platform for platform, words in PLATFORM_WORDS.items() if any(word in padded for word in words)}
+
+
 def _notes_facts(result: SearchResult, name: str, sources: list[dict[str, str]], as_of: str) -> list[Fact]:
     block = _person_block(result.text, name)
     if block is None or not sources:
@@ -339,18 +365,20 @@ def _clean_person(raw: Any, index: int, country: str, place: str, domains: set[s
         facts = _notes_facts(result, _short(raw.get("name"), 120), sources, as_of)
     if not facts:
         return None, discarded + 1
-    terms = raw.get("terms")
+    notes = _block_text(result, _short(raw.get("name"), 120)) if result is not None else ""
+    listed = _listed_platforms(notes)
+    handles = {platform: handle for platform, handle in _clean_handles(raw.get("handles")).items() if platform in listed}
     rep = Representative(
         id=f"live-{index}",
         name=_short(raw.get("name"), 120),
-        role=_short(raw.get("role"), 120) or "Representative",
-        body=_short(raw.get("body"), 120),
+        role=_tidy(_block_field(notes, "role") or "Representative", 120),
+        body=_tidy(_block_field(notes, "body"), 120),
         region=country,
         constituency=_short(raw.get("constituency"), 120) or place,
-        party=_short(raw.get("party"), 120),
-        terms=terms if isinstance(terms, int) and 0 <= terms <= 40 else None,
+        party=_tidy(_block_field(notes, "party"), 120),
+        terms=None,
         fictional=False,
-        handles=_clean_handles(raw.get("handles")),
+        handles=handles,
         record=facts,
         links={f"Source {n}": fact.source.url for n, fact in enumerate(facts[:3], start=1)},
     )
@@ -438,7 +466,7 @@ def lookup_representatives(searcher: Searcher, country: str, place: str, as_of: 
         dropped += discarded
         if person:
             people.append(person.model_dump())
-        elif isinstance(raw, dict) and _short(raw.get("name"), 120):
+        elif isinstance(raw, dict) and _short(raw.get("name"), 120) and _person_block(result.text, _short(raw.get("name"), 120)):
             left_out.append(_short(raw.get("name"), 120))
     return {"representatives": people, "dropped": dropped, "left_out": left_out, "notice": NOTICE}
 
