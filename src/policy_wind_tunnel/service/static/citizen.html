@@ -5,13 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Citizens: check a scheme, find the right office | Policy Wind Tunnel</title>
 <meta name="description" content="Check whether you qualify for a public scheme, see the exact published rule that decided it, and find who handles your problem.">
+<link rel="icon" href="/favicon.ico" type="image/svg+xml">
 <link rel="stylesheet" href="/static/app.css">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
 <header class="topbar"><div class="inner">
   <a class="brand" href="/"><span class="logo"></span>Policy Wind Tunnel</a>
-  <nav aria-label="Main"><a href="/citizen" class="on">For citizens</a><a href="/officials">For officials</a><a href="/about">How it works</a></nav>
+  <nav aria-label="Main"><a href="/citizen" class="on" aria-current="page">For citizens</a><a href="/officials">For officials</a><a href="/about">How it works</a></nav>
 </div></header>
 
 <main id="main" class="wrap">
@@ -89,12 +90,22 @@ const sourceChip = (s) => `<span class="src">Source: <a href="${esc(s.url)}" tar
 const empty = (text) => `<p class="muted">${esc(text)}</p>`;
 function focusHeading() { const h = $("flow").querySelector("h2, h3"); if (h) { h.setAttribute("tabindex", "-1"); h.focus({ preventScroll: true }); } }
 
-function showTab(name) {
+const TABS = ["qualify", "decides", "rights", "bodies", "leaders"];
+
+function applyTab(name) {
+  if (!TABS.includes(name)) name = "qualify";
   document.querySelectorAll("#tabs button").forEach((b) => { const on = b.dataset.tab === name; b.classList.toggle("on", on); b.setAttribute("aria-pressed", on); });
-  ["qualify", "decides", "rights", "bodies", "leaders"].forEach((t) => ($("tab-" + t).hidden = t !== name));
-  history.replaceState(null, "", name === "qualify" ? location.pathname : "#" + name);
+  TABS.forEach((t) => ($("tab-" + t).hidden = t !== name));
+}
+
+function showTab(name) {
+  applyTab(name);
+  const target = name === "qualify" ? location.pathname : "#" + name;
+  if (location.hash !== (name === "qualify" ? "" : "#" + name)) history.pushState(null, "", target);
 }
 document.querySelectorAll("#tabs button").forEach((b) => (b.onclick = () => showTab(b.dataset.tab)));
+window.addEventListener("hashchange", () => applyTab(location.hash.replace("#", "")));
+window.addEventListener("popstate", () => applyTab(location.hash.replace("#", "")));
 
 function renderProblem(p) {
   const lines = p.helplines.map((h) => `<li><b>${esc(h.name)}</b>: ${esc(h.number)} ${esc(h.hours)}</li>`).join("");
@@ -332,8 +343,7 @@ $("country").onchange = () => { loadCountry($("country").value); if ($("liveOut"
   const preferred = countries.find((c) => c.code === "sg") || countries[0];
   $("country").value = preferred.code;
   await loadCountry(preferred.code);
-  const wanted = location.hash.replace("#", "");
-  if (["decides", "rights", "bodies", "leaders"].includes(wanted)) showTab(wanted);
+  applyTab(location.hash.replace("#", ""));
   initLive();
 })().catch((e) => ($("status").innerHTML = '<span class="err">' + esc(e.message) + "</span>"));
 </script>

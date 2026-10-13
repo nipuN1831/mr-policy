@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Any
 
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, ValidationError
 
@@ -31,6 +31,11 @@ from policy_wind_tunnel.simulation.whatif import ChangeError
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 _UNSET = object()
+FAVICON_SVG = (
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#0b6e7a"/>'
+    '<rect x="7" y="9" width="18" height="3" rx="1.5" fill="#fff"/><rect x="7" y="15" width="18" height="3" rx="1.5" fill="#fff"/>'
+    '<rect x="7" y="21" width="18" height="3" rx="1.5" fill="#ffd84d"/></svg>'
+)
 
 
 class ExtractRequest(BaseModel):
@@ -264,6 +269,10 @@ def create_app(llm: Any = _UNSET, searcher: Any = _UNSET) -> FastAPI:
             return nearest_changes(spec, request.inputs, request.targets, request.lock).as_dict()
 
         return _scheme_call(scheme_id, run)
+
+    @app.get("/favicon.ico", include_in_schema=False)
+    def favicon():
+        return Response(FAVICON_SVG, media_type="image/svg+xml", headers={"Cache-Control": "public, max-age=86400"})
 
     app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 

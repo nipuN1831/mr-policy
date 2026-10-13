@@ -163,3 +163,34 @@ def test_every_page_has_a_skip_link_viewport_and_shared_stylesheet(client):
         assert 'name="viewport"' in page.text, path
         assert "/static/app.css" in page.text, path
         assert 'lang="en"' in page.text, path
+
+
+def test_the_citizen_page_follows_the_url_hash_after_load(client):
+    page = client.get("/citizen").text
+    assert 'addEventListener("hashchange"' in page
+
+
+def test_tab_changes_are_added_to_browser_history_so_back_works(client):
+    page = client.get("/citizen").text
+    assert "pushState" in page and "replaceState" not in page.split("function showTab")[1].split("}")[0]
+
+
+def test_a_favicon_is_served_so_the_console_stays_clean(client):
+    response = client.get("/favicon.ico")
+    assert response.status_code == 200 and response.headers["content-type"].startswith("image/")
+
+
+def test_every_page_declares_its_icon(client):
+    for path in ("/", "/citizen", "/officials", "/about"):
+        assert 'rel="icon"' in client.get(path).text, path
+
+
+def test_the_landing_page_marks_no_nav_item_as_current_but_says_where_home_is(client):
+    page = client.get("/").text
+    assert 'class="brand" href="/"' in page and 'aria-current' in page
+
+
+def test_every_page_marks_its_current_nav_item_for_screen_readers(client):
+    for path, label in (("/citizen", "For citizens"), ("/officials", "For officials"), ("/about", "How it works")):
+        page = client.get(path).text
+        assert f'aria-current="page">{label}</a>' in page, path
