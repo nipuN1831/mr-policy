@@ -671,3 +671,14 @@ def test_names_of_people_who_were_left_out_are_reported():
     result = lookup_representatives(searcher, "Singapore", "Sample GRC", "2026-10-13")
     assert [p["name"] for p in result["representatives"]] == ["Sample Member"]
     assert result["left_out"] == ["Invented Person"]
+
+
+def test_long_body_responsibilities_are_cut_at_a_sentence_or_word_not_mid_word():
+    long = "Promoting social cohesion and active citizenship. The PA brings people of different backgrounds together through community clubs and programmes across the island every single year without fail."
+    text = json.dumps({"bodies": [{"name": "Sample Body", "level": "national", "handles": [long], "source_url": "https://www.parliament.gov.sg/p"}]})
+    handle = lookup_government(FakeSearcher(text), "Singapore", "C", "2026-10-14")["bodies"][0]["handles"][0]
+    assert handle == "Promoting social cohesion and active citizenship." and len(handle) <= 160
+    unbroken = "word " * 60
+    text = json.dumps({"bodies": [{"name": "B", "level": "local", "handles": [unbroken], "source_url": "https://www.parliament.gov.sg/p"}]})
+    cut = lookup_government(FakeSearcher(text), "Singapore", "C", "2026-10-14")["bodies"][0]["handles"][0]
+    assert len(cut) <= 160 and cut.endswith("\u2026") and not cut[:-1].endswith("wor")

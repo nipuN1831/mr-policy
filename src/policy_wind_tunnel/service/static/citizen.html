@@ -62,7 +62,7 @@
 
   <section id="tab-leaders" hidden>
     <h2>My area: who represents me, and who decides</h2>
-    <p class="lead">Type your constituency, town or district. Live results come from a web search and every fact links to the page it came from.</p>
+    <p class="lead">Type your constituency, town or district. Live results come from a web search. Each entry lists the pages that support it, so you can open them and check.</p>
     <div id="liveBox"></div>
     <div id="liveOut" aria-live="polite"></div>
     <h3>Demo layout <span class="pill warn">fictional people</span></h3>
@@ -299,7 +299,7 @@ function renderLive(r) {
     <div>${esc(p.role)}${p.body ? ", " + esc(p.body) : ""}</div>
     <div class="muted">${esc(p.constituency)}${p.party ? " &middot; " + esc(p.party) : ""}${p.terms != null ? " &middot; terms: " + p.terms : ""}</div>
     <ul>${p.record.map((f) => `<li><b>${esc(f.label)}:</b> ${esc(f.value)}</li>`).join("")}</ul>
-    <div class="muted">Pages that support this entry: ${[...new Map(p.record.flatMap((f) => [f.source, ...(f.also || [])]).map((s) => [s.url, s])).values()].map((s) => `<a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">${esc(s.title)}</a>`).join(", ")}</div>
+    <div class="muted">Pages that support this entry: ${[...new Map(p.record.flatMap((f) => [f.source, ...(f.also || [])]).map((s) => [s.title, s])).values()].map((s) => `<a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">${esc(s.title)}</a>`).join(", ")}</div>
     ${Object.entries(p.handles).map(([k, v]) => `<div class="muted">${esc(k)}: @${esc(v)} (link only)</div>`).join("")}
     <div class="muted">As of ${esc(r.as_of)}</div></div>`).join("");
   const bodies = r.bodies.map((b) => `<div class="card"><h3>${esc(b.name)}</h3><span class="pill good">${esc(b.level)}</span>

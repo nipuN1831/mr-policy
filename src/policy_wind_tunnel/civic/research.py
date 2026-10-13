@@ -169,6 +169,16 @@ def _parse(text: str) -> dict[str, Any]:
     return data if isinstance(data, dict) else {}
 
 
+def _tidy(value: str, limit: int = 160) -> str:
+    value = " ".join(value.split())
+    if len(value) <= limit:
+        return value
+    first = re.match(r".{20,%d}?[.!?](?=\s|$)" % limit, value)
+    if first:
+        return first.group(0)
+    return value[: limit - 1].rsplit(" ", 1)[0].rstrip(",;:") + "\u2026"
+
+
 def _short(value: Any, limit: int) -> str:
     return str(value).strip()[:limit] if isinstance(value, (str, int)) else ""
 
@@ -438,7 +448,7 @@ def _clean_body(raw: Any, domains: set[str], as_of: str) -> dict[str, Any] | Non
         return None
     url = _short(raw.get("source_url"), 500)
     domain = _matching_domain(url, domains)
-    handles = [_short(item, 120) for item in raw.get("handles", []) if isinstance(item, str)] if isinstance(raw.get("handles"), list) else []
+    handles = [_tidy(item) for item in raw.get("handles", []) if isinstance(item, str)] if isinstance(raw.get("handles"), list) else []
     if not domain or not [h for h in handles if h]:
         return None
     contact = _short(raw.get("contact_url"), 500)
