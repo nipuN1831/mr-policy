@@ -7,11 +7,12 @@
 <link rel="stylesheet" href="/static/app.css">
 </head>
 <body>
+<a class="skip" href="#main">Skip to content</a>
 <header class="topbar"><div class="inner">
-  <a class="brand" href="/"><span class="logo">&#9783;</span>Policy Wind Tunnel</a>
-  <nav><a href="/citizen">For citizens</a><a href="/officials" class="on">For officials</a></nav>
+  <a class="brand" href="/"><span class="logo"></span>Policy Wind Tunnel</a>
+  <nav aria-label="Main"><a href="/citizen">For citizens</a><a href="/officials" class="on">For officials</a><a href="/about">How it works</a></nav>
 </div></header>
-<div class="wrap">
+<main id="main" class="wrap">
   <div class="hero">
     <h1>Test a rule before you ship it</h1>
     <p>Load a policy, try a change on a synthetic population, and check that the software still follows the rule.</p>
@@ -89,7 +90,8 @@
       <div id="benchOut"></div>
     </section>
   </div>
-</div>
+  <p class="footer"><a href="/about">How it works and what is verified</a><a href="/">Home</a><a href="/citizen">For citizens</a></p>
+</main>
 <script>
 const $ = (id) => document.getElementById(id);
 let contract = null;

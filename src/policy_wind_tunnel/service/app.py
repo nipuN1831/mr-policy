@@ -213,6 +213,10 @@ def create_app(llm: Any = _UNSET) -> FastAPI:
     def officials_page():
         return (STATIC_DIR / "officials.html").read_text()
 
+    @app.get("/about", response_class=HTMLResponse)
+    def about_page():
+        return (STATIC_DIR / "about.html").read_text()
+
     @app.get("/citizen", response_class=HTMLResponse)
     def citizen_page():
         return (STATIC_DIR / "citizen.html").read_text()

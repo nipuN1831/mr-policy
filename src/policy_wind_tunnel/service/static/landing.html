@@ -3,61 +3,140 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Policy Wind Tunnel</title>
+<title>Policy Wind Tunnel: every answer shows the rule that decided it</title>
+<meta name="description" content="Check whether you qualify for a public scheme and see the exact published sentence that decided it. Officials can test a rule change before it ships.">
 <link rel="stylesheet" href="/static/app.css">
+<style>
+  .hero2 { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 36px; align-items: center; padding: 18px 0 30px; }
+  .hero2 h1 { margin: 0 0 14px; font: 700 clamp(34px, 5.2vw, 56px)/1.04 var(--display); letter-spacing: -.025em; }
+  .hero2 p.sub { color: var(--muted); font-size: 20px; margin: 0 0 22px; max-width: 540px; }
+  .cta { display: flex; flex-wrap: wrap; gap: 12px; }
+  .checker { background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); padding: 22px 24px; }
+  .checker h2 { font-size: 18px; margin: 0 0 2px; }
+  .checker .person { color: var(--muted); font-size: 14.5px; margin-bottom: 14px; }
+  .slider-row { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+  .slider-row output { font: 700 28px/1 var(--display); letter-spacing: -.02em; }
+  input[type=range] { width: 100%; height: 44px; accent-color: var(--teal); margin: 6px 0 8px; cursor: pointer; }
+  .ticks { display: flex; justify-content: space-between; color: var(--muted); font-size: 13px; margin-top: -6px; }
+  .verdict-line { display: flex; align-items: center; gap: 12px; margin: 16px 0 6px; min-height: 52px; }
+  .verdict-line .icon { width: 40px; height: 40px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 22px; flex: none; }
+  .verdict-line .icon.good { background: var(--pass); } .verdict-line .icon.bad { background: var(--fail); }
+  .verdict-line b { font: 650 21px/1.2 var(--display); }
+  .checker .statute { font-size: 16px; margin-top: 8px; }
+  .three { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin: 6px 0 0; }
+  .three a { display: block; text-decoration: none; color: inherit; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px; transition: border-color .12s, transform .12s; }
+  .three a:hover { border-color: var(--teal); transform: translateY(-2px); }
+  .three h3 { margin: 0 0 6px; font-size: 20px; }
+  .three p { margin: 0; color: var(--muted); font-size: 16px; }
+  .three .go { display: inline-block; margin-top: 12px; font-weight: 700; color: var(--teal-dark); }
+  .evidence { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+  .evidence .tile { background: transparent; border: 1px solid var(--line); }
+  @media (max-width: 860px) { .hero2 { grid-template-columns: 1fr; gap: 22px; } }
+</style>
 </head>
 <body>
+<a class="skip" href="#main">Skip to content</a>
 <header class="topbar"><div class="inner">
-  <a class="brand" href="/"><span class="logo">&#9783;</span>Policy Wind Tunnel</a>
-  <nav><a href="/citizen">For citizens</a><a href="/officials">For officials</a></nav>
+  <a class="brand" href="/"><span class="logo"></span>Policy Wind Tunnel</a>
+  <nav aria-label="Main"><a href="/citizen">For citizens</a><a href="/officials">For officials</a><a href="/about">How it works</a></nav>
 </div></header>
-<div class="wrap">
-  <div class="hero">
-    <h1>Test a rule before it reaches people.</h1>
-    <p>Public rules are written in words and run as software. Policy Wind Tunnel checks that the two agree, shows who a change would affect, and tells citizens in plain language whether they qualify and why.</p>
-  </div>
-  <div class="banner" id="demoNote">Demonstration with published rules and fictional people. Not legal advice and not an official decision.</div>
 
-  <div class="choice">
-    <a href="/citizen">
-      <div class="emoji">&#128587;</div>
-      <h2>I am a citizen</h2>
-      <p class="muted" style="font-size:16px">Find out what you may be entitled to, who handles your problem, and your rights.</p>
-      <ul>
-        <li><b>Do I qualify?</b> Answer a few questions and see the rule that applied.</li>
-        <li><b>What would change my answer?</b> The smallest change that would make a difference.</li>
-        <li><b>Who decides this?</b> The right office, helpline and next step.</li>
-      </ul>
-      <span class="go">Start as a citizen &rarr;</span>
-    </a>
-    <a href="/officials">
-      <div class="emoji">&#127963;</div>
-      <h2>I work on policy or software</h2>
-      <p class="muted" style="font-size:16px">Try a rule change on a synthetic population and test the code that runs the rule.</p>
-      <ul>
-        <li><b>What if we change it?</b> See who gets a different decision.</li>
-        <li><b>Test the software.</b> Boundary tests built from the rule itself.</li>
-        <li><b>Keep the proof.</b> Every failure becomes a regression test.</li>
-      </ul>
-      <span class="go">Start as an official &rarr;</span>
-    </a>
+<main id="main" class="wrap">
+  <div class="hero2">
+    <div>
+      <p class="eyebrow">Public rules, checked in the open</p>
+      <h1>Every answer shows the <mark>sentence</mark> that decided it.</h1>
+      <p class="sub">Find out whether you qualify for a public scheme, and see the exact published rule behind the answer. Officials can test a rule change before it reaches people.</p>
+      <div class="cta">
+        <a class="btn" href="/citizen">Check if I qualify</a>
+        <a class="btn ghost" href="/officials">Test a policy change</a>
+      </div>
+    </div>
+
+    <div class="checker" aria-labelledby="chk-h">
+      <p class="eyebrow">Try it now</p>
+      <h2 id="chk-h">Silver Support Scheme, Singapore</h2>
+      <div class="person">Example person: a citizen aged 70 in a 4-room HDB flat. Drag the income.</div>
+      <div class="slider-row"><label for="incomeNum">Household income per person, a month (S$)</label></div>
+      <div class="row" style="margin:6px 0"><input type="number" id="incomeNum" inputmode="numeric" min="0" max="9999" step="50" value="2400" style="width:150px"><output id="incomeOut" for="income" class="muted">or drag the slider</output></div>
+      <input type="range" id="income" min="0" max="3500" step="50" value="2400" aria-label="Household income per person, slider" aria-describedby="chkResult">
+      <div class="ticks" aria-hidden="true"><span>S$0</span><span>S$1,500</span><span>S$2,300</span><span>S$3,500</span></div>
+      <div id="chkResult" aria-live="polite">
+        <div class="verdict-line"><span class="icon bad">&times;</span><b>Loading the rule...</b></div>
+      </div>
+      <div class="statute" id="chkStatute"></div>
+      <div class="src" id="chkSrc"></div>
+      <p class="muted" style="margin:12px 0 0"><a href="/citizen">Enter your own details</a></p>
+    </div>
   </div>
 
-  <h2 style="margin-top:34px">How it works</h2>
-  <ol class="steps">
-    <li><b>Write the rule down</b><div class="muted">A policy text becomes a contract of exact conditions, each tied to the sentence it came from.</div></li>
-    <li><b>A person approves</b><div class="muted">Unclear wording is flagged. A person decides what it means before anything is treated as a bug.</div></li>
-    <li><b>Run it every way</b><div class="muted">The same contract decides citizens, simulates changes and generates boundary tests.</div></li>
-    <li><b>Show the evidence</b><div class="muted">Every answer quotes the clause, with its source and date.</div></li>
-  </ol>
-  <p class="muted" style="margin-top:22px" id="llmNote"></p>
-</div>
+  <h2 style="margin:10px 0 12px">What you can do here</h2>
+  <div class="three">
+    <a href="/citizen"><h3>Do I qualify?</h3><p>Answer a few questions, one at a time. You get the answer, the rule that applied, and the smallest change that would alter it.</p><span class="go">Check a scheme &rarr;</span></a>
+    <a href="/citizen#decides"><h3>Who handles my problem?</h3><p>Describe it in your own words. See the right office, its helpline, and what to do next, with the source for each.</p><span class="go">Find the right office &rarr;</span></a>
+    <a href="/officials"><h3>What if we change the rule?</h3><p>Re-decide thousands of synthetic applicants under a new rule, and see which tests the software would now fail.</p><span class="go">Try a rule change &rarr;</span></a>
+  </div>
+
+  <section style="margin-top:28px">
+    <p class="eyebrow">Evidence, measured live</p>
+    <h2>Tests built from the rule beat tests written by hand</h2>
+    <p class="lead">Ten realistic bugs were planted in a copy of a lending engine. A hand-written suite and a suite generated from the policy contract each tried to catch them.</p>
+    <div class="evidence" id="evidence"><div class="tile"><div class="big">&hellip;</div><div class="label">running the benchmark</div></div></div>
+    <p class="muted" style="margin:12px 0 0">The bugs, the hand-written suite and the generator were all written by the same team, so this shows recall on known kinds of bug only. <a href="/about">Read the limits.</a></p>
+  </section>
+
+  <p class="footer">
+    Demonstration with published rules and fictional people. Not legal advice and not an official decision. Nothing you enter is stored.
+    <br><a href="/about">How it works and what is verified</a><a href="/citizen">Citizens</a><a href="/officials">Officials</a>
+  </p>
+</main>
+
 <script>
-fetch("/api/health").then((r) => r.json()).then((h) => {
-  document.getElementById("llmNote").textContent = h.llm
-    ? "Language model connected: policy text can be turned into a contract automatically."
-    : "Running on bundled, hand-written contracts. The language model is not connected in this session.";
-}).catch(() => {});
+const $ = (id) => document.getElementById(id);
+const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const FIXED = { citizen: true, age: 70, self_employed: false, cpf_by_55: 100000, trade_income_45_54: null, housing: "hdb_4", owns_big_property: false };
+let lines = [], timer = null;
+
+function statute(quotes) {
+  $("chkStatute").innerHTML = lines.map((line) => {
+    let html = esc(line);
+    quotes.forEach((q) => { const e = esc(q); if (html.includes(e)) html = html.replace(e, `<mark>${e}</mark>`); });
+    return `<p>${html}</p>`;
+  }).join("");
+}
+
+async function check() {
+  const pchi = Number($("incomeNum").value || 0);
+  try {
+    const response = await fetch("/api/civic/schemes/sg_silver_support/check", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ inputs: { ...FIXED, pchi } }) });
+    const r = await response.json();
+    $("chkResult").innerHTML = `<div class="verdict-line"><span class="icon ${r.favourable ? "good" : "bad"}">${r.favourable ? "&#10003;" : "&times;"}</span><b>${esc(r.outcome_label)}</b></div>`;
+    statute(r.clauses.map((c) => c.quote).filter(Boolean));
+    $("chkSrc").innerHTML = `Source: <a href="${esc(r.source.url)}" target="_blank" rel="noopener noreferrer">${esc(r.source.title)}</a>`;
+  } catch (e) {
+    $("chkResult").innerHTML = '<div class="verdict-line"><b class="err">The example could not load. Try the full checker instead.</b></div>';
+  }
+}
+
+$("income").addEventListener("input", () => { $("incomeNum").value = $("income").value; clearTimeout(timer); timer = setTimeout(check, 90); });
+$("incomeNum").addEventListener("input", () => { $("income").value = Math.min(3500, Number($("incomeNum").value || 0)); clearTimeout(timer); timer = setTimeout(check, 200); });
+
+(async function init() {
+  try {
+    const form = await (await fetch("/api/civic/schemes/sg_silver_support/form")).json();
+    lines = form.policy_text.split("\n").filter((l) => l.startsWith("Criterion 3") || l.startsWith("4-room flat"));
+  } catch (e) { lines = []; }
+  await check();
+  try {
+    const b = await (await fetch("/api/benchmark")).json();
+    const pct = (x) => Math.round(x * 100);
+    $("evidence").innerHTML = `
+      <div class="tile good"><div class="big">${pct(b.recall)}%</div><div class="label">of planted bugs caught by tests generated from the rule (${b.cases} tests)</div></div>
+      <div class="tile bad"><div class="big">${pct(b.baseline_recall)}%</div><div class="label">caught by a hand-written suite (${b.baseline_cases} tests)</div></div>
+      <div class="tile"><div class="big">${b.false_positives}</div><div class="label">false alarms on the correct software</div></div>
+      <div class="tile"><div class="big">${pct(b.regression_valid)}%</div><div class="label">of regression tests valid: fail on the bug, pass on the fix</div></div>`;
+  } catch (e) { $("evidence").innerHTML = '<div class="muted">The benchmark could not be loaded.</div>'; }
+})();
 </script>
 </body>
 </html>

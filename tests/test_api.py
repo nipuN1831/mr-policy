@@ -141,5 +141,23 @@ def test_officials_page_is_served_with_its_four_tabs(client):
 
 def test_shared_stylesheet_is_served(client):
     css = client.get("/static/app.css")
-    assert css.status_code == 200 and "--brand" in css.text
+    assert css.status_code == 200 and "--teal" in css.text
     assert client.get("/static/does-not-exist.css").status_code == 404
+
+
+def test_about_page_states_limits_and_coverage(client):
+    page = client.get("/about")
+    assert page.status_code == 200
+    text = page.text.lower()
+    assert "not an official decision" in text and "fictional" in text and "synthetic" in text
+    assert "/api/civic/countries" in page.text
+
+
+def test_every_page_has_a_skip_link_viewport_and_shared_stylesheet(client):
+    for path in ("/", "/citizen", "/officials", "/about"):
+        page = client.get(path)
+        assert page.status_code == 200, path
+        assert 'class="skip"' in page.text, path
+        assert 'name="viewport"' in page.text, path
+        assert "/static/app.css" in page.text, path
+        assert 'lang="en"' in page.text, path

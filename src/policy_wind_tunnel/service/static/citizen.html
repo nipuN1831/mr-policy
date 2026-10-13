@@ -3,18 +3,21 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Policy Wind Tunnel - Citizens</title>
+<title>Citizens: check a scheme, find the right office | Policy Wind Tunnel</title>
+<meta name="description" content="Check whether you qualify for a public scheme, see the exact published rule that decided it, and find who handles your problem.">
 <link rel="stylesheet" href="/static/app.css">
 </head>
 <body>
+<a class="skip" href="#main">Skip to content</a>
 <header class="topbar"><div class="inner">
-  <a class="brand" href="/"><span class="logo">&#9783;</span>Policy Wind Tunnel</a>
-  <nav><a href="/citizen" class="on">For citizens</a><a href="/officials">For officials</a></nav>
+  <a class="brand" href="/"><span class="logo"></span>Policy Wind Tunnel</a>
+  <nav aria-label="Main"><a href="/citizen" class="on">For citizens</a><a href="/officials">For officials</a><a href="/about">How it works</a></nav>
 </div></header>
-<div class="wrap">
+
+<main id="main" class="wrap">
   <div class="hero">
     <h1>Know what you are entitled to</h1>
-    <p>Check whether you qualify for a scheme, see exactly which rule decided it, and find who handles your problem.</p>
+    <p>Check whether you qualify for a scheme, see the exact rule that decided it, and find who handles your problem.</p>
   </div>
   <div class="banner">Information only. Not legal advice and not an official decision. Nothing you enter is stored. People shown are fictional demo data.</div>
 
@@ -25,7 +28,7 @@
   </div>
   <div class="muted" id="notes"></div>
 
-  <div class="tabs" id="tabs" style="margin-top:14px">
+  <div class="tabs" id="tabs" style="margin-top:16px">
     <button data-tab="qualify" class="on">Do I qualify?</button>
     <button data-tab="decides">Who handles my problem?</button>
     <button data-tab="rights">My rights</button>
@@ -34,27 +37,14 @@
   </div>
 
   <section id="tab-qualify">
-    <h2>Do I qualify?</h2>
-    <p class="lead">Pick a scheme and answer the questions. You get an answer and the exact published rule behind it.</p>
-    <div class="row"><select id="scheme" aria-label="Scheme"></select></div>
-    <div class="muted" id="schemeSummary"></div>
-    <div class="form" id="form"></div>
-    <div class="row">
-      <button class="primary" id="checkBtn">Check</button>
-      <button class="ghost" id="changeBtn" disabled>What would change my answer?</button>
-    </div>
-    <div id="result"></div>
-    <div id="change"></div>
-    <h3>The rule, as published</h3>
-    <div class="muted" id="sourceLine"></div>
-    <pre id="policyText"></pre>
-    <div id="assumptions"></div>
+    <div class="row" style="margin-top:0"><label for="scheme"><b>Scheme</b></label><select id="scheme"></select></div>
+    <div id="flow" aria-live="polite"></div>
   </section>
 
   <section id="tab-decides" hidden>
     <h2>Who handles my problem?</h2>
-    <p class="lead">Describe it in your own words, or browse the list.</p>
-    <div class="row"><input type="text" id="problemText" size="48" placeholder="For example: my bank refused a refund"><button class="primary" id="findBtn">Find</button></div>
+    <p class="lead">Describe it in your own words, or browse the list below.</p>
+    <div class="row"><input type="text" id="problemText" size="46" aria-label="Describe your problem" placeholder="For example: my bank refused a refund"><button class="primary" id="findBtn">Find</button></div>
     <div id="matches"></div>
     <h3>All problems</h3>
     <div class="grid" id="allProblems"></div>
@@ -75,11 +65,14 @@
     <p class="lead">These people are invented to show the layout. On a real card every fact would link to its source with a date, with no scores and no rankings.</p>
     <div class="grid" id="leaders"></div>
   </section>
-</div>
+
+  <p class="footer"><a href="/about">How it works and what is verified</a><a href="/">Home</a><a href="/officials">For officials</a></p>
+</main>
+
 <script>
 const $ = (id) => document.getElementById(id);
 const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-let pack = null, formSpec = null, lastInputs = null;
+let pack = null, form = null, answers = {}, step = 0;
 
 async function api(path, body) {
   const options = body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : {};
@@ -88,138 +81,201 @@ async function api(path, body) {
   if (!response.ok) throw new Error(typeof data.detail === "string" ? data.detail : JSON.stringify(data.detail || data));
   return data;
 }
-
-const sourceLink = (s) => `<a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">${esc(s.title)}</a> <span class="muted">(as of ${esc(s.as_of)})</span>`;
+const sourceChip = (s) => `<span class="src">Source: <a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">${esc(s.title)}</a> &middot; as of ${esc(s.as_of)}</span>`;
+const empty = (text) => `<p class="muted">${esc(text)}</p>`;
+function focusHeading() { const h = $("flow").querySelector("h2, h3"); if (h) { h.setAttribute("tabindex", "-1"); h.focus({ preventScroll: true }); } }
 
 function showTab(name) {
-  document.querySelectorAll("#tabs button").forEach((b) => b.classList.toggle("on", b.dataset.tab === name));
+  document.querySelectorAll("#tabs button").forEach((b) => { const on = b.dataset.tab === name; b.classList.toggle("on", on); b.setAttribute("aria-pressed", on); });
   ["qualify", "decides", "rights", "bodies", "leaders"].forEach((t) => ($("tab-" + t).hidden = t !== name));
+  history.replaceState(null, "", name === "qualify" ? location.pathname : "#" + name);
 }
 document.querySelectorAll("#tabs button").forEach((b) => (b.onclick = () => showTab(b.dataset.tab)));
-
-function empty(text) { return `<div class="muted">${esc(text)}</div>`; }
 
 function renderProblem(p) {
   const lines = p.helplines.map((h) => `<li><b>${esc(h.name)}</b>: ${esc(h.number)} ${esc(h.hours)}</li>`).join("");
   return `<div class="card"><h3>${esc(p.title)}</h3>
-    <div class="muted">First: ${esc(p.first_body)}</div>
+    <div class="muted">Start with: ${esc(p.first_body)}</div>
     <ul>${p.steps.map((s) => `<li>${esc(s)}</li>`).join("")}</ul>
     ${lines ? `<ul>${lines}</ul>` : ""}
     ${p.portal ? `<div><a href="${esc(p.portal)}" target="_blank" rel="noopener noreferrer">Official portal</a></div>` : ""}
     ${p.legal_basis ? `<div class="muted">Basis: ${esc(p.legal_basis)}</div>` : ""}
-    <div>${p.verified ? '<span class="pill good">verified</span>' : '<span class="pill warn">partly unverified</span>'}</div>
+    <div style="margin-top:8px">${p.verified ? '<span class="pill good">verified</span>' : '<span class="pill warn">partly unverified</span>'}</div>
     ${p.unverified_parts.length ? `<div class="muted">Not verified: ${p.unverified_parts.map(esc).join("; ")}</div>` : ""}
-    <div class="muted">${sourceLink(p.source)}</div></div>`;
+    <div style="margin-top:8px">${sourceChip(p.source)}</div></div>`;
 }
 
-function renderPack() {
+function renderReference() {
   $("status").innerHTML = pack.status === "verified" ? '<span class="pill good">verified</span>' : '<span class="pill warn">partial: some content is not yet verified</span>';
   $("notes").innerHTML = pack.notes.length ? "<ul>" + pack.notes.map((n) => `<li>${esc(n)}</li>`).join("") + "</ul>" : "";
-  $("allProblems").innerHTML = pack.problems.length ? pack.problems.map(renderProblem).join("") : empty("No problems verified for this country yet.");
+  $("allProblems").innerHTML = pack.problems.length ? pack.problems.map(renderProblem).join("") : empty("No problems are verified for this country yet.");
   $("matches").innerHTML = "";
-  $("rights").innerHTML = pack.rights.length ? pack.rights.map((r) => `<div class="card"><h3>${esc(r.title)}</h3><p>${esc(r.summary)}</p><div class="muted">How: ${esc(r.how_to_use)}</div>${r.law ? `<div class="muted">Law: ${esc(r.law)}</div>` : ""}<div class="muted">${sourceLink(r.source)}</div></div>`).join("") : empty("No rights verified for this country yet.");
-  $("bodies").innerHTML = pack.tiers.length ? pack.tiers.map((t) => `<div class="card"><h3>${esc(t.name)}</h3><ul>${t.controls.map((c) => `<li>${esc(c)}</li>`).join("")}</ul>${t.note ? `<div class="muted">${esc(t.note)}</div>` : ""}<div class="muted">${sourceLink(t.source)}</div></div>`).join("") : empty("Government structure is not verified for this country yet.");
+  $("rights").innerHTML = pack.rights.length ? pack.rights.map((r) => `<div class="card"><h3>${esc(r.title)}</h3><p>${esc(r.summary)}</p><p class="muted">How to use it: ${esc(r.how_to_use)}</p>${r.law ? `<p class="muted">Law: ${esc(r.law)}</p>` : ""}${sourceChip(r.source)}</div>`).join("") : empty("No rights are verified for this country yet.");
+  $("bodies").innerHTML = pack.tiers.length ? pack.tiers.map((t) => `<div class="card"><h3>${esc(t.name)}</h3><ul>${t.controls.map((c) => `<li>${esc(c)}</li>`).join("")}</ul>${t.note ? `<p class="muted">${esc(t.note)}</p>` : ""}${sourceChip(t.source)}</div>`).join("") : empty("Government structure is not verified for this country yet.");
   $("leaders").innerHTML = pack.representatives.map((r) => `<div class="card"><h3>${esc(r.name)}</h3><div><span class="pill warn">demo data</span></div>
     <div>${esc(r.role)}, ${esc(r.body)}</div><div class="muted">${esc(r.constituency)} &middot; ${esc(r.region)} ${r.party ? "&middot; " + esc(r.party) : ""}</div>
     ${r.terms != null ? `<div class="muted">Terms: ${r.terms}</div>` : ""}
     ${Object.entries(r.handles).map(([k, v]) => `<div class="muted">${esc(k)}: @${esc(v)} (link only)</div>`).join("")}
     ${Object.entries(r.links).map(([k, v]) => `<div><a href="${esc(v)}" target="_blank" rel="noopener noreferrer">${esc(k)}</a></div>`).join("")}
-    <div class="muted">Shown for layout only. A real card would give each fact a source link and date.</div></div>`).join("");
-  const checkable = pack.schemes.filter((s) => s.self_check);
-  $("scheme").innerHTML = pack.schemes.map((s) => `<option value="${esc(s.id)}" data-check="${s.self_check}">${esc(s.name)}${s.self_check ? "" : " (information only)"}</option>`).join("");
+    <p class="muted">Shown for layout only. A real card would give each fact a source link and date.</p></div>`).join("");
+  $("scheme").innerHTML = pack.schemes.map((s) => `<option value="${esc(s.id)}">${esc(s.name)}${s.self_check ? "" : " (information only)"}</option>`).join("");
   $("scheme").disabled = pack.schemes.length === 0;
-  if (pack.schemes.length === 0) { $("form").innerHTML = ""; $("schemeSummary").textContent = "No scheme with verified numeric rules for this country yet."; $("policyText").textContent = ""; $("sourceLine").innerHTML = ""; $("assumptions").innerHTML = ""; $("result").innerHTML = ""; $("change").innerHTML = ""; $("checkBtn").disabled = true; $("changeBtn").disabled = true; return; }
-  loadScheme();
+  openScheme();
 }
 
-async function loadCountry(code) {
-  pack = await api("/api/civic/countries/" + code);
-  renderPack();
+function fieldById(name) { return form.fields.find((f) => f.name === name); }
+function display(f, value) {
+  if (f.kind === "bool") return value ? "Yes" : "No";
+  if (f.kind === "enum") return (f.options.find((o) => o.value === value) || { label: value }).label;
+  if (value === null || value === undefined || value === "") return "Not known";
+  return Number(value).toLocaleString();
 }
-
-function fieldInput(f) {
-  const id = "f_" + f.name;
-  const note = f.changeable ? "" : '<span class="pill warn" title="This cannot be changed, so it is never suggested as a way to qualify">fixed</span>';
-  if (f.kind === "bool") return `<div class="field"><label for="${id}">${esc(f.label)} ${note}</label><select id="${id}"><option value="false"${f.typical ? "" : " selected"}>No</option><option value="true"${f.typical ? " selected" : ""}>Yes</option></select></div>`;
-  if (f.kind === "enum") return `<div class="field"><label for="${id}">${esc(f.label)} ${note}</label><select id="${id}">${f.options.map((o) => `<option value="${esc(o.value)}"${o.value === f.typical ? " selected" : ""}>${esc(o.label)}</option>`).join("")}</select></div>`;
-  const blank = f.nullable ? '<span class="muted">(leave empty if unknown)</span>' : "";
-  return `<div class="field"><label for="${id}">${esc(f.label)} ${blank} ${note}</label><input type="number" id="${id}" ${f.min != null ? `min="${f.min}"` : ""} ${f.max != null ? `max="${f.max}"` : ""} value="${f.typical ?? ""}"></div>`;
+function statuteHtml(quotes) {
+  return form.policy_text.split("\n").map((line) => {
+    let html = esc(line);
+    quotes.forEach((q) => { const e = esc(q); if (e && html.includes(e)) html = html.replace(e, `<mark>${e}</mark>`); });
+    return `<p>${html}</p>`;
+  }).join("");
 }
+const publishedRule = (quotes) => `<h3>The rule, as published</h3><div class="statute">${statuteHtml(quotes || [])}</div><p>${sourceChip(form.source)}</p>`;
+const currentScheme = () => pack.schemes.find((s) => s.id === (form ? form.id : $("scheme").value));
 
-async function loadScheme() {
-  const option = $("scheme").selectedOptions[0];
-  $("result").innerHTML = ""; $("change").innerHTML = "";
+async function openScheme() {
   const chosen = pack.schemes.find((s) => s.id === $("scheme").value);
-  $("schemeSummary").textContent = chosen.summary;
+  answers = {}; step = 0; form = null;
+  if (!chosen) { $("flow").innerHTML = `<h2>Do I qualify?</h2>${empty("No scheme with verified numeric rules is available for this country yet. Try the other tabs, or pick Singapore or India.")}`; return; }
   if (!chosen.self_check) {
-    formSpec = null; $("form").innerHTML = ""; $("checkBtn").disabled = true; $("changeBtn").disabled = true;
-    $("policyText").textContent = chosen.policy_text; $("sourceLine").innerHTML = sourceLink(chosen.source);
-    $("assumptions").innerHTML = '<div class="muted">No self-check: eligibility is decided by a caseworker or a government database, and no numeric rule could be verified from an official page.</div>';
+    $("flow").innerHTML = `<h2>${esc(chosen.name)}</h2><p class="lead">${esc(chosen.summary)}</p>
+      <div class="note">No self-check for this scheme. Eligibility is decided by a caseworker or a government database, and no numeric rule could be verified from an official page.</div>
+      <h3>What the law says</h3><div class="statute"><p>${esc(chosen.policy_text)}</p></div><p>${sourceChip(chosen.source)}</p>`;
     return;
   }
-  formSpec = await api(`/api/civic/schemes/${chosen.id}/form`);
-  $("form").innerHTML = formSpec.fields.map(fieldInput).join("");
-  $("policyText").textContent = formSpec.policy_text;
-  $("sourceLine").innerHTML = sourceLink(formSpec.source);
-  $("assumptions").innerHTML = formSpec.assumptions.length ? "<h3>Assumptions this check makes</h3><ul>" + formSpec.assumptions.map((a) => `<li><b>${esc(a.question)}</b> ${esc(a.resolution)}</li>`).join("") + "</ul>" : "";
-  $("checkBtn").disabled = false; $("changeBtn").disabled = true;
+  form = await api(`/api/civic/schemes/${chosen.id}/form`);
+  showIntro();
 }
 
-function readInputs() {
-  const inputs = {};
-  for (const f of formSpec.fields) {
-    const el = $("f_" + f.name);
-    if (f.kind === "bool") inputs[f.name] = el.value === "true";
-    else if (f.kind === "enum" || f.kind === "str") inputs[f.name] = el.value;
-    else inputs[f.name] = el.value === "" ? null : Number(el.value);
+function showIntro() {
+  const chosen = currentScheme(), total = form.fields.length;
+  $("flow").innerHTML = `
+    <p class="eyebrow">${esc(form.country.toUpperCase())} &middot; scheme check</p>
+    <h2>${esc(chosen.name)}</h2>
+    <p class="lead">${esc(chosen.summary)}</p>
+    <p>You will answer ${total} short questions, one at a time. You get an answer, the rule that decided it, and what would change it. Nothing is stored.</p>
+    <div class="row"><button class="primary" id="startBtn">Start</button><button class="ghost" id="exampleBtn">Use an example person</button></div>
+    <details><summary>Read the rule first</summary>${publishedRule([])}</details>`;
+  $("startBtn").onclick = () => { answers = {}; step = 0; ask(); };
+  $("exampleBtn").onclick = () => { answers = {}; form.fields.forEach((f) => (answers[f.name] = f.kind === "set" ? [] : f.typical ?? null)); review(true); };
+}
+
+function ask() {
+  const f = form.fields[step], total = form.fields.length;
+  let inputs = "";
+  if (f.kind === "bool") {
+    inputs = `<button class="answer${answers[f.name] === true ? " sel" : ""}" data-v="true">Yes</button><button class="answer${answers[f.name] === false ? " sel" : ""}" data-v="false">No</button>`;
+  } else if (f.kind === "enum") {
+    inputs = f.options.map((o) => `<button class="answer${answers[f.name] === o.value ? " sel" : ""}" data-v="${esc(o.value)}">${esc(o.label)}</button>`).join("");
+  } else {
+    inputs = `<div class="field"><input type="number" id="numAns" inputmode="numeric" aria-label="${esc(f.label)}" ${f.min != null ? `min="${f.min}"` : ""} ${f.max != null ? `max="${f.max}"` : ""} value="${answers[f.name] ?? ""}"></div>
+      <div class="row"><button class="primary" id="nextBtn">Continue</button>${f.nullable ? '<button class="ghost" id="unknownBtn">I do not know</button>' : ""}</div><div class="err" id="numErr" role="alert"></div>`;
   }
-  return inputs;
+  $("flow").innerHTML = `<button class="link" id="backBtn">&larr; ${step > 0 ? "Back" : "Cancel"}</button>
+    <div class="progress" role="progressbar" aria-label="Progress" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${step}"><span style="width:${(step / total) * 100}%"></span></div>
+    <div class="qcard"><p class="eyebrow">Question ${step + 1} of ${total}</p><h2>${esc(f.label)}</h2>
+    ${f.changeable ? "" : '<p class="muted">This is a fixed fact, so it is never suggested as a way to qualify.</p>'}
+    ${inputs}</div>`;
+  $("backBtn").onclick = () => { if (step > 0) { step--; ask(); } else showIntro(); };
+  document.querySelectorAll(".answer").forEach((b) => (b.onclick = () => { answers[f.name] = f.kind === "bool" ? b.dataset.v === "true" : b.dataset.v; advance(); }));
+  if ($("numAns")) {
+    $("numAns").focus();
+    const submit = () => {
+      const raw = $("numAns").value;
+      if (raw === "") { $("numErr").textContent = f.nullable ? "Enter a number, or choose I do not know." : "Enter a number to continue."; return; }
+      answers[f.name] = Number(raw); advance();
+    };
+    $("nextBtn").onclick = submit;
+    $("numAns").addEventListener("keydown", (e) => { if (e.key === "Enter") submit(); });
+    if ($("unknownBtn")) $("unknownBtn").onclick = () => { answers[f.name] = null; advance(); };
+  } else focusHeading();
+}
+function advance() { step++; if (step >= form.fields.length) review(false); else ask(); }
+
+function review(example) {
+  const rows = form.fields.map((f, i) => `<div class="item"><dt>${esc(f.label)}</dt><dd>${esc(display(f, answers[f.name]))} <button class="link" data-i="${i}" aria-label="Change: ${esc(f.label)}">Change</button></dd></div>`).join("");
+  $("flow").innerHTML = `<button class="link" id="backBtn">&larr; Start again</button>
+    <h2>${example ? "An example person" : "Check your answers"}</h2>
+    <p class="lead">${example ? "These are made-up answers so you can see how a result looks. Change any of them." : "Make sure these are right, then see your result."}</p>
+    <dl class="summary-list">${rows}</dl>
+    <div class="row"><button class="primary" id="resultBtn">See my result</button></div>`;
+  $("backBtn").onclick = showIntro;
+  document.querySelectorAll(".summary-list .link").forEach((b) => (b.onclick = () => { step = Number(b.dataset.i); ask(); }));
+  $("resultBtn").onclick = showResult;
+  focusHeading();
 }
 
-$("scheme").onchange = loadScheme;
-$("country").onchange = () => loadCountry($("country").value);
+function inputsPayload() {
+  const out = {};
+  form.fields.forEach((f) => { out[f.name] = answers[f.name] === undefined ? null : answers[f.name]; });
+  return out;
+}
 
-$("checkBtn").onclick = async () => {
-  $("checkBtn").disabled = true; $("change").innerHTML = "";
+async function showResult() {
+  $("flow").innerHTML = '<p class="muted" role="status">Checking the rule...</p>';
   try {
-    lastInputs = readInputs();
-    const r = await api(`/api/civic/schemes/${formSpec.id}/check`, { inputs: lastInputs });
+    const r = await api(`/api/civic/schemes/${form.id}/check`, { inputs: inputsPayload() });
     const reasons = r.reason_labels.length ? "<ul>" + r.reason_labels.map((x) => `<li>${esc(x)}</li>`).join("") + "</ul>" : "";
-    const clauses = r.clauses.map((c) => `<div class="quote">${esc(c.quote)}</div><div class="muted">${esc(c.clause)}${c.reason ? " &middot; " + esc(c.reason) : ""}</div>`).join("");
-    $("result").innerHTML = `<div class="result ${r.favourable ? "good" : "bad"}"><h3 style="margin-top:0">${esc(r.outcome_label)}</h3>${reasons}<h3>The rule that applied</h3>${clauses}<div class="muted">${esc(r.disclaimer)}</div></div>`;
-    $("changeBtn").disabled = false;
+    const quotes = r.clauses.map((c) => c.quote).filter(Boolean);
+    $("flow").innerHTML = `<button class="link" id="backBtn">&larr; Change my answers</button>
+      <div class="result ${r.favourable ? "good" : "bad"}">
+        <div class="verdict"><span class="icon" aria-hidden="true">${r.favourable ? "&#10003;" : "&times;"}</span><h3>${esc(r.outcome_label)}</h3></div>
+        ${reasons}
+        <h3>The sentence that decided it</h3>
+        ${quotes.map((q) => `<div class="quote"><mark>${esc(q)}</mark></div>`).join("") || empty("No clause quote recorded.")}
+        <p class="muted">${esc(r.disclaimer)}</p>
+      </div>
+      <div id="change"></div>
+      ${publishedRule(quotes)}
+      ${form.assumptions.length ? `<details><summary>Assumptions this check makes</summary><ul>${form.assumptions.map((a) => `<li><b>${esc(a.question)}</b> ${esc(a.resolution)}</li>`).join("")}</ul></details>` : ""}
+      <div class="row"><button class="ghost" id="againBtn">Check someone else</button></div>`;
+    $("backBtn").onclick = () => review(false);
+    $("againBtn").onclick = showIntro;
+    focusHeading();
+    if (!r.favourable) showChange();
   } catch (error) {
-    $("result").innerHTML = '<div class="err">' + esc(error.message) + "</div>";
-  } finally { $("checkBtn").disabled = false; }
-};
+    $("flow").innerHTML = `<div class="result bad"><h3>That did not work</h3><p class="err">${esc(error.message)}</p><p class="muted">Your answers were not stored. Go back and try again.</p></div><div class="row"><button class="ghost" id="backBtn">Back</button></div>`;
+    $("backBtn").onclick = () => review(false);
+  }
+}
 
-$("changeBtn").onclick = async () => {
-  $("changeBtn").disabled = true; $("change").innerHTML = "Searching...";
+async function showChange() {
+  $("change").innerHTML = '<div class="note" role="status">Looking for the smallest change that would alter this...</div>';
   try {
-    const r = await api(`/api/civic/schemes/${formSpec.id}/change`, { inputs: lastInputs });
-    if (r.already_met) { $("change").innerHTML = '<div class="ok">You already meet the published criteria. Use the first result above.</div>'; return; }
+    const r = await api(`/api/civic/schemes/${form.id}/change`, { inputs: inputsPayload() });
+    const label = (name) => (fieldById(name) || {}).label || name;
+    const show = (name, v) => { const f = fieldById(name); return f ? display(f, v) : v; };
     if (!r.alternatives.length) {
-      const fixed = r.blocked_by.length ? `Only a fixed fact blocks this: ${r.blocked_by.map(esc).join(", ")}. It cannot be changed, so no change to your circumstances would make you eligible.` : "No change within the fields you can influence would change the answer.";
-      $("change").innerHTML = `<div class="result bad"><h3 style="margin-top:0">What would change my answer?</h3>${fixed}</div>`;
+      const fixed = r.blocked_by.length ? `A fixed fact blocks this: ${r.blocked_by.map((n) => esc(label(n))).join("; ")}. It cannot be changed, so no change in your circumstances would make a difference.` : "No change to the things you can influence would alter the answer.";
+      $("change").innerHTML = `<div class="result"><h3 style="margin-top:0">What would change my answer?</h3><p>${fixed}</p></div>`;
       return;
     }
-    const label = (name) => (formSpec.fields.find((f) => f.name === name) || {}).label || name;
-    const show = (v) => (typeof v === "boolean" ? (v ? "Yes" : "No") : v ?? "none");
-    $("change").innerHTML = `<div class="result good"><h3 style="margin-top:0">What would change my answer?</h3>` + r.alternatives.map((a, i) =>
-      `<div class="card" style="margin-top:8px"><b>Option ${i + 1}</b><ul>${a.changes.map((c) => `<li>${esc(label(c.field))}: ${esc(show(c.from))} &rarr; <b>${esc(show(c.to))}</b></li>`).join("")}</ul><div class="muted">Result: ${esc(a.outcome_label)}</div></div>`).join("") +
-      `<div class="muted">Each option was checked against the same rules. It shows what the published rule would say, not a promise of approval.</div></div>`;
+    $("change").innerHTML = `<div class="result good"><h3 style="margin-top:0">What would change my answer?</h3>
+      ${r.alternatives.map((a, i) => `<div class="card" style="margin-top:10px"><b>Option ${i + 1}</b><ul>${a.changes.map((c) => `<li>${esc(label(c.field))}: ${esc(show(c.field, c.from))} &rarr; <b>${esc(show(c.field, c.to))}</b></li>`).join("")}</ul><div class="muted">Then the rule gives: ${esc(a.outcome_label)}</div></div>`).join("")}
+      <p class="muted" style="margin-bottom:0">Each option was re-checked against the same rule. It shows what the published rule would say, not a promise of approval.</p></div>`;
   } catch (error) {
     $("change").innerHTML = '<div class="err">' + esc(error.message) + "</div>";
-  } finally { $("changeBtn").disabled = false; }
-};
+  }
+}
 
 $("findBtn").onclick = async () => {
   const text = $("problemText").value.trim();
   if (!text) { $("matches").innerHTML = ""; return; }
   const r = await api(`/api/civic/countries/${$("country").value}/problems?text=` + encodeURIComponent(text));
-  $("matches").innerHTML = r.matches.length ? '<div class="grid">' + r.matches.map(renderProblem).join("") + "</div>" : empty("No match. Browse all problems below.");
+  $("matches").innerHTML = r.matches.length ? '<div class="grid" style="margin-top:12px">' + r.matches.map(renderProblem).join("") + "</div>" : '<p class="muted">No match. Browse all problems below.</p>';
 };
 $("problemText").addEventListener("keydown", (e) => { if (e.key === "Enter") $("findBtn").click(); });
+
+async function loadCountry(code) { pack = await api("/api/civic/countries/" + code); renderReference(); }
+$("scheme").onchange = openScheme;
+$("country").onchange = () => loadCountry($("country").value);
 
 (async function init() {
   const countries = await api("/api/civic/countries");
@@ -227,6 +283,8 @@ $("problemText").addEventListener("keydown", (e) => { if (e.key === "Enter") $("
   const preferred = countries.find((c) => c.code === "sg") || countries[0];
   $("country").value = preferred.code;
   await loadCountry(preferred.code);
+  const wanted = location.hash.replace("#", "");
+  if (["decides", "rights", "bodies", "leaders"].includes(wanted)) showTab(wanted);
 })().catch((e) => ($("status").innerHTML = '<span class="err">' + esc(e.message) + "</span>"));
 </script>
 </body>
