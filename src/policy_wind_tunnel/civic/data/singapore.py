@@ -22,7 +22,7 @@ PACK = {
     "notes": [
         "Government tiers, town councils and most problem-to-body mappings were not verified from official pages.",
         "Whether Singapore has a general freedom-of-information law was not verified, so no information-access right is listed.",
-        "Parliament's terms bar copying MP lists, so only fictional demo MPs are shown and the official finder is linked.",
+        "Parliament's terms bar copying its MP lists. The bundled cards are fictional; live area lookup is a web search that is not reviewed, so check it against the official finder.",
     ],
     "tiers": [],
     "problems": [
