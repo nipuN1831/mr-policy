@@ -57,7 +57,7 @@
   <section>
     <p class="eyebrow">Built with</p>
     <h2>Google Cloud and open tools</h2>
-    <p class="lead" id="stack">Python and FastAPI on Cloud Run, a Z3 solver for boundary tests and gap checks, and Gemini to draft contracts from policy text. Language model status: <span id="llm">checking</span>.</p>
+    <p class="lead" id="stack">A Python and FastAPI service, designed to run on Google Cloud Run and not deployed yet. A Z3 solver does the boundary tests and gap checks, and Gemini drafts contracts and runs the live area lookup. Language model status: <span id="llm">checking</span>.</p>
   </section>
 
   <p class="footer"><a href="/">Home</a><a href="/citizen">For citizens</a><a href="/officials">For officials</a></p>
@@ -65,6 +65,7 @@
 
 <script>
 const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 (async function () {
   try {
     const health = await (await fetch("/api/health")).json();
@@ -75,7 +76,7 @@ const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "
       const checkable = p.schemes.filter((s) => s.self_check).length;
       const verified = p.problems.filter((x) => x.verified).length;
       return `<div class="card"><h3>${esc(p.name)} <span class="pill ${p.status === "verified" ? "good" : "warn"}">${esc(p.status)}</span></h3>
-        <ul><li>${checkable} scheme(s) you can check</li><li>${p.problems.length} problem entries, ${verified} fully verified</li><li>${p.rights.length} rights, ${p.tiers.length} government tiers</li></ul>
+        <ul><li>${plural(checkable, "scheme you can check", "schemes you can check")}</li><li>${plural(p.problems.length, "problem entry", "problem entries")}, ${verified} fully verified</li><li>${plural(p.rights.length, "right", "rights")}, ${plural(p.tiers.length, "government tier", "government tiers")}</li></ul>
         <div class="muted"><b>Not verified:</b><ul>${p.notes.map((n) => `<li>${esc(n)}</li>`).join("")}</ul></div></div>`;
     }).join("");
   } catch (e) {

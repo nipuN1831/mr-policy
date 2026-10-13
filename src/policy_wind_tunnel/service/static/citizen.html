@@ -27,7 +27,7 @@
     <select id="country"></select>
     <span id="status"></span>
   </div>
-  <div class="muted" id="notes"></div>
+  <details id="notesBox" hidden><summary>What is not verified for this country</summary><div class="muted" id="notes"></div></details>
 
   <div class="tabs" id="tabs" style="margin-top:16px">
     <button data-tab="qualify" class="on">Do I qualify?</button>
@@ -123,6 +123,7 @@ function renderProblem(p) {
 function renderReference() {
   $("status").innerHTML = pack.status === "verified" ? '<span class="pill good">verified</span>' : '<span class="pill warn">partial: some content is not yet verified</span>';
   $("notes").innerHTML = pack.notes.length ? "<ul>" + pack.notes.map((n) => `<li>${esc(n)}</li>`).join("") + "</ul>" : "";
+  $("notesBox").hidden = pack.notes.length === 0;
   $("allProblems").innerHTML = pack.problems.length ? pack.problems.map(renderProblem).join("") : empty("No problems are verified for this country yet.");
   $("matches").innerHTML = "";
   $("rights").innerHTML = pack.rights.length ? pack.rights.map((r) => `<div class="card"><h3>${esc(r.title)}</h3><p>${esc(r.summary)}</p><p class="muted">How to use it: ${esc(r.how_to_use)}</p>${r.law ? `<p class="muted">Law: ${esc(r.law)}</p>` : ""}${sourceChip(r.source)}</div>`).join("") : empty("No rights are verified for this country yet.");
