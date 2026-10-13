@@ -38,6 +38,7 @@ class Fact(Strict):
     label: str
     value: str
     source: Source
+    also: list[Source] = Field(default_factory=list)
 
     @field_validator("value", "label")
     @classmethod

@@ -234,6 +234,7 @@ def create_app(llm: Any = _UNSET, searcher: Any = _UNSET) -> FastAPI:
                 "representatives": people["representatives"],
                 "bodies": bodies["bodies"],
                 "dropped": people["dropped"] + bodies["dropped"],
+                "left_out": people.get("left_out", []),
                 "notice": people["notice"],
                 "as_of": as_of,
             }

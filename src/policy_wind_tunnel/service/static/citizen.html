@@ -298,7 +298,8 @@ function renderLive(r) {
     <span class="pill good">found by search</span>
     <div>${esc(p.role)}${p.body ? ", " + esc(p.body) : ""}</div>
     <div class="muted">${esc(p.constituency)}${p.party ? " &middot; " + esc(p.party) : ""}${p.terms != null ? " &middot; terms: " + p.terms : ""}</div>
-    <ul>${p.record.map((f) => `<li><b>${esc(f.label)}:</b> ${esc(f.value)} <a href="${esc(f.source.url)}" target="_blank" rel="noopener noreferrer">${esc(f.source.title)}</a></li>`).join("")}</ul>
+    <ul>${p.record.map((f) => `<li><b>${esc(f.label)}:</b> ${esc(f.value)}</li>`).join("")}</ul>
+    <div class="muted">Pages that support this entry: ${[...new Map(p.record.flatMap((f) => [f.source, ...(f.also || [])]).map((s) => [s.url, s])).values()].map((s) => `<a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">${esc(s.title)}</a>`).join(", ")}</div>
     ${Object.entries(p.handles).map(([k, v]) => `<div class="muted">${esc(k)}: @${esc(v)} (link only)</div>`).join("")}
     <div class="muted">As of ${esc(r.as_of)}</div></div>`).join("");
   const bodies = r.bodies.map((b) => `<div class="card"><h3>${esc(b.name)}</h3><span class="pill good">${esc(b.level)}</span>
@@ -308,7 +309,9 @@ function renderLive(r) {
   $("liveOut").innerHTML = `<div class="note">${esc(r.notice)}</div>
     <h3>Representatives for ${esc(r.place)}</h3>${people ? '<div class="grid">' + people + "</div>" : empty("No representative could be confirmed from a source for this place.")}
     <h3>Bodies that decide everyday matters</h3>${bodies ? '<div class="grid">' + bodies + "</div>" : empty("No body could be confirmed from a source for this place.")}
-    ${r.dropped ? `<p class="muted">${r.dropped} item(s) were left out because they had no matching source.</p>` : ""}`;
+    ${r.left_out && r.left_out.length ? `<p class="muted"><b>Left out for lack of a trustworthy source:</b> ${r.left_out.map(esc).join(", ")}. They may still hold office, so check the official pages.</p>` : ""}
+    ${r.dropped ? `<p class="muted">${r.dropped} item(s) were left out because they had no matching source.</p>` : ""}
+    <p class="muted">Results can differ each time the search runs. Facts on this page are tied to the person's entry, not to single sentences.</p>`;
 }
 
 $("findBtn").onclick = async () => {
