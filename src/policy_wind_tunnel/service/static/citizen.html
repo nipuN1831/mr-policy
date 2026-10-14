@@ -6,17 +6,196 @@
 <title>Citizens: check a scheme, find the right office | Policy Wind Tunnel</title>
 <meta name="description" content="Check whether you qualify for a public scheme, see the exact published rule that decided it, and find who handles your problem.">
 <link rel="icon" href="/favicon.ico" type="image/svg+xml">
-<link rel="stylesheet" href="/static/app.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #10251f; --text: #34433d; --muted: #65736d;
+  --green: #15533f; --green-dark: #0b3e2e; --green-soft: #e6f2eb;
+  --line: #e4e8e3; --paper: #fffefa; --page: #fafbf8;
+  --shadow: 0 14px 38px rgba(24,48,37,.07); --radius: 20px;
+  --pass: #15533f; --pass-bg: #e4f3e9; --fail: #b3261e; --fail-bg: #fdecea;
+  --warn: #7a5200; --warn-bg: #fff6d1; --amber: #ffd84d;
+  font-synthesis: none; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--page); color: var(--ink); font-family: "DM Sans", system-ui, sans-serif; font-size: 16px; line-height: 1.6; }
+button, input, textarea, select { font: inherit; }
+button:focus-visible, a:focus-visible, select:focus-visible, textarea:focus-visible, input:focus-visible { outline: 3px solid #4e8c70; outline-offset: 3px; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+.skip { position: absolute; top: -60px; left: 16px; z-index: 100; padding: 10px 14px; background: var(--green-dark); color: white; border-radius: 10px; text-decoration: none; }
+.skip:focus { top: 12px; }
+
+/* Header */
+.site-header { height: 72px; padding: 0 clamp(20px, 5.5vw, 88px); display: flex; align-items: center; justify-content: space-between; gap: 24px; background: rgba(255,254,250,.95); border-bottom: 1px solid rgba(21,83,63,.08); position: sticky; top: 0; z-index: 10; backdrop-filter: blur(8px); }
+.brand { display: inline-flex; align-items: center; gap: 13px; text-decoration: none; color: var(--ink); font-family: Manrope, sans-serif; font-size: clamp(17px, 1.8vw, 22px); font-weight: 800; letter-spacing: -.6px; white-space: nowrap; }
+.brand-mark { width: 40px; height: 40px; color: var(--green); flex: none; }
+.header-nav { display: flex; align-items: center; gap: 6px; }
+.nav-link { display: inline-flex; align-items: center; height: 40px; padding: 0 14px; border-radius: 10px; text-decoration: none; color: var(--muted); font-weight: 600; font-size: 15px; transition: background .15s, color .15s; white-space: nowrap; }
+.nav-link:hover { background: #edf3ee; color: var(--ink); }
+.nav-link.on { background: var(--green-soft); color: var(--green-dark); }
+.nav-link.primary { background: var(--green-dark); color: #fff; padding: 0 18px; }
+.nav-link.primary:hover { background: var(--green); }
+
+/* Layout */
+.wrap { max-width: 1260px; margin: 0 auto; padding: 28px 24px 80px; }
+.hero { padding: 6px 0 18px; }
+.hero h1 { margin: 0 0 8px; font: 700 clamp(28px, 4vw, 42px)/1.1 Manrope, sans-serif; letter-spacing: -.03em; color: var(--ink); }
+.hero p { margin: 0; color: var(--muted); font-size: 18px; max-width: 680px; }
+.eyebrow { font: 700 10px/1 "DM Sans", sans-serif; text-transform: uppercase; letter-spacing: 1.6px; color: #6c8475; margin: 0 0 10px; }
+
+/* Banner / note */
+.banner { background: var(--warn-bg); border: 1px solid #ecd48a; color: #5c4100; border-radius: 12px; padding: 11px 16px; margin: 0 0 20px; font-size: 14px; }
+.note { background: var(--green-soft); border: 1px solid #b6dde1; color: #0b4a52; border-radius: 12px; padding: 11px 16px; margin: 12px 0; font-size: 14px; }
+
+/* Row / grid */
+.row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin: 12px 0; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 16px; }
+
+/* Cards */
+.card { border: 1px solid var(--line); border-radius: 16px; padding: 18px 20px; background: #fff; min-width: 0; overflow-wrap: anywhere; box-shadow: 0 2px 8px rgba(24,48,37,.04); }
+.card h3 { margin: 0 0 8px; font: 700 17px/1.3 Manrope, sans-serif; }
+.card ul { margin: 6px 0 6px 18px; padding: 0; }
+.card p { margin: 4px 0; font-size: 15px; }
+
+/* Tabs */
+.tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 16px 0 20px; padding: 6px; background: #f0f4f0; border-radius: 16px; }
+.tabs button { flex: 1 1 auto; background: transparent; color: var(--muted); border: 0; border-radius: 11px; padding: 10px 14px; font: 600 15px "DM Sans", sans-serif; cursor: pointer; min-height: 44px; transition: background .15s, color .15s; }
+.tabs button:hover { color: var(--ink); }
+.tabs button.on { background: #fff; color: var(--green-dark); box-shadow: var(--shadow); }
+
+/* Buttons */
+button.primary, button#extract, button#run, button#simulate, button#checkBtn, button#findBtn, button#placeBtn, button#runExploratory, button#bench {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  background: var(--green-dark); color: #fff; border: 0; border-radius: 11px;
+  padding: 11px 22px; font: 650 16px "DM Sans", sans-serif; cursor: pointer; min-height: 46px; transition: background .15s;
+}
+button.primary:hover, button#extract:hover, button#run:hover, button#simulate:hover, button#checkBtn:hover, button#findBtn:hover, button#placeBtn:hover, button#runExploratory:hover, button#bench:hover { background: var(--green); }
+button.secondary, button.ghost, button#bench, button#changeBtn, button#toggleJson, button#againBtn, button#backBtn, button#startBtn, button#exampleBtn, button#resultBtn {
+  background: #fff; color: var(--ink); border: 1.5px solid #9bbba8; border-radius: 11px;
+  padding: 10px 18px; font: 600 15px "DM Sans", sans-serif; cursor: pointer; min-height: 44px;
+  display: inline-flex; align-items: center; text-decoration: none;
+}
+button.secondary:hover, button.ghost:hover, button#bench:hover, button#changeBtn:hover, button#toggleJson:hover, button#againBtn:hover, button#backBtn:hover, button#startBtn:hover, button#exampleBtn:hover, button#resultBtn:hover { background: #f4f7f3; }
+button:disabled { opacity: .5; cursor: not-allowed; }
+.link { background: none; border: 0; color: var(--green-dark); text-decoration: underline; cursor: pointer; font: inherit; padding: 4px 6px; }
+
+/* Inputs */
+select, input[type=text], input[type=number] { background: #fff; color: var(--ink); border: 1.5px solid #6b8190; border-radius: 10px; padding: 10px 14px; min-height: 46px; max-width: 100%; font-size: 16px; }
+input[type=checkbox] { width: 18px; height: 18px; vertical-align: -3px; accent-color: var(--green-dark); }
+textarea { width: 100%; height: 260px; resize: vertical; background: #fbfdfe; color: var(--ink); border: 1.5px solid #6b8190; border-radius: 10px; padding: 12px; font: 13.5px/1.55 ui-monospace, Menlo, monospace; }
+details { border: 1px solid var(--line); border-radius: 12px; padding: 4px 16px; background: #fbfdfe; margin-top: 16px; }
+summary { cursor: pointer; font-weight: 650; padding: 11px 0; font-size: 15px; }
+
+/* Typography utilities */
+h2 { margin: 0 0 8px; font: 700 22px/1.2 Manrope, sans-serif; letter-spacing: -.02em; }
+h3 { margin: 18px 0 6px; font: 700 17px/1.3 Manrope, sans-serif; }
+.lead { color: var(--muted); margin: 0 0 14px; font-size: 15px; }
+.muted { color: var(--muted); font-size: 14px; }
+.ok { color: var(--pass); } .err { color: var(--fail); } .warn-text { color: var(--warn); }
+
+/* Pill */
+.pill { display: inline-block; padding: 3px 10px; border-radius: 99px; font-size: 12px; font-weight: 700; margin-right: 5px; }
+.pill.good { background: var(--pass-bg); color: var(--pass); }
+.pill.bad { background: var(--fail-bg); color: var(--fail); }
+.pill.warn { background: var(--warn-bg); color: var(--warn); }
+
+/* Quote / statute */
+.quote { font: italic 400 18px/1.6 "Source Serif 4", Georgia, serif; border-left: 4px solid var(--green); padding: 6px 0 6px 16px; margin: 12px 0; color: var(--ink); white-space: pre-wrap; overflow-wrap: anywhere; }
+.statute { font: 400 16px/1.7 "Source Serif 4", Georgia, serif; background: #fbfaf3; border: 1px solid #e8e2c8; border-radius: 10px; padding: 14px 18px; margin: 10px 0; }
+.statute p { margin: 4px 0; }
+mark, .mark { background: linear-gradient(transparent 12%, var(--amber) 12%, var(--amber) 92%, transparent 92%); color: var(--ink); padding: 0 .1em; border-radius: 2px; }
+
+/* Source chip */
+.src { display: inline-flex; flex-wrap: wrap; gap: 5px; align-items: center; background: #f0f4f0; border-radius: 99px; padding: 4px 12px; font-size: 13px; color: var(--muted); margin-top: 8px; }
+
+/* Result card */
+.result { border: 1px solid var(--line); border-radius: var(--radius); padding: 20px 22px; margin-top: 16px; background: #fff; }
+.result.good { border-left: 4px solid var(--pass); background: #f6fbf8; }
+.result.bad { border-left: 4px solid var(--fail); background: #fff8f7; }
+.result h3 { margin-top: 0; font: 700 22px/1.2 Manrope, sans-serif; }
+.verdict { display: flex; gap: 14px; align-items: center; margin-bottom: 4px; }
+.verdict .icon { width: 42px; height: 42px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 800; flex: none; }
+.result.good .icon { background: var(--pass); color: #fff; }
+.result.bad .icon { background: var(--fail); color: #fff; }
+.verdict h3 { margin: 0; }
+
+/* Tiles */
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; margin: 16px 0; }
+.tile { background: #f4f7f3; border-radius: 14px; padding: 16px 18px; border: 1px solid var(--line); }
+.tile .big { font: 700 34px/1 Manrope, sans-serif; letter-spacing: -.03em; color: var(--green-dark); }
+.tile .label { color: var(--muted); font-size: 13px; margin-top: 6px; }
+.tile.good .big { color: var(--pass); } .tile.bad .big { color: var(--fail); }
+
+/* Progress bar */
+.progress { height: 6px; background: #e4e8e3; border-radius: 6px; overflow: hidden; margin: 0 0 20px; }
+.progress > span { display: block; height: 100%; background: var(--green-dark); transition: width .25s ease; }
+
+/* Stepper */
+.qcard h2 { font-size: clamp(22px, 3vw, 30px); margin-bottom: 10px; }
+.answer { display: block; width: 100%; text-align: left; background: #fff; border: 1.5px solid #9bbba8; border-radius: 12px; padding: 13px 18px; font: 600 17px "DM Sans", sans-serif; color: var(--ink); cursor: pointer; margin-bottom: 10px; min-height: 52px; transition: border-color .15s, background .15s; }
+.answer:hover { border-color: var(--green-dark); background: var(--green-soft); }
+.answer.sel { border-color: var(--green-dark); background: var(--green-soft); }
+.summary-list { margin: 0; padding: 0; }
+.summary-list .item { display: flex; flex-wrap: wrap; gap: 6px 16px; justify-content: space-between; padding: 11px 0; border-bottom: 1px solid var(--line); }
+.summary-list dt { color: var(--muted); flex: 1 1 240px; font-size: 14px; }
+.summary-list dd { margin: 0; font-weight: 700; flex: 0 1 auto; }
+
+/* Amb block */
+.amb { border: 1px solid var(--line); border-radius: 12px; padding: 12px 16px; margin-top: 10px; background: #fff; }
+.amb .q { font-weight: 650; font-size: 15px; margin-bottom: 4px; }
+
+/* Pre */
+pre { background: #f0f4f0; border: 1px solid var(--line); border-radius: 10px; padding: 12px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; font: 13px/1.5 ui-monospace, Menlo, monospace; max-height: 260px; margin: 8px 0 0; color: #1f3340; }
+
+/* Table */
+table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--muted); font-weight: 700; font-size: 12.5px; text-transform: uppercase; letter-spacing: .05em; }
+
+/* Footer */
+.footer { border-top: 1px solid var(--line); margin-top: 40px; padding-top: 18px; color: var(--muted); font-size: 13.5px; }
+.footer a { margin-right: 14px; color: var(--green-dark); }
+
+/* Sections inside tabs */
+section, .panel { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 24px 26px; margin-bottom: 18px; }
+
+@media (max-width: 640px) {
+  body { font-size: 15.5px; }
+  .wrap { padding: 16px 16px 60px; }
+  .site-header { height: 64px; padding-inline: 16px; }
+  .nav-link:not(.on):not(.primary) { display: none; }
+  section, .panel { padding: 16px; }
+  .tabs button { flex: 1 1 45%; font-size: 14px; padding: 9px 10px; }
+  select, input[type=text], input[type=number] { width: 100%; }
+  .row > select, .row > input[type=text] { flex: 1 1 100%; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; } }
+</style>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
-<header class="topbar"><div class="inner">
-  <a class="brand" href="/"><span class="logo"></span>Policy Wind Tunnel</a>
-  <nav aria-label="Main"><a href="/citizen" class="on" aria-current="page">For citizens</a><a href="/officials">For officials</a><a href="/about">How it works</a></nav>
-</div></header>
+<header class="site-header">
+  <a class="brand" href="/" aria-label="Policy Wind Tunnel home">
+    <svg class="brand-mark" viewBox="0 0 48 48" role="img" aria-hidden="true">
+      <path d="M5 40V24C5 13.5 13.5 5 24 5s19 8.5 19 19v16" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/>
+      <path d="M12 40V24c0-6.6 5.4-12 12-12s12 5.4 12 12v16" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/>
+      <path d="M19 40V27a5 5 0 0 1 10 0v13" fill="currentColor" opacity=".72"/>
+    </svg>
+    <span>Policy Wind Tunnel</span>
+  </a>
+  <nav class="header-nav" aria-label="Main">
+    <a class="nav-link on" href="/citizen" aria-current="page">For citizens</a>
+    <a class="nav-link" href="/officials">For officials</a>
+    <a class="nav-link" href="/about">How it works</a>
+  </nav>
+</header>
 
 <main id="main" class="wrap">
   <div class="hero">
+    <p class="eyebrow">Citizens</p>
     <h1>Know what you are entitled to</h1>
     <p>Check whether you qualify for a scheme, see the exact rule that decided it, and find who handles your problem.</p>
   </div>
@@ -45,7 +224,7 @@
   <section id="tab-decides" hidden>
     <h2>Who handles my problem?</h2>
     <p class="lead">Describe it in your own words, or browse the list below.</p>
-    <div class="row"><input type="text" id="problemText" size="46" aria-label="Describe your problem" placeholder="For example: my bank refused a refund"><button class="primary" id="findBtn">Find</button></div>
+    <div class="row"><input type="text" id="problemText" size="46" aria-label="Describe your problem" placeholder="For example: my bank refused a refund"><button id="findBtn">Find</button></div>
     <div id="matches"></div>
     <h3>All problems</h3>
     <div class="grid" id="allProblems"></div>
@@ -86,7 +265,7 @@ async function api(path, body) {
   if (!response.ok) throw new Error(typeof data.detail === "string" ? data.detail : JSON.stringify(data.detail || data));
   return data;
 }
-const sourceChip = (s) => `<span class="src">Source: <a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">${esc(s.title)}</a> &middot; as of ${esc(s.as_of)}</span>`;
+const sourceChip = (s) => `<span class="src">Source: <b>${esc(s.title)}</b> <span class="muted">${esc(s.url)}</span> &middot; as of ${esc(s.as_of)}</span>`;
 const empty = (text) => `<p class="muted">${esc(text)}</p>`;
 function focusHeading() { const h = $("flow").querySelector("h2, h3"); if (h) { h.setAttribute("tabindex", "-1"); h.focus({ preventScroll: true }); } }
 
@@ -113,7 +292,7 @@ function renderProblem(p) {
     <div class="muted">Start with: ${esc(p.first_body)}</div>
     <ul>${p.steps.map((s) => `<li>${esc(s)}</li>`).join("")}</ul>
     ${lines ? `<ul>${lines}</ul>` : ""}
-    ${p.portal ? `<div><a href="${esc(p.portal)}" target="_blank" rel="noopener noreferrer">Official portal</a></div>` : ""}
+    ${p.portal ? `<div class="muted">Portal: ${esc(p.portal)}</div>` : ""}
     ${p.legal_basis ? `<div class="muted">Basis: ${esc(p.legal_basis)}</div>` : ""}
     <div style="margin-top:8px">${p.verified ? '<span class="pill good">verified</span>' : '<span class="pill warn">partly unverified</span>'}</div>
     ${p.unverified_parts.length ? `<div class="muted">Not verified: ${p.unverified_parts.map(esc).join("; ")}</div>` : ""}
@@ -132,7 +311,7 @@ function renderReference() {
     <div>${esc(r.role)}, ${esc(r.body)}</div><div class="muted">${esc(r.constituency)} &middot; ${esc(r.region)} ${r.party ? "&middot; " + esc(r.party) : ""}</div>
     ${r.terms != null ? `<div class="muted">Terms: ${r.terms}</div>` : ""}
     ${Object.entries(r.handles).map(([k, v]) => `<div class="muted">${esc(k)}: @${esc(v)} (link only)</div>`).join("")}
-    ${Object.entries(r.links).map(([k, v]) => `<div><a href="${esc(v)}" target="_blank" rel="noopener noreferrer">${esc(k)}</a></div>`).join("")}
+    ${Object.entries(r.links).map(([k, v]) => `<div class="muted">${esc(k)}: ${esc(v)}</div>`).join("")}
     <p class="muted">Shown for layout only. A real card would give each fact a source link and date.</p></div>`).join("");
   $("scheme").innerHTML = pack.schemes.map((s) => `<option value="${esc(s.id)}">${esc(s.name)}${s.self_check ? "" : " (information only)"}</option>`).join("");
   $("scheme").disabled = pack.schemes.length === 0;
@@ -285,7 +464,7 @@ async function initLive() {
   let live = false;
   try { live = (await api("/api/civic/leaders/status")).live; } catch (e) { live = false; }
   $("liveBox").innerHTML = live
-    ? `<div class="row"><input type="text" id="placeText" size="40" aria-label="Your constituency, town or district" placeholder="For example: Marine Parade GRC"><button class="primary" id="placeBtn">Look up</button></div>
+    ? `<div class="row"><input type="text" id="placeText" size="40" aria-label="Your constituency, town or district" placeholder="For example: Marine Parade GRC"><button id="placeBtn">Look up</button></div>
        <p class="muted">The search describes the place and its officials. It never rates, ranks or comments on anyone, and it will refuse if asked to.</p>`
     : `<div class="note">Live lookup is off. It needs Gemini web search, which is not connected in this session, so only the fictional demo layout below is shown.</div>`;
   if (!live) return;
@@ -311,12 +490,15 @@ function renderLive(r) {
     <div>${esc(p.role)}${p.body ? ", " + esc(p.body) : ""}</div>
     <div class="muted">${esc(p.constituency)}${p.party ? " &middot; " + esc(p.party) : ""}${p.terms != null ? " &middot; terms: " + p.terms : ""}</div>
     <ul>${p.record.map((f) => `<li><b>${esc(f.label)}:</b> ${esc(f.value)}</li>`).join("")}</ul>
-    <div class="muted">Pages that support this entry: ${[...new Map(p.record.flatMap((f) => [f.source, ...(f.also || [])]).map((s) => [s.title, s])).values()].map((s) => `<a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">${esc(s.title)}</a>`).join(", ")}</div>
+    <div class="muted">Pages that support this entry: ${[...new Map(p.record.flatMap((f) => [f.source, ...(f.also || [])]).map((s) => [s.title, s])).values()].map((s) => esc(s.title)).join(", ")}</div>
     ${Object.entries(p.handles).map(([k, v]) => `<div class="muted">${esc(k)}: @${esc(v)} (link only)</div>`).join("")}
     <div class="muted">As of ${esc(r.as_of)}</div></div>`).join("");
   const bodies = r.bodies.map((b) => `<div class="card"><h3>${esc(b.name)}</h3><span class="pill good">${esc(b.level)}</span>
+    ${b.summary ? `<p>${esc(b.summary)}</p>` : ""}
     <p class="muted" style="margin:6px 0">Responsible for:</p><ul>${b.handles.map((h) => `<li>${esc(h)}</li>`).join("")}</ul>
-    ${b.contact_url ? `<div><a href="${esc(b.contact_url)}" target="_blank" rel="noopener noreferrer">Official contact page</a></div>` : ""}
+    ${b.contact && b.contact.phone ? `<p><strong>Phone:</strong> ${esc(b.contact.phone)}</p>` : ""}
+    ${b.contact && b.contact.hours ? `<p><strong>Hours:</strong> ${esc(b.contact.hours)}</p>` : ""}
+    ${b.contact && b.contact.website ? `<p class="muted">Source: ${esc(b.contact.website)}</p>` : ""}
     <div style="margin-top:8px">${sourceChip(b.source)}</div></div>`).join("");
   $("liveOut").innerHTML = `<div class="note">${esc(r.notice)}</div>
     <h3>Representatives for ${esc(r.place)}</h3>${people ? '<div class="grid">' + people + "</div>" : empty("No representative could be confirmed from a source for this place.")}
@@ -341,10 +523,35 @@ $("country").onchange = () => { loadCountry($("country").value); if ($("liveOut"
 (async function init() {
   const countries = await api("/api/civic/countries");
   $("country").innerHTML = countries.map((c) => `<option value="${esc(c.code)}">${esc(c.name)}${c.status === "partial" ? " (partial)" : ""}</option>`).join("");
-  const preferred = countries.find((c) => c.code === "sg") || countries[0];
-  $("country").value = preferred.code;
-  await loadCountry(preferred.code);
-  applyTab(location.hash.replace("#", ""));
+  // pre-select country from landing page sessionStorage or default to India
+  const preferred = sessionStorage.getItem("pwt_country") || "in";
+  const found = countries.find((c) => c.code === preferred) || countries.find((c) => c.code === "sg") || countries[0];
+  $("country").value = found.code;
+  await loadCountry(found.code);
+  // pre-select scheme from URL param
+  const urlParams = new URLSearchParams(location.search);
+  const schemeParam = urlParams.get("scheme");
+  if (schemeParam && pack) {
+    const match = pack.schemes.find((s) => s.id === schemeParam);
+    if (match) { $("scheme").value = schemeParam; await openScheme(); }
+  }
+  // pre-fill "decides" tab from landing page question
+  const savedQuestion = sessionStorage.getItem("pwt_question");
+  if (savedQuestion) {
+    sessionStorage.removeItem("pwt_question");
+    const hash = location.hash.replace("#", "");
+    // if redirected to #decides or no scheme param was matched, auto-search
+    const schemeMatched = schemeParam && pack && pack.schemes.find((s) => s.id === schemeParam);
+    if (!schemeMatched) {
+      applyTab("decides");
+      $("problemText").value = savedQuestion;
+      $("findBtn").click();
+    } else {
+      applyTab(hash || "qualify");
+    }
+  } else {
+    applyTab(location.hash.replace("#", ""));
+  }
   initLive();
 })().catch((e) => ($("status").innerHTML = '<span class="err">' + esc(e.message) + "</span>"));
 </script>

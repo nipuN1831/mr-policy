@@ -210,3 +210,33 @@ def test_the_about_page_pluralises_counts_properly(client):
 def test_the_citizen_page_tucks_country_caveats_into_a_disclosure(client):
     text = client.get("/citizen").text
     assert '<details id="notesBox"' in text and "What is not verified for this country" in text
+
+
+def test_the_area_lookup_shows_contact_details_inside_the_app(client):
+    text = client.get("/citizen").text
+    assert "b.contact.phone" in text and "b.contact.hours" in text and "b.summary" in text
+
+
+def test_the_officials_page_shows_which_rules_read_each_input(client):
+    text = client.get("/officials").text
+    assert 'id="levers"' in text and "/api/levers" in text and "Which rules read each input" in text
+
+
+def test_the_officials_whatif_tab_has_an_exploratory_impact_section(client):
+    text = client.get("/officials").text
+    assert "Exploratory impact model" in text
+    assert "/api/exploratory" in text
+    assert "Illustrative only" in text
+
+
+def test_the_about_page_explains_both_simulation_modes(client):
+    text = client.get("/about").text
+    assert "exploratory" in text.lower()
+    assert "policysim" in text.lower()
+    assert "model assumption" in text.lower() or "model assumptions" in text.lower()
+
+
+def test_citizen_page_has_no_outbound_anchor_tags_in_content_js(client):
+    text = client.get("/citizen").text
+    # nav/skip/footer links are fine; content JS must not emit target=_blank links
+    assert 'target="_blank"' not in text

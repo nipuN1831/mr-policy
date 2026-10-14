@@ -26,6 +26,8 @@ from policy_wind_tunnel.contract.evaluator import ContractError
 from policy_wind_tunnel.contract.gold import LENDING_CONTRACT
 from policy_wind_tunnel.contract.models import Contract
 from policy_wind_tunnel.service import orchestrator
+from policy_wind_tunnel.simulation.exploratory import run_exploratory
+from policy_wind_tunnel.simulation.levers import levers
 from policy_wind_tunnel.simulation.scenarios import scenario_by_id
 from policy_wind_tunnel.simulation.whatif import ChangeError
 
@@ -57,6 +59,18 @@ class WhatIfRequest(BaseModel):
     use_gold: bool = False
 
 
+class LeversRequest(BaseModel):
+    contract: dict[str, Any] | None = None
+    use_gold: bool = False
+
+
+class ExploratoryRequest(BaseModel):
+    rule_id: str
+    change_factor: float = 1.0
+    contract: dict[str, Any] | None = None
+    use_gold: bool = False
+
+
 class CheckRequest(BaseModel):
     inputs: dict[str, Any]
 
@@ -65,6 +79,11 @@ class ChangeRequest(BaseModel):
     inputs: dict[str, Any]
     targets: list[str] | None = None
     lock: list[str] | None = None
+
+
+class ChatRequest(BaseModel):
+    question: str = Field(min_length=1, max_length=2000)
+    country: str = "in"
 
 
 class LeaderLookupRequest(BaseModel):
@@ -105,6 +124,72 @@ def create_app(llm: Any = _UNSET, searcher: Any = _UNSET) -> FastAPI:
     lookup_cache: dict[tuple[str, str], dict[str, Any]] = {}
     app = FastAPI(title="Policy Wind Tunnel")
 
+    _CHAT_SYSTEM = (
+        "You are Policy Wind Tunnel, a civic information assistant for India and Singapore. "
+        "Answer the user's policy question in 2-4 plain sentences. Be factual and cite the relevant law or scheme name. "
+        "Then output a JSON object on a new line with these exact keys:\n"
+        "  answer: string (under 120 words)\n"
+        "  intent: one of scheme_check | problem | rights | representatives | officials_whatif | general\n"
+        "  scheme_id: null OR exactly one of: in_caa_2019 | in_pmuy | sg_silver_support\n"
+        "  redirect_path: chosen by these rules:\n"
+        "    - if scheme_id is not null → always use /citizen (never #decides)\n"
+        "    - if intent is problem → /citizen#decides\n"
+        "    - if intent is rights → /citizen#rights\n"
+        "    - if intent is representatives → /citizen#leaders\n"
+        "    - if intent is officials_whatif → /officials\n"
+        "    - otherwise → /citizen\n"
+        "Never make up statistics or invent sources."
+    )
+    _CHAT_KEYWORDS = {
+        "caa": ("in_caa_2019", "/citizen", "The CAA 2019 fast-tracks citizenship for six religious minorities from Afghanistan, Bangladesh or Pakistan who entered India by 31 Dec 2014, after 5 years of residency. It does not apply to Muslims, Inner Line Permit states, or Sixth Schedule areas. Check your exact eligibility on the next page."),
+        "citizenship": ("in_caa_2019", "/citizen", "The Citizenship Amendment Act 2019 covers Hindu, Sikh, Buddhist, Jain, Parsi and Christian applicants from three countries. Entry must be on or before 31 December 2014 and 5 years of residency are required. Check your eligibility with the step-by-step checker."),
+        "lpg": ("in_pmuy", "/citizen", "Ujjwala PMUY 2.0 gives a free LPG connection (not the cylinder) to women from poor households with no existing OMC connection. You need to be 18+, have no other LPG connection in the household, and submit a deprivation declaration. Check your eligibility on the next page."),
+        "ujjwala": ("in_pmuy", "/citizen", "Ujjwala PMUY 2.0 gives a free LPG connection (not the cylinder) to women from poor households with no existing OMC connection. You need to be 18+, have no other LPG connection in the household, and submit a deprivation declaration."),
+        "pmuy": ("in_pmuy", "/citizen", "PM Ujjwala Yojana 2.0 provides free LPG connections to eligible women from poor households. Eligibility requires age 18+, no existing OMC connection in the household, and a deprivation declaration form."),
+        "silver support": ("sg_silver_support", "/citizen", "Singapore's Silver Support Scheme provides quarterly cash supplements to elderly lower-income Singaporeans aged 65+. Eligibility depends on household income per person and housing type. Check your exact qualification on the next page."),
+        "bank": (None, "/citizen#decides", "For bank complaints, first raise it with the bank and get a reference number. If unresolved after 30 days, file with the RBI Complaint Management System at cms.rbi.org.in. The helpline is 14448, Mon–Sat 8am–10pm."),
+        "rti": (None, "/citizen#rights", "The Right to Information Act 2005 lets any citizen request records from public authorities. File at rtionline.gov.in for central bodies. State matters need state portals. The PIO has 30 days to reply."),
+        "cpgrams": (None, "/citizen#decides", "CPGRAMS is the central government grievance portal at pgportal.gov.in. It is free. Each ministry has a nodal officer. RTI, sub judice and service matters are out of scope."),
+        "complaint": (None, "/citizen#decides", "For central government complaints, use CPGRAMS at pgportal.gov.in. For consumer disputes, call the National Consumer Helpline on 1915. For bank issues, contact the RBI Ombudsman after first raising it with your bank."),
+        "rights": (None, "/citizen#rights", "Your key rights include the Right to Information (RTI Act 2005), Consumer Protection (Consumer Protection Act 2019), and Free Legal Services (Legal Services Authorities Act 1987). See the Rights tab for how to use each one."),
+        "representative": (None, "/citizen#leaders", "You can look up your Member of Parliament, MLA, or local councillor from the My Area tab. For India, Sansad.in lists Lok Sabha members. The live search uses Gemini to find your area's current representatives."),
+        "what if": (None, "/officials", "The Officials page lets you simulate a rule change — re-decide thousands of synthetic applicants and see who moves in or out. Try raising the income floor or changing a residency requirement."),
+    }
+
+    @app.post("/api/chat")
+    async def chat(request: ChatRequest):
+        q = request.question.strip().lower()
+        if model is not None:
+            try:
+                import json as _json
+                raw = model.generate_json(_CHAT_SYSTEM, f"Country: {request.country}\nQuestion: {request.question}")
+                # extract JSON block: last {...} in response
+                start = raw.rfind("{")
+                end = raw.rfind("}") + 1
+                if start >= 0 and end > start:
+                    meta = _json.loads(raw[start:end])
+                    answer_text = meta.get("answer") or raw[:start].strip()
+                    return {
+                        "answer": answer_text,
+                        "intent": meta.get("intent", "general"),
+                        "scheme_id": meta.get("scheme_id"),
+                        "redirect_path": meta.get("redirect_path"),
+                        "powered_by": "gemini",
+                    }
+            except Exception:
+                pass
+        # keyword fallback
+        for kw, (scheme_id, path, answer_text) in _CHAT_KEYWORDS.items():
+            if kw in q:
+                return {"answer": answer_text, "intent": "general", "scheme_id": scheme_id, "redirect_path": path, "powered_by": "fallback"}
+        return {
+            "answer": "I couldn't find a specific answer for that question. Try browsing the topics below or use the full citizen checker.",
+            "intent": "general",
+            "scheme_id": None,
+            "redirect_path": "/citizen",
+            "powered_by": "fallback",
+        }
+
     @app.get("/api/health")
     def health():
         info = settings.describe()
@@ -131,6 +216,18 @@ def create_app(llm: Any = _UNSET, searcher: Any = _UNSET) -> FastAPI:
         except orchestrator.UnknownTarget as error:
             raise HTTPException(404, detail=f"unknown target {request.target}") from error
         except orchestrator.ContractMismatch as error:
+            raise HTTPException(422, detail=str(error)) from error
+
+    @app.post("/api/levers")
+    def levers_route(request: LeversRequest):
+        return levers(_load_contract(request.contract, request.use_gold))
+
+    @app.post("/api/exploratory")
+    def exploratory_route(request: ExploratoryRequest):
+        contract = _load_contract(request.contract, request.use_gold)
+        try:
+            return run_exploratory(contract, rule_id=request.rule_id, change_factor=request.change_factor)
+        except Exception as error:
             raise HTTPException(422, detail=str(error)) from error
 
     @app.post("/api/whatif")

@@ -3,18 +3,143 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Policy Wind Tunnel - Officials</title>
+<title>Officials: test a rule before you ship it | Policy Wind Tunnel</title>
 <link rel="icon" href="/favicon.ico" type="image/svg+xml">
-<link rel="stylesheet" href="/static/app.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #10251f; --text: #34433d; --muted: #65736d;
+  --green: #15533f; --green-dark: #0b3e2e; --green-soft: #e6f2eb;
+  --line: #e4e8e3; --paper: #fffefa; --page: #fafbf8;
+  --shadow: 0 14px 38px rgba(24,48,37,.07); --radius: 20px;
+  --pass: #15533f; --pass-bg: #e4f3e9; --fail: #b3261e; --fail-bg: #fdecea;
+  --warn: #7a5200; --warn-bg: #fff6d1; --amber: #ffd84d;
+  font-synthesis: none; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--page); color: var(--ink); font-family: "DM Sans", system-ui, sans-serif; font-size: 16px; line-height: 1.6; }
+button, input, textarea, select { font: inherit; }
+button:focus-visible, a:focus-visible, select:focus-visible, textarea:focus-visible, input:focus-visible { outline: 3px solid #4e8c70; outline-offset: 3px; }
+.skip { position: absolute; top: -60px; left: 16px; z-index: 100; padding: 10px 14px; background: var(--green-dark); color: white; border-radius: 10px; text-decoration: none; }
+.skip:focus { top: 12px; }
+
+.site-header { height: 72px; padding: 0 clamp(20px, 5.5vw, 88px); display: flex; align-items: center; justify-content: space-between; gap: 24px; background: rgba(255,254,250,.95); border-bottom: 1px solid rgba(21,83,63,.08); position: sticky; top: 0; z-index: 10; backdrop-filter: blur(8px); }
+.brand { display: inline-flex; align-items: center; gap: 13px; text-decoration: none; color: var(--ink); font-family: Manrope, sans-serif; font-size: clamp(17px, 1.8vw, 22px); font-weight: 800; letter-spacing: -.6px; white-space: nowrap; }
+.brand-mark { width: 40px; height: 40px; color: var(--green); flex: none; }
+.header-nav { display: flex; align-items: center; gap: 6px; }
+.nav-link { display: inline-flex; align-items: center; height: 40px; padding: 0 14px; border-radius: 10px; text-decoration: none; color: var(--muted); font-weight: 600; font-size: 15px; transition: background .15s, color .15s; white-space: nowrap; }
+.nav-link:hover { background: #edf3ee; color: var(--ink); }
+.nav-link.on { background: var(--green-soft); color: var(--green-dark); }
+
+.wrap { max-width: 1260px; margin: 0 auto; padding: 28px 24px 80px; }
+.hero { padding: 6px 0 18px; }
+.hero h1 { margin: 0 0 8px; font: 700 clamp(28px, 4vw, 42px)/1.1 Manrope, sans-serif; letter-spacing: -.03em; }
+.hero p { margin: 0; color: var(--muted); font-size: 18px; max-width: 680px; }
+.eyebrow { font: 700 10px/1 "DM Sans", sans-serif; text-transform: uppercase; letter-spacing: 1.6px; color: #6c8475; margin: 0 0 10px; }
+.banner { background: var(--warn-bg); border: 1px solid #ecd48a; color: #5c4100; border-radius: 12px; padding: 11px 16px; margin: 0 0 20px; font-size: 14px; }
+
+.tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 20px; padding: 6px; background: #f0f4f0; border-radius: 16px; }
+.tabs button { flex: 1 1 auto; background: transparent; color: var(--muted); border: 0; border-radius: 11px; padding: 10px 14px; font: 600 15px "DM Sans", sans-serif; cursor: pointer; min-height: 44px; transition: background .15s, color .15s; }
+.tabs button:hover { color: var(--ink); }
+.tabs button.on { background: #fff; color: var(--green-dark); box-shadow: var(--shadow); }
+.tabs .num { display: inline-flex; width: 20px; height: 20px; border-radius: 50%; background: var(--line); color: var(--ink); align-items: center; justify-content: center; font-size: 11px; margin-right: 7px; }
+.tabs button.on .num { background: var(--green-dark); color: #fff; }
+
+.pane { display: block; }
+.pane[hidden] { display: none; }
+section { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 24px 26px; margin-bottom: 18px; }
+h2 { margin: 0 0 8px; font: 700 21px/1.2 Manrope, sans-serif; letter-spacing: -.02em; }
+h3 { margin: 18px 0 6px; font: 700 16px/1.3 Manrope, sans-serif; }
+.lead { color: var(--muted); margin: 0 0 14px; font-size: 15px; }
+.muted { color: var(--muted); font-size: 14px; }
+.ok { color: var(--pass); } .err { color: var(--fail); }
+
+.row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin: 12px 0; }
+select, input[type=text], input[type=number] { background: #fff; color: var(--ink); border: 1.5px solid #6b8190; border-radius: 10px; padding: 10px 14px; min-height: 46px; font-size: 15px; }
+input[type=checkbox] { width: 18px; height: 18px; vertical-align: -3px; accent-color: var(--green-dark); }
+textarea { width: 100%; height: 260px; resize: vertical; background: #fbfdfe; color: var(--ink); border: 1.5px solid #6b8190; border-radius: 10px; padding: 12px; font: 13.5px/1.55 ui-monospace, Menlo, monospace; }
+
+button#extract, button#run, button#simulate, button#runExploratory, button#bench {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  background: var(--green-dark); color: #fff; border: 0; border-radius: 11px;
+  padding: 11px 22px; font: 650 15px "DM Sans", sans-serif; cursor: pointer; min-height: 46px; transition: background .15s;
+}
+button#extract:hover, button#run:hover, button#simulate:hover, button#runExploratory:hover, button#bench:hover { background: var(--green); }
+button.secondary, button#toggleJson {
+  background: #fff; color: var(--ink); border: 1.5px solid #9bbba8; border-radius: 11px;
+  padding: 9px 16px; font: 600 14px "DM Sans", sans-serif; cursor: pointer; min-height: 42px; display: inline-flex; align-items: center;
+}
+button.secondary:hover, button#toggleJson:hover { background: #f4f7f3; }
+button:disabled { opacity: .5; cursor: not-allowed; }
+
+.pill { display: inline-block; padding: 3px 10px; border-radius: 99px; font-size: 12px; font-weight: 700; margin-right: 5px; }
+.pill.good { background: var(--pass-bg); color: var(--pass); }
+.pill.bad { background: var(--fail-bg); color: var(--fail); }
+.pill.warn { background: var(--warn-bg); color: var(--warn); }
+.pill.high { background: var(--fail-bg); color: var(--fail); }
+.pill.medium { background: var(--warn-bg); color: var(--warn); }
+.pill.low { background: var(--pass-bg); color: var(--pass); }
+
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; margin: 16px 0; }
+.tile { background: #f4f7f3; border-radius: 14px; padding: 16px 18px; border: 1px solid var(--line); }
+.tile .big { font: 700 34px/1 Manrope, sans-serif; letter-spacing: -.03em; color: var(--green-dark); }
+.tile .label { color: var(--muted); font-size: 13px; margin-top: 6px; }
+.tile.good .big { color: var(--pass); } .tile.bad .big { color: var(--fail); }
+
+.quote { font: italic 400 17px/1.6 Georgia, serif; border-left: 4px solid var(--green); padding: 5px 0 5px 14px; margin: 10px 0; color: var(--ink); white-space: pre-wrap; overflow-wrap: anywhere; }
+.result { border: 1px solid var(--line); border-radius: var(--radius); padding: 20px 22px; margin-top: 16px; background: #fff; }
+.result.good { border-left: 4px solid var(--pass); background: #f6fbf8; }
+.result.bad { border-left: 4px solid var(--fail); background: #fff8f7; }
+.result h3 { margin-top: 0; }
+.finding { border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; margin-top: 14px; background: #fff; }
+.finding h3 { margin: 0 0 8px; font-size: 16px; }
+.amb { border: 1px solid var(--line); border-radius: 12px; padding: 12px 16px; margin-top: 10px; background: #fff; }
+.amb .q { font-weight: 650; font-size: 15px; margin-bottom: 4px; }
+.bar { height: 10px; border-radius: 8px; background: #e4e8e3; overflow: hidden; margin: 3px 0 10px; }
+.bar > span { display: block; height: 100%; background: var(--green-dark); border-radius: 8px; }
+pre { background: #f0f4f0; border: 1px solid var(--line); border-radius: 10px; padding: 12px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; font: 13px/1.5 ui-monospace, Menlo, monospace; max-height: 260px; margin: 8px 0 0; color: #1f3340; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--muted); font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; }
+.finding table { table-layout: fixed; }
+.finding td pre { max-height: none; margin: 0; }
+.footer { border-top: 1px solid var(--line); margin-top: 40px; padding-top: 18px; color: var(--muted); font-size: 13.5px; }
+.footer a { margin-right: 14px; color: var(--green-dark); }
+
+@media (max-width: 640px) {
+  .wrap { padding: 16px 16px 60px; }
+  .site-header { height: 64px; padding-inline: 16px; }
+  .nav-link:not(.on) { display: none; }
+  section { padding: 16px; }
+  .tabs button { flex: 1 1 45%; font-size: 13px; padding: 8px 8px; }
+  textarea { height: 180px; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: .01ms !important; } }
+</style>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
-<header class="topbar"><div class="inner">
-  <a class="brand" href="/"><span class="logo"></span>Policy Wind Tunnel</a>
-  <nav aria-label="Main"><a href="/citizen">For citizens</a><a href="/officials" class="on" aria-current="page">For officials</a><a href="/about">How it works</a></nav>
-</div></header>
+<header class="site-header">
+  <a class="brand" href="/" aria-label="Policy Wind Tunnel home">
+    <svg class="brand-mark" viewBox="0 0 48 48" role="img" aria-hidden="true">
+      <path d="M5 40V24C5 13.5 13.5 5 24 5s19 8.5 19 19v16" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/>
+      <path d="M12 40V24c0-6.6 5.4-12 12-12s12 5.4 12 12v16" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/>
+      <path d="M19 40V27a5 5 0 0 1 10 0v13" fill="currentColor" opacity=".72"/>
+    </svg>
+    <span>Policy Wind Tunnel</span>
+  </a>
+  <nav class="header-nav" aria-label="Main">
+    <a class="nav-link" href="/citizen">For citizens</a>
+    <a class="nav-link on" href="/officials" aria-current="page">For officials</a>
+    <a class="nav-link" href="/about">How it works</a>
+  </nav>
+</header>
 <main id="main" class="wrap">
   <div class="hero">
+    <p class="eyebrow">Officials</p>
     <h1>Test a rule before you ship it</h1>
     <p>Load a policy, try a change on a synthetic population, and check that the software still follows the rule.</p>
     <p class="muted" id="status"></p>
@@ -60,6 +185,21 @@
       </div>
       <div class="muted" id="scenarioDesc"></div>
       <div id="whatifOut"></div>
+    </section>
+    <section>
+      <h2>Which rules read each input?</h2>
+      <p class="lead">Before changing a rule, see which inputs it touches and which outcomes they can cause. This lists what the contract reads. It does not predict real-world effects.</p>
+      <div id="levers" class="muted">Loading...</div>
+    </section>
+    <section style="border:2px solid var(--amber);border-radius:12px;padding:20px 22px;margin-top:18px">
+      <h2>Exploratory impact model <span class="pill warn">Illustrative only</span></h2>
+      <p class="lead">Powered by PolicySim's causal engine (MIT declared). Edge weights come from our synthetic population, not real data. Numbers are model assumptions — not predictions.</p>
+      <div class="row">
+        <select id="exploratoryRule" aria-label="Rule to change"></select>
+        <label>Change factor: <input type="number" id="exploratoryFactor" value="1.5" min="0" max="5" step="0.1" style="width:5rem"></label>
+        <button id="runExploratory">Simulate</button>
+      </div>
+      <div id="exploratoryOut"></div>
     </section>
   </div>
 
@@ -110,7 +250,44 @@ const esc = (value) => String(value).replace(/[&<>"']/g, (c) => ({ "&": "&amp;",
 function showTab(name) {
   document.querySelectorAll("#tabs button").forEach((b) => b.classList.toggle("on", b.dataset.tab === name));
   ["policy", "whatif", "test", "bench"].forEach((t) => ($("tab-" + t).hidden = t !== name));
+  if (name === "whatif") loadLevers();
 }
+
+async function loadLevers() {
+  try {
+    const b = await api("/api/levers", { contract: contract || undefined, use_gold: !contract });
+    $("levers").innerHTML = '<table><tr><th>Input</th><th>Rules that read it</th><th>Can cause</th></tr>' + b.levers.map((i) =>
+      `<tr><td><b>${esc(i.field)}</b><div class="muted">${esc(i.description)}</div></td>
+      <td>${i.rules.length ? i.rules.map((r) => `${esc(r.id)} <span class="muted">(clause ${esc(r.clause)})</span>`).join(", ") : '<span class="muted">none</span>'}</td>
+      <td>${i.outcomes.length ? i.outcomes.map(esc).join(", ") + (i.reasons.length ? ' <span class="muted">' + i.reasons.map(esc).join(", ") + "</span>" : "") : '<span class="muted">none</span>'}</td></tr>`).join("") + "</table><p class=\"muted\">" + esc(b.note) + "</p>";
+    const allRules = b.levers.flatMap((i) => i.rules).filter((r, idx, arr) => arr.findIndex((x) => x.id === r.id) === idx);
+    $("exploratoryRule").innerHTML = allRules.map((r) => `<option value="${esc(r.id)}">${esc(r.id)} (clause ${esc(r.clause)})</option>`).join("");
+  } catch (error) {
+    $("levers").innerHTML = '<span class="err">' + esc(error.message) + "</span>";
+  }
+}
+
+$("runExploratory").onclick = async () => {
+  const ruleId = $("exploratoryRule").value;
+  const factor = parseFloat($("exploratoryFactor").value) || 1.0;
+  if (!ruleId) return;
+  $("runExploratory").disabled = true;
+  $("exploratoryOut").textContent = "Simulating...";
+  try {
+    const b = await api("/api/exploratory", { rule_id: ruleId, change_factor: factor, contract: contract || undefined, use_gold: !contract });
+    $("exploratoryOut").innerHTML =
+      `<div class="pill warn" style="margin:0.6rem 0;display:inline-block">${esc(b.note)}</div>` +
+      '<table><tr><th>Field</th><th>Baseline</th><th>Simulated</th><th>Δ%</th><th>95% CI</th><th>Causal path</th></tr>' +
+      b.outcomes.map((o) => `<tr><td>${esc(o.field)}</td><td>${o.baseline.toFixed(3)}</td><td>${o.simulated.toFixed(3)}</td>` +
+        `<td class="${o.delta_pct >= 0 ? "ok" : "err"}">${o.delta_pct >= 0 ? "+" : ""}${o.delta_pct.toFixed(1)}%</td>` +
+        `<td class="muted">[${o.ci_lower.toFixed(3)}, ${o.ci_upper.toFixed(3)}]</td>` +
+        `<td class="muted">${esc(o.path.join(" → "))}</td></tr>`).join("") + "</table>";
+  } catch (error) {
+    $("exploratoryOut").innerHTML = '<span class="err">' + esc(error.message) + "</span>";
+  } finally {
+    $("runExploratory").disabled = false;
+  }
+};
 document.querySelectorAll("#tabs button").forEach((b) => (b.onclick = () => showTab(b.dataset.tab)));
 
 async function init() {
@@ -171,6 +348,7 @@ $("extract").onclick = async () => {
     $("toggleJson").hidden = false;
     $("run").disabled = false;
     $("runNote").textContent = "Pick an implementation and run the tests.";
+    loadLevers();
   } catch (error) {
     $("extractNote").innerHTML = '<span class="err">' + esc(error.message) + "</span>";
   } finally {

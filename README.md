@@ -78,7 +78,7 @@ Measured by the benchmark in `evaluation/harness.py`, and shown live on the land
 | False alarms on the correct software | 0 | n/a |
 | Regression tests valid (fail on bug, pass on fix) | 100% | n/a |
 
-Other checks: **384 automated tests**. The contract evaluator agrees with the reference engine on 30,000 random inputs. The "smallest change" search is compared against a brute-force scan.
+Other checks: **430+ automated tests**. The contract evaluator agrees with the reference engine on 30,000 random inputs. The "smallest change" search is compared against a brute-force scan.
 
 **Read this honestly.** The ten planted bugs, the hand-written suite and the generator were all written by the same team, so this shows recall on known kinds of bug, not on unknown ones. The generator has not been run against third-party software yet.
 
@@ -90,7 +90,7 @@ Requires Python 3.12 and [uv](https://docs.astral.sh/uv/).
 git clone <this repo> && cd policy-wind-tunnel
 uv sync
 uv run policy-wind-tunnel            # http://127.0.0.1:8000
-uv run pytest                        # 384 tests
+uv run pytest                        # 400+ tests
 ```
 
 It runs without any key. Gemini features are off until you add credentials.
@@ -145,7 +145,7 @@ Content was read from official pages on 13 October 2026. Anything that could not
 
 | Criterion | Where to look |
 |---|---|
-| **Technical merit and Gen AI implementation (40%)** | Extractor with repair loop and verbatim-quote grounding (`agents/`), Z3 gap checks and boundary generation (`adversary/`), grounded web search with source filtering (`civic/research.py`), benchmark (`evaluation/`), 384 tests |
+| **Technical merit and Gen AI implementation (40%)** | Extractor with repair loop and verbatim-quote grounding (`agents/`), Z3 gap checks and boundary generation (`adversary/`), grounded web search with source filtering (`civic/research.py`), benchmark (`evaluation/`), 430+ tests |
 | **Problem alignment and impact (25%)** | Citizen result pages with the deciding sentence and "what would change my answer"; officials' what-if showing who a change moves |
 | **Innovation and creativity (25%)** | One contract powering three jobs; solver-verified smallest-change search; regression tests proven to fail on the bug and pass on the fix |
 | **UX and solution design (10%)** | One question per screen, plain-language results, skip links, visible focus, contrast checked to WCAG AA, phone layout |
@@ -188,5 +188,11 @@ All code in this repository was written during the hackathon window, and the com
 `TODO: names and roles`
 
 ## Licence
+
+## Prior art we evaluated
+
+- **PolicySim** (`opencausality/PolicySim`): a public repository with no licence file, so default copyright applies. We did not copy, vendor or depend on any of its code. Its useful idea, showing which levers feed which outcomes, is re-implemented from scratch in `simulation/levers.py` over our own contract. That view reports which rules read each field. It is not a causal model.
+- **policysim.policy.cafe**: an unrelated web game. Not used.
+- Our what-if simulator is our own: a deterministic contract evaluator, Z3 and a synthetic population.
 
 `TODO: choose a licence before the repository is made public.`

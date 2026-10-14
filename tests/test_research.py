@@ -692,3 +692,93 @@ def test_long_body_responsibilities_are_cut_at_a_sentence_or_word_not_mid_word()
 def people_json_with_handles(name, handles):
     return json.dumps({"representatives": [
         {"name": name, "role": "MP", "body": "P", "constituency": "C", "party": "P", "terms": 1, "facts": [], "handles": handles}]})
+
+
+BODY_NOTES = """Here are the bodies:
+
+**1. People's Association (PA)**
+*   **Level:** National
+*   **Responsible for:**
+    *   Promoting social cohesion through community clubs.
+    *   Running community centres and residents' committees.
+*   **Contact:**
+    *   Website: https://www.pa.gov.sg
+    *   Phone: 6225 5322
+    *   Hours: Mon to Fri, 8.30am to 5.30pm
+*   **Summary:** A statutory board that runs community clubs across the island.
+
+**2. Housing & Development Board (HDB)**
+*   **Level:** National
+*   **Responsible for:**
+    *   Public housing, resale and tenancy matters.
+*   **Contact:**
+    *   Website: https://www.hdb.gov.sg
+"""
+
+
+def body_result():
+    cut = BODY_NOTES.index("**2. Housing")
+    return SearchResult(
+        BODY_NOTES,
+        [{"url": "https://r/1", "title": "pa.gov.sg"}, {"url": "https://r/2", "title": "hdb.gov.sg"}],
+        supports=[{"start": 0, "end": cut, "indices": [0]}, {"start": cut, "end": len(BODY_NOTES), "indices": [1]}],
+    )
+
+
+def bodies_json(*items):
+    return json.dumps({"bodies": [
+        {"name": n, "level": "national", "handles": [h], "source_url": u, "contact_url": c} for n, h, u, c in items]})
+
+
+def run_bodies(*items):
+    searcher = SupportSearcher(body_result(), bodies_json(*items))
+    return {b["name"]: b for b in lookup_government(searcher, "Singapore", "C", "2026-10-14")["bodies"]}
+
+
+PA = ("People's Association (PA)", "Promoting cohesion", "https://www.pa.gov.sg/about", "https://www.pa.gov.sg")
+HDB = ("Housing & Development Board (HDB)", "Public housing", "https://www.hdb.gov.sg/about", "https://www.hdb.gov.sg")
+
+
+def test_a_body_carries_its_contact_details_so_nobody_has_to_leave_the_app():
+    pa = run_bodies(PA, HDB)["People's Association (PA)"]
+    assert pa["contact"]["phone"] == "6225 5322"
+    assert pa["contact"]["hours"] == "Mon to Fri, 8.30am to 5.30pm"
+    assert pa["contact"]["website"] == "https://www.pa.gov.sg"
+
+
+def test_a_body_carries_a_plain_summary_from_the_notes():
+    assert run_bodies(PA, HDB)["People's Association (PA)"]["summary"] == "A statutory board that runs community clubs across the island."
+
+
+def test_responsibilities_come_from_the_notes_block_not_only_the_model():
+    pa = run_bodies(PA, HDB)["People's Association (PA)"]
+    assert "Promoting social cohesion through community clubs." in pa["handles"]
+    assert "Running community centres and residents' committees." in pa["handles"]
+
+
+def test_one_bodys_contact_never_appears_on_another():
+    hdb = run_bodies(PA, HDB)["Housing & Development Board (HDB)"]
+    assert hdb["contact"]["phone"] == "" and hdb["contact"]["hours"] == ""
+    assert "Promoting" not in " ".join(hdb["handles"])
+
+
+def test_a_phone_number_that_is_not_in_the_notes_is_never_invented():
+    res = body_result()
+    res.text = res.text.replace("    *   Phone: 6225 5322\n", "")
+    searcher = SupportSearcher(res, bodies_json(PA))
+    assert lookup_government(searcher, "Singapore", "C", "2026-10-14")["bodies"][0]["contact"]["phone"] == ""
+
+
+def test_a_phone_field_that_is_not_a_phone_number_is_dropped():
+    res = body_result()
+    res.text = res.text.replace("Phone: 6225 5322", "Phone: call us anytime, we love to help")
+    searcher = SupportSearcher(res, bodies_json(PA))
+    assert lookup_government(searcher, "Singapore", "C", "2026-10-14")["bodies"][0]["contact"]["phone"] == ""
+
+
+def test_the_contact_website_must_be_https_and_on_a_grounded_site():
+    res = body_result()
+    res.text = res.text.replace("Website: https://www.pa.gov.sg", "Website: http://evil.example.com/x")
+    searcher = SupportSearcher(res, bodies_json(PA))
+    site = lookup_government(searcher, "Singapore", "C", "2026-10-14")["bodies"][0]["contact"]["website"]
+    assert "evil.example.com" not in site and site in ("", "https://www.pa.gov.sg")

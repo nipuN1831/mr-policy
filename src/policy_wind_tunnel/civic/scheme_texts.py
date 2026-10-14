@@ -45,3 +45,23 @@ PMUY_TEXT = """PM Ujjwala Yojana 2.0 (PMUY), eligibility as listed on pmuy.gov.i
 The applicant must be a woman who has attained 18 years of age.
 There should be no other LPG connection from any Oil Marketing Company (OMC) within the same household.
 The adult woman must belong to a poor household based on submission of a deprivation declaration (as per prescribed format)."""
+
+CAA_SOURCE = {
+    "url": "https://prsindia.org/billtrack/the-citizenship-amendment-bill-2019",
+    "title": "PRS Legislative Research: Citizenship (Amendment) Act, 2019 (Act No. 47 of 2019, in force 10 Jan 2020)",
+    "as_of": "2020-01-10",
+    "checked": True,
+}
+
+CAA_TEXT = """Citizenship (Amendment) Act, 2019 — India (Act No. 47 of 2019, in force from 10 January 2020).
+Source: PRS Legislative Research summary and official Gazette of India (12 Dec 2019).
+
+Who is covered: The Act amends the Citizenship Act, 1955 to provide that persons belonging to the Hindu, Sikh, Buddhist, Jain, Parsi or Christian communities who have come from Afghanistan, Bangladesh or Pakistan, and entered India on or before December 31, 2014, shall not be treated as illegal migrants for the purpose of the Citizenship Act.
+
+Residency requirement: The Third Schedule is amended to reduce the period of residency required for citizenship by naturalisation from eleven years to five years for such persons.
+
+Geographic exclusion — Inner Line Permit: The provisions shall not apply to any area covered by the Inner Line under the Bengal Eastern Frontier Regulation, 1873. This covers Arunachal Pradesh, Mizoram, and Nagaland.
+
+Geographic exclusion — Sixth Schedule: The provisions shall not apply to the tribal areas of Assam, Meghalaya, Mizoram, or Tripura as included in the Sixth Schedule to the Constitution.
+
+Important: The Act covers only persons from these three countries belonging to these six communities. It does not cover Muslims or persons from other countries."""

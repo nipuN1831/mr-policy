@@ -6,17 +6,95 @@
 <title>How it works, and what is verified | Policy Wind Tunnel</title>
 <meta name="description" content="How Policy Wind Tunnel turns a published rule into an answer you can check, what has been verified from official pages, and what has not.">
 <link rel="icon" href="/favicon.ico" type="image/svg+xml">
-<link rel="stylesheet" href="/static/app.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #10251f; --text: #34433d; --muted: #65736d;
+  --green: #15533f; --green-dark: #0b3e2e; --green-soft: #e6f2eb;
+  --line: #e4e8e3; --paper: #fffefa; --page: #fafbf8;
+  --shadow: 0 14px 38px rgba(24,48,37,.07); --radius: 20px;
+  --pass: #15533f; --pass-bg: #e4f3e9; --fail: #b3261e; --fail-bg: #fdecea;
+  --warn: #7a5200; --warn-bg: #fff6d1;
+  font-synthesis: none; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--page); color: var(--ink); font-family: "DM Sans", system-ui, sans-serif; font-size: 16px; line-height: 1.6; }
+button, input, select { font: inherit; }
+button:focus-visible, a:focus-visible { outline: 3px solid #4e8c70; outline-offset: 3px; }
+.skip { position: absolute; top: -60px; left: 16px; z-index: 100; padding: 10px 14px; background: var(--green-dark); color: white; border-radius: 10px; text-decoration: none; }
+.skip:focus { top: 12px; }
+
+.site-header { height: 72px; padding: 0 clamp(20px, 5.5vw, 88px); display: flex; align-items: center; justify-content: space-between; gap: 24px; background: rgba(255,254,250,.95); border-bottom: 1px solid rgba(21,83,63,.08); position: sticky; top: 0; z-index: 10; backdrop-filter: blur(8px); }
+.brand { display: inline-flex; align-items: center; gap: 13px; text-decoration: none; color: var(--ink); font-family: Manrope, sans-serif; font-size: clamp(17px, 1.8vw, 22px); font-weight: 800; letter-spacing: -.6px; white-space: nowrap; }
+.brand-mark { width: 40px; height: 40px; color: var(--green); flex: none; }
+.header-nav { display: flex; align-items: center; gap: 6px; }
+.nav-link { display: inline-flex; align-items: center; height: 40px; padding: 0 14px; border-radius: 10px; text-decoration: none; color: var(--muted); font-weight: 600; font-size: 15px; transition: background .15s, color .15s; white-space: nowrap; }
+.nav-link:hover { background: #edf3ee; color: var(--ink); }
+.nav-link.on { background: var(--green-soft); color: var(--green-dark); }
+
+.wrap { max-width: 1260px; margin: 0 auto; padding: 28px 24px 80px; }
+.hero { padding: 6px 0 22px; }
+.hero h1 { margin: 0 0 10px; font: 700 clamp(28px, 4vw, 42px)/1.1 Manrope, sans-serif; letter-spacing: -.03em; }
+.hero p { margin: 0; color: var(--muted); font-size: 18px; max-width: 680px; }
+.eyebrow { font: 700 10px/1 "DM Sans", sans-serif; text-transform: uppercase; letter-spacing: 1.6px; color: #6c8475; margin: 0 0 10px; }
+
+section { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 26px 28px; margin-bottom: 20px; }
+h2 { margin: 0 0 8px; font: 700 21px/1.2 Manrope, sans-serif; letter-spacing: -.02em; }
+.lead { color: var(--muted); margin: 0 0 16px; font-size: 15px; }
+.muted { color: var(--muted); font-size: 14px; }
+a { color: var(--green-dark); }
+
+.steps { counter-reset: s; display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; margin: 12px 0 0; padding: 0; list-style: none; }
+.steps li { counter-increment: s; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; }
+.steps li::before { content: counter(s); display: flex; width: 26px; height: 26px; border-radius: 50%; background: var(--green-dark); color: #fff; font-weight: 700; font-size: 13px; align-items: center; justify-content: center; margin-bottom: 10px; }
+
+.note { background: var(--green-soft); border: 1px solid #b6dde1; color: #0b4a52; border-radius: 12px; padding: 11px 16px; margin: 12px 0; font-size: 14px; }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 16px; }
+.card { border: 1px solid var(--line); border-radius: 16px; padding: 16px 18px; background: #fff; }
+.card h3 { margin: 0 0 6px; font: 700 16px/1.3 Manrope, sans-serif; display: flex; align-items: center; gap: 8px; }
+.card ul { margin: 6px 0 6px 18px; padding: 0; font-size: 14px; }
+
+.pill { display: inline-block; padding: 3px 10px; border-radius: 99px; font-size: 12px; font-weight: 700; }
+.pill.good { background: var(--pass-bg); color: var(--pass); }
+.pill.warn { background: var(--warn-bg); color: var(--warn); }
+
+.footer { border-top: 1px solid var(--line); margin-top: 40px; padding-top: 18px; color: var(--muted); font-size: 13.5px; }
+.footer a { margin-right: 14px; color: var(--green-dark); }
+
+@media (max-width: 640px) {
+  .wrap { padding: 16px 16px 60px; }
+  .site-header { height: 64px; padding-inline: 16px; }
+  .nav-link:not(.on) { display: none; }
+  section { padding: 18px 16px; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: .01ms !important; } }
+</style>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
-<header class="topbar"><div class="inner">
-  <a class="brand" href="/"><span class="logo"></span>Policy Wind Tunnel</a>
-  <nav aria-label="Main"><a href="/citizen">For citizens</a><a href="/officials">For officials</a><a href="/about" class="on" aria-current="page">How it works</a></nav>
-</div></header>
+<header class="site-header">
+  <a class="brand" href="/" aria-label="Policy Wind Tunnel home">
+    <svg class="brand-mark" viewBox="0 0 48 48" role="img" aria-hidden="true">
+      <path d="M5 40V24C5 13.5 13.5 5 24 5s19 8.5 19 19v16" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/>
+      <path d="M12 40V24c0-6.6 5.4-12 12-12s12 5.4 12 12v16" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/>
+      <path d="M19 40V27a5 5 0 0 1 10 0v13" fill="currentColor" opacity=".72"/>
+    </svg>
+    <span>Policy Wind Tunnel</span>
+  </a>
+  <nav class="header-nav" aria-label="Main">
+    <a class="nav-link" href="/citizen">For citizens</a>
+    <a class="nav-link" href="/officials">For officials</a>
+    <a class="nav-link on" href="/about" aria-current="page">How it works</a>
+  </nav>
+</header>
 
 <main id="main" class="wrap">
   <div class="hero">
+    <p class="eyebrow">How it works</p>
     <h1>How it works, and what to trust</h1>
     <p>One contract per rule powers every screen. This page says what that means, what has been checked against official pages, and where the limits are.</p>
   </div>
@@ -48,6 +126,7 @@
       <li><b>Bundled people are fictional.</b> The demo cards are invented. When Gemini web search is connected, the &ldquo;My area&rdquo; tab can look up real representatives. Those results are not reviewed by a person: each fact links to the page it came from, and anything without a matching source is left out.</li>
       <li><b>No ratings.</b> Live lookup shows offices held, committees, bills and terms. It never shows assets, criminal cases, contact details or any opinion, and it refuses questions that ask it to judge a person.</li>
       <li><b>The population is synthetic.</b> What-if percentages show how the mechanism works. They are not forecasts, and no behaviour is predicted.</li>
+      <li><b>Two simulation modes, different claims.</b> The <em>exact</em> what-if re-decides every synthetic applicant under the changed rule — every number is traceable. The <em>exploratory impact model</em> uses PolicySim&rsquo;s causal engine (MIT declared, vendored with attribution) to propagate rule changes through a causal graph whose edge weights come from our synthetic population. The exploratory numbers are model assumptions, not predictions of real-world effect. They are labelled &ldquo;Exploratory only&rdquo; throughout.</li>
       <li><b>The benchmark is self-made.</b> The planted bugs, the hand-written suite and the generator were written by the same team, so the numbers show recall on known kinds of bug only.</li>
       <li><b>Some content is partial.</b> Several countries have few verified entries. The citizen pages say which parts are unverified.</li>
       <li><b>Nothing you enter is stored.</b> Answers are evaluated on request and not saved.</li>
@@ -57,7 +136,7 @@
   <section>
     <p class="eyebrow">Built with</p>
     <h2>Google Cloud and open tools</h2>
-    <p class="lead" id="stack">A Python and FastAPI service, designed to run on Google Cloud Run and not deployed yet. A Z3 solver does the boundary tests and gap checks, and Gemini drafts contracts and runs the live area lookup. Language model status: <span id="llm">checking</span>.</p>
+    <p class="lead" id="stack">A Python and FastAPI service, designed to run on Google Cloud Run and not deployed yet. A Z3 solver does the boundary tests and gap checks, Gemini drafts contracts and runs the live area lookup, and PolicySim&rsquo;s causal engine powers the exploratory impact model. Language model status: <span id="llm">checking</span>.</p>
   </section>
 
   <p class="footer"><a href="/">Home</a><a href="/citizen">For citizens</a><a href="/officials">For officials</a></p>
@@ -80,7 +159,7 @@ const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
         <div class="muted"><b>Not verified:</b><ul>${p.notes.map((n) => `<li>${esc(n)}</li>`).join("")}</ul></div></div>`;
     }).join("");
   } catch (e) {
-    document.getElementById("countries").innerHTML = '<p class="err">Coverage could not be loaded.</p>';
+    document.getElementById("countries").innerHTML = '<p class="muted">Coverage could not be loaded.</p>';
   }
 })();
 </script>

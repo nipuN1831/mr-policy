@@ -145,6 +145,118 @@ PMUY_CONTRACT = {
     ],
 }
 
+CAA_CONTRACT = {
+    "name": "in_caa_2019",
+    "description": "Citizenship Amendment Act 2019, India (Act No. 47 of 2019). Encodes the published eligibility conditions only. Not legal advice.",
+    "outcomes": ["ELIGIBLE", "NOT_ELIGIBLE"],
+    "fields": [
+        {
+            "name": "religion",
+            "kind": "enum",
+            "values": ["hindu", "sikh", "buddhist", "jain", "parsi", "christian", "muslim", "other"],
+            "typical": "hindu",
+            "description": "My religion",
+            "labels": {
+                "hindu": "Hindu", "sikh": "Sikh", "buddhist": "Buddhist", "jain": "Jain",
+                "parsi": "Parsi (Zoroastrian)", "christian": "Christian",
+                "muslim": "Muslim", "other": "Other",
+            },
+            "changeable": False,
+        },
+        {
+            "name": "origin_country",
+            "kind": "enum",
+            "values": ["pakistan", "bangladesh", "afghanistan", "other"],
+            "typical": "pakistan",
+            "description": "The country I migrated from",
+            "labels": {
+                "pakistan": "Pakistan", "bangladesh": "Bangladesh",
+                "afghanistan": "Afghanistan", "other": "Other country",
+            },
+            "changeable": False,
+        },
+        {
+            "name": "entered_india_year",
+            "kind": "int",
+            "min": 1947,
+            "max": 2030,
+            "typical": 2012,
+            "description": "The year I entered India",
+            "changeable": False,
+        },
+        {
+            "name": "years_in_india",
+            "kind": "int",
+            "min": 0,
+            "max": 80,
+            "typical": 6,
+            "description": "Number of years I have lived continuously in India",
+            "changeable": True,
+            "change_cost": 1,
+        },
+        {
+            "name": "inner_line_state",
+            "kind": "bool",
+            "typical": False,
+            "description": "I live in a state covered by the Inner Line Permit (Arunachal Pradesh, Mizoram, or Nagaland)",
+            "changeable": True,
+            "change_cost": 5,
+        },
+        {
+            "name": "sixth_schedule_area",
+            "kind": "bool",
+            "typical": False,
+            "description": "I live in a Sixth Schedule tribal area in Assam, Meghalaya, Mizoram, or Tripura",
+            "changeable": True,
+            "change_cost": 5,
+        },
+    ],
+    "derived": [],
+    "stages": [
+        {
+            "name": "exclusions",
+            "mode": "collect",
+            "rules": [
+                _rule("C_religion", "Who is covered",
+                      "persons belonging to the Hindu, Sikh, Buddhist, Jain, Parsi or Christian communities",
+                      'religion not in ("hindu","sikh","buddhist","jain","parsi","christian")',
+                      "NOT_ELIGIBLE", "RELIGION"),
+                _rule("C_country", "Who is covered",
+                      "who have come from Afghanistan, Bangladesh or Pakistan",
+                      'origin_country not in ("pakistan","bangladesh","afghanistan")',
+                      "NOT_ELIGIBLE", "COUNTRY"),
+                _rule("C_entry", "Entry cut-off",
+                      "entered India on or before December 31, 2014",
+                      "entered_india_year > 2014",
+                      "NOT_ELIGIBLE", "ENTRY_DATE"),
+                _rule("C_inner_line", "Inner Line exclusion",
+                      "shall not apply to any area covered by the Inner Line under the Bengal Eastern Frontier Regulation, 1873",
+                      "inner_line_state",
+                      "NOT_ELIGIBLE", "INNER_LINE"),
+                _rule("C_sixth_schedule", "Sixth Schedule exclusion",
+                      "shall not apply to the tribal areas of Assam, Meghalaya, Mizoram, or Tripura as included in the Sixth Schedule",
+                      "sixth_schedule_area",
+                      "NOT_ELIGIBLE", "SIXTH_SCHEDULE"),
+                _rule("C_residency", "Naturalisation period",
+                      "period of residency required for citizenship by naturalisation from eleven years to five years",
+                      "years_in_india < 5",
+                      "NOT_ELIGIBLE", "RESIDENCY"),
+            ],
+        },
+        {
+            "name": "grant",
+            "mode": "first_match",
+            "rules": [
+                _rule("C_eligible", "Who is covered",
+                      "persons belonging to the Hindu, Sikh, Buddhist, Jain, Parsi or Christian communities who have come from Afghanistan, Bangladesh or Pakistan, and entered India on or before December 31, 2014",
+                      "True",
+                      "ELIGIBLE"),
+            ],
+        },
+    ],
+    "ambiguities": [],
+}
+
 SILVER_LABELS = {
     "PAY_1080": "Silver Support: S$1,080 per quarter",
     "PAY_540": "Silver Support: S$540 per quarter",
@@ -161,6 +273,7 @@ def specs() -> dict[str, SchemeSpec]:
     silver = Contract.model_validate(SILVER_CONTRACT)
     legal = Contract.model_validate(LEGAL_CONTRACT)
     pmuy = Contract.model_validate(PMUY_CONTRACT)
+    caa = Contract.model_validate(CAA_CONTRACT)
     return {
         "sg_silver_support": SchemeSpec(
             "sg_silver_support", "sg", "Silver Support Scheme", silver, texts.SILVER_TEXT,
@@ -179,5 +292,18 @@ def specs() -> dict[str, SchemeSpec]:
             "in_pmuy", "in", "Ujjwala (PMUY 2.0)", pmuy, texts.PMUY_TEXT, ["ELIGIBLE"],
             {"ELIGIBLE": "Meets the published criteria", "NOT_ELIGIBLE": "Does not meet the published criteria"}, texts.PMUY_SOURCE,
             {"WOMAN": "Applicant must be a woman", "AGE": "Under 18", "LPG": "Household already has an LPG connection", "POOR": "No deprivation declaration"},
+        ),
+        "in_caa_2019": SchemeSpec(
+            "in_caa_2019", "in", "Citizenship Amendment Act 2019", caa, texts.CAA_TEXT, ["ELIGIBLE"],
+            {"ELIGIBLE": "Meets the conditions set out in the Act", "NOT_ELIGIBLE": "Does not meet the conditions set out in the Act"},
+            texts.CAA_SOURCE,
+            {
+                "RELIGION": "Religion not in the six communities covered (Hindu, Sikh, Buddhist, Jain, Parsi, Christian)",
+                "COUNTRY": "Origin country not one of the three covered (Afghanistan, Bangladesh, Pakistan)",
+                "ENTRY_DATE": "Entered India after 31 December 2014",
+                "INNER_LINE": "Residing in a state covered by the Inner Line Permit (Arunachal Pradesh, Mizoram, Nagaland)",
+                "SIXTH_SCHEDULE": "Residing in a Sixth Schedule tribal area (parts of Assam, Meghalaya, Mizoram, Tripura)",
+                "RESIDENCY": "Less than 5 years of continuous residency in India",
+            },
         ),
     }

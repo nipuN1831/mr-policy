@@ -286,7 +286,8 @@ def _clean_text(value: str) -> str:
     return re.sub(r"[*_`]", "", value).strip()
 
 
-def _block_bullets(text: str) -> list[tuple[str, str]]:
+def _block_bullets(text: str, sections: dict[str, str] | None = None) -> list[tuple[str, str]]:
+    wanted = FACT_SECTIONS if sections is None else sections
     bullets: list[tuple[str, str]] = []
     section = ""
     for line in text.splitlines():
@@ -294,12 +295,12 @@ def _block_bullets(text: str) -> list[tuple[str, str]]:
         if top and len(top.group("indent")) < 4:
             section = top.group("title").strip().lower()
             rest = _clean_text(top.group("rest"))
-            if rest and section in FACT_SECTIONS:
-                bullets.append((FACT_SECTIONS[section], rest))
+            if rest and section in wanted:
+                bullets.append((wanted[section], rest))
             continue
         nested = BULLET_LINE.match(line)
-        if nested and len(nested.group("indent")) >= 4 and section in FACT_SECTIONS:
-            bullets.append((FACT_SECTIONS[section], _clean_text(nested.group("text"))))
+        if nested and len(nested.group("indent")) >= 4 and section in wanted:
+            bullets.append((wanted[section], _clean_text(nested.group("text"))))
     return bullets
 
 
@@ -419,8 +420,8 @@ BODY_SEARCH = """Using web search, find which government bodies decide everyday 
 Country: {country}
 Place: {place}
 
-For each body give its name, whether it is local, regional or national, the everyday matters it is responsible for in plain words,
-and the official page for its contact details. Cite the official page that says what it is responsible for.
+Number each body as a heading like **1. Name**. Under it give: Level (local, regional or national); Responsible for (one bullet per everyday matter, plain words);
+Contact (bullets: Website, Phone, Hours — only those on an official page); Summary (one sentence). Cite the official page that says what it is responsible for.
 Use only what you find in official pages. Do not guess and do not fill gaps from memory. Do not include opinions or ratings.
 List at most {limit} bodies. If you find nothing, say so."""
 
@@ -471,28 +472,62 @@ def lookup_representatives(searcher: Searcher, country: str, place: str, as_of: 
     return {"representatives": people, "dropped": dropped, "left_out": left_out, "notice": NOTICE}
 
 
-def _clean_body(raw: Any, domains: set[str], as_of: str) -> dict[str, Any] | None:
+BODY_SECTIONS = {"responsible for": "handles", "responsibilities": "handles", "contact": "contact"}
+PHONE = re.compile(r"[+()\d][\d\s().+-]{4,}")
+URL = re.compile(r"https://[^\s)>\]]+")
+
+
+def _contact_details(bullets: list[tuple[str, str]], domains: set[str], fallback_url: str) -> dict[str, str]:
+    found = {"website": "", "phone": "", "hours": ""}
+    for kind, text in bullets:
+        if kind != "contact" or ":" not in text:
+            continue
+        key, value = (part.strip() for part in text.split(":", 1))
+        key = key.lower()
+        if key in ("phone", "telephone", "hotline", "tel") and not found["phone"]:
+            if PHONE.fullmatch(value) and sum(c.isdigit() for c in value) >= 6:
+                found["phone"] = value
+        elif key in ("hours", "opening hours", "operating hours") and not found["hours"]:
+            found["hours"] = _tidy(value, 120)
+        elif key in ("website", "web", "url", "official page") and not found["website"]:
+            link = URL.search(value)
+            if link and _matching_domain(link.group(0), domains):
+                found["website"] = link.group(0).rstrip(".,")
+    if not found["website"] and fallback_url and _matching_domain(fallback_url, domains):
+        found["website"] = fallback_url
+    return found
+
+
+def _clean_body(raw: Any, domains: set[str], as_of: str, result: SearchResult | None = None) -> dict[str, Any] | None:
     if not isinstance(raw, dict) or not _short(raw.get("name"), 120):
         return None
+    name = _short(raw.get("name"), 120)
     url = _short(raw.get("source_url"), 500)
     domain = _matching_domain(url, domains)
-    handles = [_tidy(item) for item in raw.get("handles", []) if isinstance(item, str)] if isinstance(raw.get("handles"), list) else []
+    model_handles = [_tidy(item) for item in raw.get("handles", []) if isinstance(item, str)] if isinstance(raw.get("handles"), list) else []
+    block = _block_text(result, name) if result else ""
+    bullets = _block_bullets(block, BODY_SECTIONS) if block else []
+    noted = [_tidy(text) for kind, text in bullets if kind == "handles" and text]
+    handles = noted or model_handles
     if not domain or not [h for h in handles if h]:
         return None
     contact = _short(raw.get("contact_url"), 500)
+    contact = contact if contact.startswith("https://") else ""
     level = _short(raw.get("level"), 20).lower()
     return {
-        "name": _short(raw.get("name"), 120),
+        "name": name,
         "level": level if level in LEVELS else "other",
         "handles": [h for h in handles if h][:MAX_FACTS],
+        "summary": _tidy(_block_field(block, "summary", "about", "description"), 240) if block else "",
+        "contact": _contact_details(bullets, domains, contact),
         "source": _grounded_source(url, domain, as_of).model_dump(),
-        "contact_url": contact if contact.startswith("https://") else "",
+        "contact_url": contact,
     }
 
 
 def lookup_government(searcher: Searcher, country: str, place: str, as_of: str) -> dict[str, Any]:
-    text, domains, _ = _two_step(searcher, BODY_SEARCH.format(country=country, place=place, limit=MAX_BODIES), BODY_STRUCTURE)
+    text, domains, result = _two_step(searcher, BODY_SEARCH.format(country=country, place=place, limit=MAX_BODIES), BODY_STRUCTURE)
     raw_bodies = _parse(text).get("bodies")
     raw_bodies = raw_bodies if isinstance(raw_bodies, list) else []
-    bodies = [body for body in (_clean_body(raw, domains, as_of) for raw in raw_bodies[:MAX_BODIES]) if body]
+    bodies = [body for body in (_clean_body(raw, domains, as_of, result) for raw in raw_bodies[:MAX_BODIES]) if body]
     return {"bodies": bodies, "dropped": len(raw_bodies[:MAX_BODIES]) - len(bodies), "notice": NOTICE}

@@ -227,6 +227,13 @@ PACK = {
     ],
 }
 
+CAA_SOURCE = {
+    "url": "https://prsindia.org/billtrack/the-citizenship-amendment-bill-2019",
+    "title": "PRS Legislative Research: Citizenship (Amendment) Act, 2019 (Act No. 47 of 2019, in force 10 Jan 2020)",
+    "as_of": "2020-01-10",
+    "grounded": True,
+}
+
 PACK["schemes"] = PACK["schemes"][:0] + [
     {
         "id": "in_pmuy",
@@ -239,5 +246,22 @@ PACK["schemes"] = PACK["schemes"][:0] + [
             "The adult woman must belong to a poor household based on submission of a deprivation declaration (as per prescribed format)."
         ),
         "source": PMUY,
-    }
+    },
+    {
+        "id": "in_caa_2019",
+        "name": "Citizenship Amendment Act 2019: citizenship eligibility",
+        "summary": (
+            "Check whether you meet the conditions set out in the Citizenship Amendment Act 2019 "
+            "for persons from Afghanistan, Bangladesh or Pakistan belonging to six communities "
+            "who entered India on or before 31 December 2014."
+        ),
+        "policy_text": (
+            "Citizenship (Amendment) Act, 2019 (Act No. 47 of 2019, in force from 10 January 2020). "
+            "Covers persons belonging to the Hindu, Sikh, Buddhist, Jain, Parsi or Christian communities "
+            "who have come from Afghanistan, Bangladesh or Pakistan, and entered India on or before December 31, 2014. "
+            "Naturalisation period reduced to five years. "
+            "Does not apply to Inner Line Permit states or Sixth Schedule tribal areas."
+        ),
+        "source": CAA_SOURCE,
+    },
 ]

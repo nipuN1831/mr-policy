@@ -1,142 +1,693 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Policy Wind Tunnel: every answer shows the rule that decided it</title>
-<meta name="description" content="Check whether you qualify for a public scheme and see the exact published sentence that decided it. Officials can test a rule change before it ships.">
-<link rel="icon" href="/favicon.ico" type="image/svg+xml">
-<link rel="stylesheet" href="/static/app.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#f8faf7" />
+  <meta name="description" content="Check whether you qualify for a public scheme and see the exact published rule behind the answer. Officials can test a rule change before it reaches people." />
+  <title>Policy Wind Tunnel — Government policies, made simple</title>
+  <link rel="icon" href="/favicon.ico" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 <style>
-  .hero2 { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 36px; align-items: center; padding: 18px 0 30px; }
-  .hero2 h1 { margin: 0 0 14px; font: 700 clamp(34px, 5.2vw, 56px)/1.04 var(--display); letter-spacing: -.025em; }
-  .hero2 p.sub { color: var(--muted); font-size: 20px; margin: 0 0 22px; max-width: 540px; }
-  .cta { display: flex; flex-wrap: wrap; gap: 12px; }
-  .checker { background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); padding: 22px 24px; }
-  .checker h2 { font-size: 18px; margin: 0 0 2px; }
-  .checker .person { color: var(--muted); font-size: 14.5px; margin-bottom: 14px; }
-  .slider-row { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
-  .slider-row output { font: 700 28px/1 var(--display); letter-spacing: -.02em; }
-  input[type=range] { width: 100%; height: 44px; accent-color: var(--teal); margin: 6px 0 8px; cursor: pointer; }
-  .ticks { display: flex; justify-content: space-between; color: var(--muted); font-size: 13px; margin-top: -6px; }
-  .verdict-line { display: flex; align-items: center; gap: 12px; margin: 16px 0 6px; min-height: 52px; }
-  .verdict-line .icon { width: 40px; height: 40px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 22px; flex: none; }
-  .verdict-line .icon.good { background: var(--pass); } .verdict-line .icon.bad { background: var(--fail); }
-  .verdict-line b { font: 650 21px/1.2 var(--display); }
-  .checker .statute { font-size: 16px; margin-top: 8px; }
-  .three { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin: 6px 0 0; }
-  .three a { display: block; text-decoration: none; color: inherit; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px; transition: border-color .12s, transform .12s; }
-  .three a:hover { border-color: var(--teal); transform: translateY(-2px); }
-  .three h3 { margin: 0 0 6px; font-size: 20px; }
-  .three p { margin: 0; color: var(--muted); font-size: 16px; }
-  .three .go { display: inline-block; margin-top: 12px; font-weight: 700; color: var(--teal-dark); }
-  .evidence { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
-  .evidence .tile { background: transparent; border: 1px solid var(--line); }
-  @media (max-width: 860px) { .hero2 { grid-template-columns: 1fr; gap: 22px; } }
+:root {
+  --ink: #10251f;
+  --text: #34433d;
+  --muted: #65736d;
+  --green: #15533f;
+  --green-dark: #0b3e2e;
+  --green-soft: #e6f2eb;
+  --line: #e4e8e3;
+  --paper: #fffefa;
+  --page: #fafbf8;
+  --shadow: 0 14px 38px rgba(24,48,37,.07);
+  --radius: 20px;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--page); color: var(--ink); font-family: "DM Sans", system-ui, -apple-system, sans-serif; font-size: 16px; line-height: 1.5; }
+button, input, textarea, select { font: inherit; }
+button, select { -webkit-tap-highlight-color: transparent; }
+button { color: inherit; }
+button:focus-visible, a:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid #4e8c70; outline-offset: 3px; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+.skip-link { position: absolute; top: -60px; left: 16px; z-index: 100; padding: 10px 14px; background: var(--green-dark); color: white; border-radius: 10px; text-decoration: none; }
+.skip-link:focus { top: 12px; }
+
+/* Header */
+.site-header { height: 72px; padding: 0 clamp(20px, 5.5vw, 88px); display: flex; align-items: center; justify-content: space-between; gap: 24px; background: rgba(255,254,250,.95); border-bottom: 1px solid rgba(21,83,63,.08); position: sticky; top: 0; z-index: 10; backdrop-filter: blur(8px); }
+.brand { display: inline-flex; align-items: center; gap: 13px; text-decoration: none; color: var(--ink); font-family: Manrope, sans-serif; font-size: clamp(17px, 1.8vw, 22px); font-weight: 800; letter-spacing: -.6px; white-space: nowrap; }
+.brand-mark { width: 40px; height: 40px; color: var(--green); flex: none; }
+.header-nav { display: flex; align-items: center; gap: 6px; }
+.nav-link { display: inline-flex; align-items: center; height: 40px; padding: 0 14px; border-radius: 10px; text-decoration: none; color: var(--muted); font-weight: 600; font-size: 15px; transition: background .15s, color .15s; white-space: nowrap; }
+.nav-link:hover { background: #edf3ee; color: var(--ink); }
+.nav-link.primary { background: var(--green-dark); color: #fff; padding: 0 18px; }
+.nav-link.primary:hover { background: var(--green); color: #fff; }
+.header-right { display: flex; align-items: center; gap: 10px; }
+.select-wrap { display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 12px; background: rgba(255,255,255,.8); border: 1px solid var(--line); border-radius: 11px; color: var(--text); cursor: pointer; }
+.select-wrap select { appearance: none; -webkit-appearance: none; background: transparent; border: 0; outline: 0; color: inherit; cursor: pointer; font-size: 14px; font-weight: 600; max-width: 105px; }
+.icon { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.chevron { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
+
+/* Hero */
+.hero { overflow: hidden; position: relative; isolation: isolate; padding: 52px 24px 42px; background: radial-gradient(ellipse at 50% 5%, #fffefa 0%, #f7faf6 63%, #f2f6ef 100%); }
+.hero::before, .hero::after { content: ""; position: absolute; z-index: -1; pointer-events: none; border-radius: 50%; }
+.hero::before { width: 380px; height: 260px; left: -190px; bottom: 7px; background: radial-gradient(ellipse, rgba(207,226,210,.55), rgba(207,226,210,0) 70%); }
+.hero::after { width: 450px; height: 290px; right: -170px; bottom: 4px; background: radial-gradient(ellipse, rgba(222,232,211,.6), rgba(222,232,211,0) 70%); }
+.ambient { position: absolute; z-index: -1; bottom: 0; width: 34%; height: 118px; opacity: .55; pointer-events: none; }
+.ambient-left { left: 0; background: linear-gradient(164deg, transparent 25%, #e5efe1 25.5%, #e5efe1 53%, transparent 53.5%); }
+.ambient-right { right: 0; background: linear-gradient(196deg, transparent 25%, #e8efe2 25.5%, #e8efe2 53%, transparent 53.5%); }
+.hero-inner { width: min(100%, 1050px); margin: 0 auto; text-align: center; position: relative; }
+.country-control { display: inline-flex; align-items: center; gap: 10px; padding: 5px 6px 5px 14px; background: rgba(255,255,255,.78); border: 1px solid #e2e9e2; border-radius: 999px; color: var(--muted); font-size: 13px; margin-bottom: 28px; }
+.country-select-shell { display: inline-flex; align-items: center; gap: 8px; min-height: 34px; padding: 0 10px; border-radius: 999px; color: var(--ink); background: #fff; border: 1px solid #e7ebe5; }
+.country-select-shell select { appearance: none; -webkit-appearance: none; background: transparent; border: 0; outline: 0; color: inherit; cursor: pointer; max-width: 150px; font-size: 14px; font-weight: 700; }
+.country-flag { font-size: 18px; line-height: 1; }
+.eyebrow { margin: 0 0 13px; color: var(--green); font-size: 11px; font-weight: 700; letter-spacing: 1.9px; display: inline-flex; align-items: center; gap: 8px; }
+.eyebrow-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #68a586; box-shadow: 0 0 0 4px #e3f0e7; }
+h1, h2, p { margin-top: 0; }
+h1, h2, .topic-title { font-family: Manrope, "DM Sans", sans-serif; }
+h1 { margin: 0; font-size: clamp(37px, 5vw, 64px); line-height: 1.13; letter-spacing: -.055em; font-weight: 800; color: #102a22; }
+h1 span { color: var(--green); }
+.hero-subtitle { max-width: 700px; margin: 18px auto 31px; color: #55645d; font-size: clamp(16px, 2vw, 21px); line-height: 1.55; }
+
+/* Ask box */
+.ask-box { background: rgba(255,255,255,.96); border: 1.5px solid #9bbba8; border-radius: 20px; box-shadow: 0 15px 42px rgba(30,67,47,.075); padding: 20px 20px 16px 25px; text-align: left; transition: border-color .2s ease, box-shadow .2s ease; }
+.ask-box:focus-within { border-color: #36765a; box-shadow: 0 0 0 4px rgba(54,118,90,.10), 0 15px 42px rgba(30,67,47,.075); }
+.ask-box textarea { display: block; width: 100%; min-height: 57px; max-height: 190px; resize: vertical; padding: 4px 4px 12px; border: 0; outline: none; background: transparent; color: var(--ink); font-size: 18px; line-height: 1.5; font-family: inherit; }
+.ask-box textarea::placeholder { color: #77827c; opacity: 1; }
+.ask-toolbar, .ask-tools { display: flex; align-items: center; }
+.ask-toolbar { justify-content: space-between; gap: 16px; }
+.ask-tools { flex-wrap: wrap; gap: 16px; }
+.tool-button { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 3px 5px; border: 0; border-radius: 12px; background: transparent; color: #44554c; font-size: 14px; font-weight: 600; cursor: pointer; transition: background .18s ease; }
+.tool-button:hover { background: #f4f7f3; }
+.tool-icon-circle { width: 39px; height: 39px; display: inline-flex; align-items: center; justify-content: center; color: var(--green-dark); background: #e4f2e9; border-radius: 50%; }
+.tool-icon-circle.neutral { color: #4d5a54; background: #f0f2ef; }
+.tool-icon-circle .icon { width: 20px; height: 20px; }
+.tool-separator { height: 27px; width: 1px; background: #e3e8e2; }
+.submit-button { width: 54px; height: 54px; flex: none; display: inline-flex; align-items: center; justify-content: center; border: 0; border-radius: 15px; color: #fff; background: var(--green-dark); cursor: pointer; box-shadow: 0 5px 12px rgba(14,62,45,.14); transition: transform .18s ease, background .18s ease; }
+.submit-button:hover { background: #1a6449; transform: translateY(-1px); }
+.submit-button:active { transform: translateY(0); }
+.submit-button svg { width: 25px; height: 25px; }
+.privacy-note { display: flex; align-items: center; justify-content: center; gap: 7px; margin: 14px 0 0; color: #69786f; font-size: 12px; }
+.privacy-note .icon { width: 16px; height: 16px; color: #54856a; }
+.interaction-status { min-height: 0; margin: 8px 0 0; color: #375f4a; font-size: 13px; }
+.interaction-status:empty { display: none; }
+
+/* Topics */
+.topics-section { width: min(calc(100% - 48px), 1260px); margin: 0 auto; padding: 42px 0 26px; }
+.section-heading { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 19px; }
+.section-kicker { margin: 0 0 5px; color: #6c8475; font-size: 10px; letter-spacing: 1.6px; font-weight: 700; }
+.section-heading h2 { margin: 0; font-size: clamp(22px, 2.5vw, 29px); line-height: 1.25; letter-spacing: -.04em; }
+.section-aside { margin: 0 0 4px; color: var(--muted); font-size: 14px; }
+.topic-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.topic-card { min-height: 212px; position: relative; display: flex; flex-direction: column; align-items: flex-start; text-align: left; padding: 20px 21px 22px; background: rgba(255,255,255,.92); border: 1px solid #e4e8e3; border-radius: 17px; cursor: pointer; box-shadow: 0 4px 14px rgba(25,49,36,.018); transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease; text-decoration: none; color: inherit; }
+.topic-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); border-color: #c9d9cc; }
+.topic-icon { width: 61px; height: 61px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; margin-bottom: 16px; }
+.topic-icon svg { width: 35px; height: 35px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.topic-green .topic-icon { color: #245c46; background: #e4f3e9; }
+.topic-amber .topic-icon { color: #68511d; background: #fbf0d9; }
+.topic-blue .topic-icon { color: #294a76; background: #e5eefb; }
+.topic-lilac .topic-icon { color: #5c4b80; background: #eee8fa; }
+.topic-title { display: block; margin: 0 37px 6px 0; font-size: 17px; line-height: 1.3; font-weight: 800; letter-spacing: -.4px; }
+.topic-description { display: block; max-width: 225px; margin-right: 17px; color: #68756f; font-size: 13px; line-height: 1.55; }
+.topic-arrow { position: absolute; right: 17px; bottom: 18px; width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid #edf0eb; border-radius: 50%; background: #f7f8f5; color: #32443a; transition: background .2s ease, color .2s ease; }
+.topic-card:hover .topic-arrow { color: #fff; background: var(--green); }
+.topic-arrow svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+
+/* Trust strip */
+.trust-strip { width: min(calc(100% - 48px), 900px); margin: 4px auto 24px; display: flex; align-items: center; justify-content: center; gap: 19px; color: #5d6b63; }
+.trust-strip p { margin: 0; font-size: 14px; text-align: center; }
+.trust-strip p strong { color: #344e40; font-weight: 700; }
+.trust-icon { display: inline-flex; color: var(--green); }
+.trust-icon .icon { width: 27px; height: 27px; }
+.trust-line { height: 1px; width: min(12vw, 130px); background: #dce4dc; }
+
+/* Benchmark */
+.bench-section { width: min(calc(100% - 48px), 1260px); margin: 0 auto 48px; }
+.bench-section h2 { font-size: clamp(20px, 2.2vw, 26px); letter-spacing: -.04em; margin-bottom: 6px; }
+.bench-section .lead { color: var(--muted); font-size: 15px; margin-bottom: 20px; max-width: 680px; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+.tile { background: rgba(255,255,255,.92); border: 1px solid var(--line); border-radius: 16px; padding: 18px 20px; }
+.tile .big { font-family: Manrope, sans-serif; font-size: 38px; font-weight: 800; letter-spacing: -.04em; line-height: 1; color: var(--green); }
+.tile .label { color: var(--muted); font-size: 13.5px; margin-top: 7px; line-height: 1.45; }
+.tile.bad .big { color: #b3261e; }
+.bench-note { margin-top: 12px; color: var(--muted); font-size: 13px; }
+.bench-note a { color: var(--green); }
+
+/* Situation filter pills */
+.situation-section { width: min(calc(100% - 48px), 1260px); margin: 0 auto; padding: 36px 0 4px; }
+.situation-label { font-size: 10px; letter-spacing: 1.6px; font-weight: 700; color: #6c8475; text-transform: uppercase; margin: 0 0 14px; }
+.situation-pills { display: flex; flex-wrap: wrap; gap: 10px; }
+.pill-btn { display: inline-flex; align-items: center; gap: 8px; padding: 9px 18px; border: 1.5px solid var(--line); border-radius: 999px; background: #fff; color: var(--text); font-size: 14px; font-weight: 600; cursor: pointer; transition: background .15s, border-color .15s, color .15s; white-space: nowrap; }
+.pill-btn:hover { border-color: #9bbba8; background: #f4f8f5; }
+.pill-btn.active { background: var(--green-dark); color: #fff; border-color: var(--green-dark); }
+.pill-btn .pemoji { font-size: 16px; }
+
+/* Transparency cards */
+.transparency-section { width: min(calc(100% - 48px), 1260px); margin: 28px auto 0; }
+.transparency-section h2 { font-size: clamp(20px, 2.2vw, 26px); letter-spacing: -.04em; margin-bottom: 6px; }
+.transparency-section .lead { color: var(--muted); font-size: 15px; margin-bottom: 22px; max-width: 680px; }
+.t-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 18px; }
+.t-card { background: #fff; border: 1px solid var(--line); border-radius: 18px; padding: 22px 22px 18px; display: flex; flex-direction: column; gap: 0; transition: box-shadow .2s, border-color .2s, opacity .25s; }
+.t-card.dimmed { opacity: .28; }
+.t-card.highlighted { border-color: #9bbba8; box-shadow: 0 6px 24px rgba(21,83,63,.10); }
+.t-policy-name { font-family: Manrope, sans-serif; font-size: 15px; font-weight: 800; letter-spacing: -.3px; margin: 0 0 14px; display: flex; align-items: center; gap: 10px; }
+.t-badge { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 99px; white-space: nowrap; }
+.t-badge.checkable { background: #e4f3e9; color: #1a5c3a; }
+.t-badge.info { background: #e5eefb; color: #294a76; }
+.t-row { border-top: 1px solid #f0f3f1; padding: 11px 0 2px; }
+.t-row-label { font-size: 10px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; margin: 0 0 5px; }
+.t-row-label.official { color: #5c6d64; }
+.t-row-label.reality { color: #0b3e2e; }
+.t-row-label.excluded { color: #8b3a3a; }
+.t-row p { margin: 0; font-size: 14px; line-height: 1.55; color: var(--text); }
+.t-row p strong { color: var(--ink); font-weight: 700; }
+.t-source { margin-top: 14px; display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); background: #f4f7f4; border-radius: 99px; padding: 4px 10px; }
+.t-source svg { width: 13px; height: 13px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
+
+/* Coverage strip */
+.coverage-section { width: min(calc(100% - 48px), 1260px); margin: 32px auto 0; background: #fff; border: 1px solid var(--line); border-radius: 18px; padding: 22px 26px; }
+.coverage-section h3 { font-family: Manrope, sans-serif; font-size: 16px; font-weight: 800; letter-spacing: -.3px; margin: 0 0 16px; color: var(--ink); }
+.cov-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 10px; padding: 9px 0; border-top: 1px solid #f0f3f1; font-size: 14px; }
+.cov-row:first-of-type { border-top: none; padding-top: 0; }
+.cov-icon { font-size: 16px; flex: none; }
+.cov-label { font-weight: 700; color: var(--ink); white-space: nowrap; }
+.cov-items { color: var(--muted); }
+.cov-chip { display: inline-block; background: #e4f3e9; color: #1a5c3a; font-size: 12px; font-weight: 700; padding: 2px 9px; border-radius: 99px; margin: 0 3px 3px 0; }
+.cov-chip.soon { background: #fff6d1; color: #7a5200; }
+.cov-chip.civic { background: #e5eefb; color: #294a76; }
+
+@media (max-width: 680px) {
+  .situation-section, .transparency-section, .coverage-section { width: calc(100% - 34px); }
+  .t-grid { grid-template-columns: 1fr; }
+  .coverage-section { padding: 16px 18px; }
+}
+
+/* Footer */
+.site-footer { min-height: 65px; padding: 18px clamp(24px, 5.5vw, 88px); border-top: 1px solid #e9ece7; display: flex; align-items: center; justify-content: space-between; gap: 16px; color: #78837c; font-size: 12px; flex-wrap: wrap; }
+.site-footer a { color: #426a53; text-decoration: none; margin-right: 14px; }
+.site-footer a:hover { text-decoration: underline; }
+
+/* Responsive */
+@media (max-width: 1000px) {
+  .site-header { padding-inline: 28px; }
+  .topic-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .topic-card { min-height: 195px; }
+  .topics-section, .bench-section { width: min(calc(100% - 56px), 760px); }
+  .nav-link:not(.primary) { display: none; }
+}
+@media (max-width: 680px) {
+  .site-header { height: 64px; padding-inline: 18px; gap: 10px; }
+  .brand { gap: 9px; font-size: 17px; }
+  .brand-mark { width: 33px; height: 33px; }
+  .select-wrap { height: 38px; padding: 0 9px; gap: 5px; }
+  .select-wrap > .icon { width: 16px; height: 16px; }
+  .select-wrap select { max-width: 76px; font-size: 12px; }
+  .hero { padding: 33px 17px 27px; }
+  .country-control { margin-bottom: 24px; font-size: 12px; }
+  .country-select-shell { min-height: 31px; padding: 0 8px; }
+  .country-select-shell select { max-width: 112px; font-size: 13px; }
+  .eyebrow { font-size: 9px; letter-spacing: 1.4px; }
+  h1 { font-size: clamp(34px, 9vw, 48px); letter-spacing: -.05em; }
+  .desktop-break { display: none; }
+  .hero-subtitle { margin: 14px auto 24px; max-width: 390px; font-size: 16px; }
+  .ask-box { border-radius: 17px; padding: 15px 14px 13px; }
+  .ask-box textarea { font-size: 16px; min-height: 65px; }
+  .ask-tools { gap: 7px; }
+  .tool-button { gap: 7px; min-height: 41px; font-size: 12px; }
+  .tool-icon-circle { width: 34px; height: 34px; }
+  .tool-separator { height: 22px; }
+  .submit-button { width: 45px; height: 45px; border-radius: 13px; }
+  .submit-button svg { width: 22px; height: 22px; }
+  .topics-section, .bench-section { width: calc(100% - 34px); padding-bottom: 20px; }
+  .section-heading { display: block; margin-bottom: 15px; }
+  .section-heading h2 { font-size: 23px; }
+  .topic-grid { gap: 11px; }
+  .topic-card { min-height: 188px; padding: 15px 14px 19px; border-radius: 15px; }
+  .topic-icon { width: 51px; height: 51px; margin-bottom: 13px; }
+  .topic-title { font-size: 15px; margin-right: 0; }
+  .topic-description { font-size: 12px; margin-right: 0; }
+  .trust-strip { width: calc(100% - 34px); gap: 10px; }
+  .trust-line { width: 20px; flex: none; }
+  .site-footer { padding: 17px 18px; justify-content: center; gap: 8px 0; text-align: center; }
+}
+/* Chat answer panel */
+.chat-answer { width: min(100%, 900px); margin: 0 auto; padding-top: 20px; }
+.chat-bubble { background: #fff; border: 1.5px solid #9bbba8; border-radius: 18px; padding: 22px 26px; box-shadow: 0 8px 28px rgba(21,83,63,.08); animation: slideUp .22s ease; }
+@keyframes slideUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.chat-bubble .cb-label { font-size: 10px; font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase; color: var(--green); margin: 0 0 10px; display: flex; align-items: center; gap: 7px; }
+.chat-bubble .cb-label .cb-dot { width: 7px; height: 7px; border-radius: 50%; background: #68a586; box-shadow: 0 0 0 3px #e3f0e7; flex: none; }
+.chat-bubble p { margin: 0 0 16px; font-size: 16px; line-height: 1.65; color: var(--ink); }
+.chat-bubble .cb-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.cb-redirect { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; background: var(--green-dark); color: #fff; border: 0; border-radius: 11px; font-size: 14px; font-weight: 700; cursor: pointer; text-decoration: none; transition: background .15s; }
+.cb-redirect:hover { background: var(--green); color: #fff; }
+.cb-dismiss { background: transparent; border: 1.5px solid var(--line); border-radius: 11px; padding: 9px 16px; font-size: 14px; font-weight: 600; color: var(--muted); cursor: pointer; }
+.cb-dismiss:hover { background: #f4f7f3; }
+.cb-powered { font-size: 11px; color: var(--muted); margin-top: 10px; }
+.chat-loading { text-align: center; padding: 18px 0; color: var(--muted); font-size: 14px; }
+.chat-loading .spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid #cde0d7; border-top-color: var(--green); border-radius: 50%; animation: spin .7s linear infinite; vertical-align: middle; margin-right: 8px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
+}
 </style>
 </head>
 <body>
-<a class="skip" href="#main">Skip to content</a>
-<header class="topbar"><div class="inner">
-  <a class="brand" href="/" aria-current="page"><span class="logo"></span>Policy Wind Tunnel</a>
-  <nav aria-label="Main"><a href="/citizen">For citizens</a><a href="/officials">For officials</a><a href="/about">How it works</a></nav>
-</div></header>
+  <a class="skip-link" href="#main">Skip to main content</a>
 
-<main id="main" class="wrap">
-  <div class="hero2">
-    <div>
-      <p class="eyebrow">Public rules, checked in the open</p>
-      <h1>Every answer shows the <mark>sentence</mark> that decided it.</h1>
-      <p class="sub">Find out whether you qualify for a public scheme, and see the exact published rule behind the answer. Officials can test a rule change before it reaches people.</p>
-      <div class="cta">
-        <a class="btn" href="/citizen">Check if I qualify</a>
-        <a class="btn ghost" href="/officials">Test a policy change</a>
+  <header class="site-header">
+    <a class="brand" href="/" aria-label="Policy Wind Tunnel home">
+      <svg class="brand-mark" viewBox="0 0 48 48" role="img" aria-hidden="true">
+        <path d="M5 40V24C5 13.5 13.5 5 24 5s19 8.5 19 19v16" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/>
+        <path d="M12 40V24c0-6.6 5.4-12 12-12s12 5.4 12 12v16" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/>
+        <path d="M19 40V27a5 5 0 0 1 10 0v13" fill="currentColor" opacity=".72"/>
+      </svg>
+      <span>Policy Wind Tunnel</span>
+    </a>
+    <div class="header-right">
+      <nav class="header-nav" aria-label="Main">
+        <a class="nav-link" href="/citizen">For citizens</a>
+        <a class="nav-link" href="/officials">For officials</a>
+        <a class="nav-link" href="/about">How it works</a>
+        <a class="nav-link primary" href="/citizen">Check a policy</a>
+      </nav>
+      <div class="select-wrap" aria-label="Choose language">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/></svg>
+        <select id="languageSelect" aria-label="Language">
+          <option value="English">English</option>
+          <option value="हिन्दी">हिन्दी</option>
+          <option value="বাংলা">বাংলা</option>
+          <option value="தமிழ்">தமிழ்</option>
+          <option value="తెలుగు">తెలుగు</option>
+          <option value="मराठी">मराठी</option>
+        </select>
+        <svg class="chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="top" aria-labelledby="heroTitle">
+      <div class="ambient ambient-left" aria-hidden="true"></div>
+      <div class="ambient ambient-right" aria-hidden="true"></div>
+      <div class="hero-inner">
+        <div class="country-control">
+          <label for="countrySelect">Explore policies for</label>
+          <div class="country-select-shell">
+            <span class="country-flag" id="countryFlag" aria-hidden="true">🇮🇳</span>
+            <select id="countrySelect" aria-label="Country">
+              <option value="in" data-flag="🇮🇳" selected>India</option>
+              <option value="sg" data-flag="🇸🇬">Singapore</option>
+            </select>
+            <svg class="chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+          </div>
+        </div>
+        <p class="eyebrow"><span class="eyebrow-dot"></span> YOUR GUIDE TO PUBLIC POLICY</p>
+        <h1 id="heroTitle">Government policies,<br class="desktop-break" /> made <span>simple.</span></h1>
+        <p class="hero-subtitle">Find out what you qualify for, understand your rights, and see the exact rule behind every answer.</p>
+
+        <form class="ask-box" id="askForm" autocomplete="off">
+          <label class="sr-only" for="questionInput">Ask about a law, policy, scheme or government decision</label>
+          <textarea id="questionInput" rows="2" placeholder="Ask about a law, policy, scheme or government decision…" maxlength="2000"></textarea>
+          <div class="ask-toolbar">
+            <div class="ask-tools">
+              <button class="tool-button voice-button" type="button" id="voiceButton" aria-label="Speak your question" title="Speak your question">
+                <span class="tool-icon-circle"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="2" width="6" height="13" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v5M8 22h8"/></svg></span>
+                <span id="voiceLabel">Speak your question</span>
+              </button>
+              <span class="tool-separator" aria-hidden="true"></span>
+              <button class="tool-button" type="button" id="exampleBtn" aria-label="Try an example">
+                <span class="tool-icon-circle neutral"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 2A2.5 2.5 0 0 0 7 4.5v15A2.5 2.5 0 0 0 9.5 22h5a2.5 2.5 0 0 0 2.5-2.5v-15A2.5 2.5 0 0 0 14.5 2h-5ZM10 7h4M10 11h4M10 15h2"/></svg></span>
+                <span id="exampleLabel">Try an example</span>
+              </button>
+            </div>
+            <button class="submit-button" type="submit" aria-label="Ask Policy Wind Tunnel" title="Go">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4.8 21 12 4 19.2l2.2-6.1L15 12l-8.8-1.1L4 4.8Z" fill="currentColor" stroke="currentColor" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+        </form>
+        <p class="privacy-note"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="m9 12 2 2 4-4"/></svg> Every answer shows the exact rule that decided it. Nothing you enter is stored.</p>
+        <p class="interaction-status" id="interactionStatus" role="status" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <section class="topics-section" aria-labelledby="topicsTitle">
+      <div class="section-heading">
+        <div>
+          <p class="section-kicker">NOT SURE WHERE TO START</p>
+          <h2 id="topicsTitle">Explore what matters to you</h2>
+        </div>
+        <p class="section-aside">Pick a topic to begin.</p>
+      </div>
+      <div class="topic-grid">
+        <a class="topic-card topic-green" href="/citizen" aria-label="Laws and policies">
+          <span class="topic-icon"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 6v31M10 13h28M24 7l-4 5h8zM10 13 3 28h14L10 13Zm28 0-7 15h14L38 13Z"/><path d="M7 31c2 4 10 4 12 0M31 31c2 4 10 4 12 0M18 39h12M24 37v2M17 43h14"/><path d="M6 36h13v7H6zM29 36h13v7H29z"/></svg></span>
+          <span class="topic-title">Laws &amp; policies</span>
+          <span class="topic-description">Understand rules and your rights</span>
+          <span class="topic-arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></span>
+        </a>
+        <a class="topic-card topic-amber" href="/citizen" aria-label="Schemes and benefits">
+          <span class="topic-icon"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="25" cy="13" r="9"/><path d="M22 9h6M22 13h5M22 17h6M5 28c7-5 12-5 18-1l5 3 8-5c3-2 6 2 3 4L27 39H14l-9-5"/><path d="M5 29v10h9V29"/></svg></span>
+          <span class="topic-title">Schemes &amp; benefits</span>
+          <span class="topic-description">Find support you may qualify for</span>
+          <span class="topic-arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></span>
+        </a>
+        <a class="topic-card topic-blue" href="/citizen#decides" aria-label="Your representatives">
+          <span class="topic-icon"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M9 20h30M13 20V14l11-7 11 7v6M17 20v7M24 20v7M31 20v7M8 29h32v4H8zM5 39c0-4 3-6 7-6s7 2 7 6M29 39c0-4 3-6 7-6s7 2 7 6M19 39c0-4 2-6 5-6s5 2 5 6"/><circle cx="24" cy="5" r="2"/></svg></span>
+          <span class="topic-title">Your representatives</span>
+          <span class="topic-description">Know who is responsible for what</span>
+          <span class="topic-arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></span>
+        </a>
+        <a class="topic-card topic-lilac" href="/officials" aria-label="Test a policy change">
+          <span class="topic-icon"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M15 8h25v32H15zM10 13H7v31h25v-4M21 15h13M21 21h13M21 27h13M21 33h8"/></svg></span>
+          <span class="topic-title">Test a policy change</span>
+          <span class="topic-description">See who is affected before it ships</span>
+          <span class="topic-arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></span>
+        </a>
+      </div>
+    </section>
+
+    <!-- Chat answer panel (shown after submit) -->
+    <div class="chat-answer" id="chatAnswer" hidden aria-live="polite"></div>
+
+    <!-- Feature 3: situation filter -->
+    <div class="situation-section" id="situationSection">
+      <p class="situation-label">Which policies affect me?</p>
+      <div class="situation-pills" role="group" aria-label="Filter by your situation">
+        <button class="pill-btn" data-tags="woman,rural,lpg,ujjwala" type="button"><span class="pemoji">👩</span> Woman in rural area</button>
+        <button class="pill-btn" data-tags="minority,caa,religion,rights" type="button"><span class="pemoji">🕌</span> Minority community</button>
+        <button class="pill-btn" data-tags="bank,loan,rbi,fraud" type="button"><span class="pemoji">🏦</span> Bank or loan problem</button>
+        <button class="pill-btn" data-tags="complaint,grievance,cpgrams,rti" type="button"><span class="pemoji">📋</span> Government complaint</button>
+        <button class="pill-btn" data-tags="legal,court,nalsa,rights,aid" type="button"><span class="pemoji">⚖️</span> Need legal help</button>
       </div>
     </div>
 
-    <div class="checker" aria-labelledby="chk-h">
-      <p class="eyebrow">Try it now</p>
-      <h2 id="chk-h">Silver Support Scheme, Singapore</h2>
-      <div class="person">Example person: a citizen aged 70 in a 4-room HDB flat. Drag the income.</div>
-      <div class="slider-row"><label for="incomeNum">Household income per person, a month (S$)</label></div>
-      <div class="row" style="margin:6px 0"><input type="number" id="incomeNum" inputmode="numeric" min="0" max="9999" step="50" value="2400" style="width:150px"><output id="incomeOut" for="income" class="muted">or drag the slider</output></div>
-      <input type="range" id="income" min="0" max="3500" step="50" value="2400" aria-label="Household income per person, slider" aria-describedby="chkResult">
-      <div class="ticks" aria-hidden="true"><span>S$0</span><span>S$1,500</span><span>S$2,300</span><span>S$3,500</span></div>
-      <div id="chkResult" aria-live="polite">
-        <div class="verdict-line"><span class="icon bad">&times;</span><b>Loading the rule...</b></div>
+    <!-- Features 1+2+4+6: transparency + fine print + real examples -->
+    <section class="transparency-section" aria-labelledby="transpTitle" id="transpSection">
+      <p class="section-kicker" style="color:#6c8475;font-size:10px;letter-spacing:1.6px;font-weight:700;margin:0 0 6px">READ THE FINE PRINT</p>
+      <h2 id="transpTitle">What the headline doesn't tell you</h2>
+      <p class="lead">Official names are often simpler than the rules behind them. Here is what the text actually says, verified from government pages.</p>
+      <div class="t-grid">
+
+        <!-- Ujjwala PMUY 2.0 -->
+        <div class="t-card" data-tags="woman,rural,lpg,ujjwala">
+          <p class="t-policy-name">
+            Ujjwala PMUY 2.0
+            <span class="t-badge checkable">✓ Checkable</span>
+          </p>
+          <div class="t-row">
+            <p class="t-row-label official">What it says</p>
+            <p>"Free LPG connection for poor women."</p>
+          </div>
+          <div class="t-row">
+            <p class="t-row-label reality">What the rule actually means</p>
+            <p>Free <strong>connection</strong> only — not the cylinder or gas. You must have <strong>no existing LPG connection from any oil company</strong> in your household. You also need to submit a <strong>deprivation declaration form</strong>, not just an Aadhaar card.</p>
+          </div>
+          <div class="t-row">
+            <p class="t-row-label excluded">Who the rules exclude</p>
+            <p>Men. Households with any OMC connection already registered. Anyone who cannot produce the declaration form in the prescribed format.</p>
+          </div>
+          <span class="t-source"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="m9 12 2 2 4-4"/></svg> Verified from pmuy.gov.in — Oct 2026</span>
+        </div>
+
+        <!-- CAA 2019 -->
+        <div class="t-card" data-tags="minority,caa,religion,rights">
+          <p class="t-policy-name">
+            Citizenship Amendment Act 2019
+            <span class="t-badge checkable">✓ Checkable</span>
+          </p>
+          <div class="t-row">
+            <p class="t-row-label official">What it says</p>
+            <p>"Citizenship path for persecuted minorities from neighbouring countries."</p>
+          </div>
+          <div class="t-row">
+            <p class="t-row-label reality">What the rule actually means</p>
+            <p>Applies to <strong>6 religions only</strong> (Hindu, Sikh, Buddhist, Jain, Parsi, Christian) — not Muslim, Jewish, or atheist. You must have entered India <strong>on or before 31 December 2014</strong>. You still need <strong>5 years of continuous residency</strong> before applying.</p>
+          </div>
+          <div class="t-row">
+            <p class="t-row-label excluded">Who the rules exclude</p>
+            <p>Anyone from a country other than Afghanistan, Bangladesh or Pakistan. Residents of Inner Line Permit states (Arunachal, Nagaland, Mizoram, Manipur) and Sixth Schedule tribal areas.</p>
+          </div>
+          <span class="t-source"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="m9 12 2 2 4-4"/></svg> Source: PRS Legislative Research, Act No. 47 of 2019</span>
+        </div>
+
+        <!-- RTI Act -->
+        <div class="t-card" data-tags="complaint,grievance,rti,information">
+          <p class="t-policy-name">
+            Right to Information Act 2005
+            <span class="t-badge info">ℹ Civic info</span>
+          </p>
+          <div class="t-row">
+            <p class="t-row-label official">What it says</p>
+            <p>"Any citizen can ask for government information."</p>
+          </div>
+          <div class="t-row">
+            <p class="t-row-label reality">What the rule actually means</p>
+            <p>The central portal <strong>only accepts central government requests</strong> — filing a state matter here gets it returned with no refund. RTI does not cover <strong>RAW, IB, and certain security agencies</strong>. The PIO has 30 days to reply, not indefinitely.</p>
+          </div>
+          <div class="t-row">
+            <p class="t-row-label excluded">What most people miss</p>
+            <p>Cabinet papers, trade secrets, and information that would prejudice law enforcement can be withheld. A first appeal and then a second appeal to the Central Information Commission are available if your request is refused.</p>
+          </div>
+          <span class="t-source"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="m9 12 2 2 4-4"/></svg> Verified from rtionline.gov.in — Oct 2026</span>
+        </div>
+
+        <!-- RBI Ombudsman -->
+        <div class="t-card" data-tags="bank,loan,rbi,fraud">
+          <p class="t-policy-name">
+            RBI Integrated Ombudsman Scheme
+            <span class="t-badge info">ℹ Civic info</span>
+          </p>
+          <div class="t-row">
+            <p class="t-row-label official">What it says</p>
+            <p>"Free and quick resolution for banking complaints."</p>
+          </div>
+          <div class="t-row">
+            <p class="t-row-label reality">What the rule actually means</p>
+            <p>You <strong>must complain to the bank first</strong> and wait for their response (or 30 days) before the Ombudsman will accept your case. Keep your reference number — without it, the complaint is not admissible.</p>
+          </div>
+          <div class="t-row">
+            <p class="t-row-label excluded">What most people miss</p>
+            <p>Does not cover disputes about the bank's internal policy, loans outside its control, or matters already in a court of law. The scheme covers banks, NBFCs and payment systems — not insurance or mutual funds.</p>
+          </div>
+          <span class="t-source"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="m9 12 2 2 4-4"/></svg> Source: cms.rbi.org.in — Oct 2026</span>
+        </div>
+
       </div>
-      <div class="statute" id="chkStatute"></div>
-      <div class="src" id="chkSrc"></div>
-      <p class="muted" style="margin:12px 0 0"><a href="/citizen">Enter your own details</a></p>
+    </section>
+
+    <!-- Feature 5: coverage / feature limit -->
+    <div class="coverage-section" id="coverageSection">
+      <h3>What you can check right now</h3>
+      <div class="cov-row">
+        <span class="cov-icon">✅</span>
+        <span class="cov-label">Check eligibility now</span>
+        <span class="cov-items">
+          <span class="cov-chip">CAA 2019</span>
+          <span class="cov-chip">Ujjwala LPG</span>
+          <span class="cov-chip">Silver Support (SG)</span>
+        </span>
+      </div>
+      <div class="cov-row">
+        <span class="cov-icon">⏳</span>
+        <span class="cov-label">Coming soon</span>
+        <span class="cov-items">
+          <span class="cov-chip soon">Ration card</span>
+          <span class="cov-chip soon">PM-KISAN</span>
+          <span class="cov-chip soon">Pension schemes</span>
+          <span class="cov-chip soon">Land records</span>
+        </span>
+      </div>
+      <div class="cov-row">
+        <span class="cov-icon">ℹ️</span>
+        <span class="cov-label">Civic info (not a checker)</span>
+        <span class="cov-items">
+          <span class="cov-chip civic">RTI</span>
+          <span class="cov-chip civic">Consumer helpline</span>
+          <span class="cov-chip civic">NHRC</span>
+          <span class="cov-chip civic">NALSA</span>
+          <span class="cov-chip civic">RBI Ombudsman</span>
+          <span class="cov-chip civic">CPGRAMS</span>
+        </span>
+      </div>
     </div>
-  </div>
 
-  <h2 style="margin:10px 0 12px">What you can do here</h2>
-  <div class="three">
-    <a href="/citizen"><h3>Do I qualify?</h3><p>Answer a few questions, one at a time. You get the answer, the rule that applied, and the smallest change that would alter it.</p><span class="go">Check a scheme &rarr;</span></a>
-    <a href="/citizen#decides"><h3>Who handles my problem?</h3><p>Describe it in your own words. See the right office, its helpline, and what to do next, with the source for each.</p><span class="go">Find the right office &rarr;</span></a>
-    <a href="/officials"><h3>What if we change the rule?</h3><p>Re-decide thousands of synthetic applicants under a new rule, and see which tests the software would now fail.</p><span class="go">Try a rule change &rarr;</span></a>
-  </div>
+    <div class="trust-strip" aria-label="Our approach">
+      <span class="trust-line" aria-hidden="true"></span>
+      <span class="trust-icon"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="m9 12 2 2 4-4"/></svg></span>
+      <p><strong>Every answer cites its source.</strong> Official pages only. No political opinion.</p>
+      <span class="trust-line" aria-hidden="true"></span>
+    </div>
 
-  <section style="margin-top:28px">
-    <p class="eyebrow">Evidence, measured live</p>
-    <h2>Tests built from the rule beat tests written by hand</h2>
-    <p class="lead">Ten realistic bugs were planted in a copy of a lending engine. A hand-written suite and a suite generated from the policy contract each tried to catch them.</p>
-    <div class="evidence" id="evidence"><div class="tile"><div class="big">&hellip;</div><div class="label">running the benchmark</div></div></div>
-    <p class="muted" style="margin:12px 0 0">The bugs, the hand-written suite and the generator were all written by the same team, so this shows recall on known kinds of bug only. <a href="/about">Read the limits.</a></p>
-  </section>
+    <section class="bench-section" aria-labelledby="benchTitle">
+      <p class="section-kicker" style="color:#6c8475;font-size:10px;letter-spacing:1.6px;font-weight:700;margin:0 0 6px">EVIDENCE, MEASURED LIVE</p>
+      <h2 id="benchTitle">Tests built from the rule beat tests written by hand</h2>
+      <p class="lead">Ten realistic bugs were planted in a copy of a lending engine. A suite generated from the policy contract tried to catch them alongside a hand-written suite.</p>
+      <div class="tiles" id="benchTiles">
+        <div class="tile"><div class="big">…</div><div class="label">running benchmark</div></div>
+      </div>
+      <p class="bench-note">The bugs, the hand-written suite and the generator were all written by the same team, so this shows recall on known kinds of bug only. <a href="/about">Read the limits.</a></p>
+    </section>
 
-  <p class="footer">
-    Demonstration with published rules and fictional people. Not legal advice and not an official decision. Nothing you enter is stored.
-    <br><a href="/about">How it works and what is verified</a><a href="/citizen">Citizens</a><a href="/officials">Officials</a>
-  </p>
-</main>
+    <footer class="site-footer">
+      <span>Demonstration with published rules and fictional people. Not legal advice.</span>
+      <span>
+        <a href="/about">How it works</a>
+        <a href="/citizen">Citizens</a>
+        <a href="/officials">Officials</a>
+      </span>
+    </footer>
+  </main>
 
 <script>
-const $ = (id) => document.getElementById(id);
-const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-const FIXED = { citizen: true, age: 70, self_employed: false, cpf_by_55: 100000, trade_income_45_54: null, housing: "hdb_4", owns_big_property: false };
-let lines = [], timer = null;
+const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
-function statute(quotes) {
-  $("chkStatute").innerHTML = lines.map((line) => {
-    let html = esc(line);
-    quotes.forEach((q) => { const e = esc(q); if (html.includes(e)) html = html.replace(e, `<mark>${e}</mark>`); });
-    return `<p>${html}</p>`;
-  }).join("");
+// Country flag
+const countrySelect = document.getElementById("countrySelect");
+const countryFlag = document.getElementById("countryFlag");
+countrySelect.addEventListener("change", () => {
+  const opt = countrySelect.selectedOptions[0];
+  countryFlag.textContent = opt.dataset.flag || "🌐";
+});
+
+// Language / voice
+const languageSelect = document.getElementById("languageSelect");
+const questionInput = document.getElementById("questionInput");
+const statusLine = document.getElementById("interactionStatus");
+const voiceButton = document.getElementById("voiceButton");
+const voiceLabel = document.getElementById("voiceLabel");
+const localeMap = {"हिन्दी":"hi-IN","বাংলা":"bn-IN","தமிழ்":"ta-IN","తెలుగు":"te-IN","मराठी":"mr-IN","English":"en-IN"};
+let recognition = null, isListening = false;
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+if (SR) {
+  recognition = new SR();
+  recognition.interimResults = true;
+  recognition.continuous = false;
+  recognition.onstart = () => { isListening = true; voiceLabel.textContent = "Listening…"; voiceButton.setAttribute("aria-pressed","true"); statusLine.textContent = "Listening. Speak your question, then pause."; };
+  recognition.onresult = (e) => { let t = ""; for (let i = e.resultIndex; i < e.results.length; i++) t += e.results[i][0].transcript; questionInput.value = t; };
+  recognition.onerror = (e) => { statusLine.textContent = e.error === "not-allowed" ? "Microphone access blocked. Type your question instead." : "Voice stopped. Type your question instead."; };
+  recognition.onend = () => { isListening = false; voiceLabel.textContent = "Speak your question"; voiceButton.setAttribute("aria-pressed","false"); questionInput.focus(); };
+}
+voiceButton.addEventListener("click", () => {
+  if (!recognition) { statusLine.textContent = "Voice input not supported here. Try Chrome."; return; }
+  if (isListening) recognition.stop();
+  else { recognition.lang = localeMap[languageSelect.value] || "en-IN"; try { recognition.start(); } catch(_) {} }
+});
+
+// Example prompts per country
+const EXAMPLES = {
+  in: ["Am I eligible for the Ujjwala LPG scheme?", "Does the CAA 2019 apply to me?", "How do I file a complaint against a bank?"],
+  sg: ["Do I qualify for Silver Support?", "What is the Silver Support income limit?"]
+};
+let exampleIdx = 0;
+document.getElementById("exampleBtn").addEventListener("click", () => {
+  const list = EXAMPLES[countrySelect.value] || EXAMPLES.in;
+  questionInput.value = list[exampleIdx % list.length];
+  exampleIdx++;
+  questionInput.focus();
+  statusLine.textContent = "Example loaded — edit it to fit your situation, then press the arrow.";
+});
+
+// Chat: submit → call /api/chat, show inline answer, offer redirect
+const chatAnswer = document.getElementById("chatAnswer");
+const REDIRECT_LABELS = {
+  "/citizen": "Check my eligibility",
+  "/citizen#decides": "Find the right office",
+  "/citizen#rights": "See my rights",
+  "/citizen#leaders": "My area representatives",
+  "/officials": "Test a policy change",
+};
+
+function renderChat(data) {
+  const redirectPath = data.redirect_path || "/citizen";
+  const redirectLabel = REDIRECT_LABELS[redirectPath] || "Go to checker";
+  const poweredNote = data.powered_by === "gemini" ? "Powered by Gemini" : "Keyword match — connect Gemini for full answers";
+  chatAnswer.hidden = false;
+  chatAnswer.innerHTML = `<div class="chat-bubble">
+    <p class="cb-label"><span class="cb-dot"></span> Policy Wind Tunnel answer</p>
+    <p>${esc(data.answer)}</p>
+    <div class="cb-actions">
+      <a class="cb-redirect" href="${esc(redirectPath)}${data.scheme_id ? '?scheme=' + esc(data.scheme_id) : ''}">${esc(redirectLabel)} &rarr;</a>
+      <button class="cb-dismiss" id="chatDismiss">Ask something else</button>
+    </div>
+    <p class="cb-powered">${esc(poweredNote)}</p>
+  </div>`;
+  chatAnswer.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  document.getElementById("chatDismiss").onclick = () => { chatAnswer.hidden = true; chatAnswer.innerHTML = ""; questionInput.value = ""; questionInput.focus(); };
 }
 
-async function check() {
-  const pchi = Number($("incomeNum").value || 0);
+document.getElementById("askForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const q = questionInput.value.trim();
+  if (!q) { statusLine.textContent = "Type a question or pick a topic to get started."; questionInput.focus(); return; }
+  chatAnswer.hidden = false;
+  chatAnswer.innerHTML = '<p class="chat-loading"><span class="spinner" aria-hidden="true"></span>Thinking…</p>';
+  chatAnswer.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  const submitBtn = document.querySelector(".submit-button");
+  submitBtn.disabled = true;
   try {
-    const response = await fetch("/api/civic/schemes/sg_silver_support/check", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ inputs: { ...FIXED, pchi } }) });
-    const r = await response.json();
-    $("chkResult").innerHTML = `<div class="verdict-line"><span class="icon ${r.favourable ? "good" : "bad"}">${r.favourable ? "&#10003;" : "&times;"}</span><b>${esc(r.outcome_label)}</b></div>`;
-    statute(r.clauses.map((c) => c.quote).filter(Boolean));
-    $("chkSrc").innerHTML = `Source: <a href="${esc(r.source.url)}" target="_blank" rel="noopener noreferrer">${esc(r.source.title)}</a>`;
-  } catch (e) {
-    $("chkResult").innerHTML = '<div class="verdict-line"><b class="err">The example could not load. Try the full checker instead.</b></div>';
+    const res = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ question: q, country: countrySelect.value }),
+    });
+    if (!res.ok) throw new Error("Request failed");
+    const data = await res.json();
+    renderChat(data);
+    statusLine.textContent = "";
+  } catch (_) {
+    // fallback: navigate to citizen page with question stored
+    sessionStorage.setItem("pwt_question", q);
+    sessionStorage.setItem("pwt_country", countrySelect.value);
+    window.location.href = "/citizen";
+  } finally {
+    submitBtn.disabled = false;
   }
-}
+});
+questionInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); document.getElementById("askForm").requestSubmit(); }
+});
 
-$("income").addEventListener("input", () => { $("incomeNum").value = $("income").value; clearTimeout(timer); timer = setTimeout(check, 90); });
-$("incomeNum").addEventListener("input", () => { $("income").value = Math.min(3500, Number($("incomeNum").value || 0)); clearTimeout(timer); timer = setTimeout(check, 200); });
+// Situation filter
+document.querySelectorAll(".pill-btn").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const isActive = btn.classList.contains("active");
+    document.querySelectorAll(".pill-btn").forEach((b) => b.classList.remove("active"));
+    if (isActive) {
+      // deactivate — show all
+      document.querySelectorAll(".t-card").forEach((c) => c.classList.remove("dimmed", "highlighted"));
+      return;
+    }
+    btn.classList.add("active");
+    const tags = btn.dataset.tags.split(",");
+    document.querySelectorAll(".t-card").forEach((c) => {
+      const cardTags = (c.dataset.tags || "").split(",");
+      const match = tags.some((t) => cardTags.includes(t));
+      c.classList.toggle("highlighted", match);
+      c.classList.toggle("dimmed", !match);
+    });
+    document.getElementById("transpSection").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+});
 
-(async function init() {
-  try {
-    const form = await (await fetch("/api/civic/schemes/sg_silver_support/form")).json();
-    lines = form.policy_text.split("\n").filter((l) => l.startsWith("Criterion 3") || l.startsWith("4-room flat"));
-  } catch (e) { lines = []; }
-  await check();
+// Benchmark
+(async function loadBench() {
   try {
     const b = await (await fetch("/api/benchmark")).json();
-    const pct = (x) => Math.round(x * 100);
-    $("evidence").innerHTML = `
-      <div class="tile good"><div class="big">${pct(b.recall)}%</div><div class="label">of planted bugs caught by tests generated from the rule (${b.cases} tests)</div></div>
-      <div class="tile bad"><div class="big">${pct(b.baseline_recall)}%</div><div class="label">caught by a hand-written suite (${b.baseline_cases} tests)</div></div>
-      <div class="tile"><div class="big">${b.false_positives}</div><div class="label">false alarms on the correct software</div></div>
-      <div class="tile"><div class="big">${pct(b.regression_valid)}%</div><div class="label">of regression tests valid: fail on the bug, pass on the fix</div></div>`;
-  } catch (e) { $("evidence").innerHTML = '<div class="muted">The benchmark could not be loaded.</div>'; }
+    const pct = (x) => Math.round(x * 100) + "%";
+    document.getElementById("benchTiles").innerHTML = `
+      <div class="tile"><div class="big">${pct(b.recall)}</div><div class="label">of planted bugs caught by contract-generated tests (${b.cases} tests)</div></div>
+      <div class="tile bad"><div class="big">${pct(b.baseline_recall)}</div><div class="label">caught by a hand-written suite (${b.baseline_cases} tests)</div></div>
+      <div class="tile"><div class="big">${b.false_positives}</div><div class="label">false alarms on correct software</div></div>
+      <div class="tile"><div class="big">${pct(b.regression_valid)}</div><div class="label">of regression tests valid: fail on bug, pass on fix</div></div>`;
+  } catch(_) {
+    document.getElementById("benchTiles").innerHTML = '<div class="tile"><div class="label" style="color:#888">Benchmark unavailable in this session.</div></div>';
+  }
 })();
 </script>
 </body>
