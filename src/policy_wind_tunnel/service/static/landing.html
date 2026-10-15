@@ -104,19 +104,26 @@ h1 span { color: var(--green); }
 .section-heading h2 { margin: 0; font-size: clamp(22px, 2.5vw, 29px); line-height: 1.25; letter-spacing: -.04em; }
 .section-aside { margin: 0 0 4px; color: var(--muted); font-size: 14px; }
 .topic-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
-.topic-card { min-height: 212px; position: relative; display: flex; flex-direction: column; align-items: flex-start; text-align: left; padding: 20px 21px 22px; background: rgba(255,255,255,.92); border: 1px solid #e4e8e3; border-radius: 17px; cursor: pointer; box-shadow: 0 4px 14px rgba(25,49,36,.018); transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease; text-decoration: none; color: inherit; }
-.topic-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); border-color: #c9d9cc; }
-.topic-icon { width: 61px; height: 61px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; margin-bottom: 16px; }
-.topic-icon svg { width: 35px; height: 35px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-.topic-green .topic-icon { color: #245c46; background: #e4f3e9; }
-.topic-amber .topic-icon { color: #68511d; background: #fbf0d9; }
-.topic-blue .topic-icon { color: #294a76; background: #e5eefb; }
-.topic-lilac .topic-icon { color: #5c4b80; background: #eee8fa; }
-.topic-title { display: block; margin: 0 37px 6px 0; font-size: 17px; line-height: 1.3; font-weight: 800; letter-spacing: -.4px; }
-.topic-description { display: block; max-width: 225px; margin-right: 17px; color: #68756f; font-size: 13px; line-height: 1.55; }
-.topic-arrow { position: absolute; right: 17px; bottom: 18px; width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid #edf0eb; border-radius: 50%; background: #f7f8f5; color: #32443a; transition: background .2s ease, color .2s ease; }
-.topic-card:hover .topic-arrow { color: #fff; background: var(--green); }
-.topic-arrow svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.topic-card { min-height: 228px; position: relative; display: flex; flex-direction: column; background: #fff; border: 1px solid #e4e8e3; border-radius: 20px; cursor: pointer; box-shadow: 0 2px 10px rgba(25,49,36,.04); transition: transform .2s ease, box-shadow .22s ease, border-color .2s ease; text-decoration: none; color: inherit; overflow: hidden; }
+.topic-card:hover { transform: translateY(-5px); box-shadow: 0 18px 44px rgba(24,48,37,.12); border-color: transparent; }
+.topic-card:focus-visible { outline-offset: 3px; }
+.topic-card-accent { height: 5px; width: 100%; flex: none; }
+.topic-green .topic-card-accent { background: linear-gradient(90deg, #1a5c3c, #4caf7d); }
+.topic-amber .topic-card-accent { background: linear-gradient(90deg, #b45309, #f59e0b); }
+.topic-blue .topic-card-accent { background: linear-gradient(90deg, #1e3a8a, #3b82f6); }
+.topic-lilac .topic-card-accent { background: linear-gradient(90deg, #5b21b6, #a78bfa); }
+.topic-card-inner { padding: 22px 22px 20px; display: flex; flex-direction: column; flex: 1; }
+.topic-icon { width: 54px; height: 54px; display: inline-flex; align-items: center; justify-content: center; border-radius: 14px; margin-bottom: 16px; flex: none; }
+.topic-icon svg { width: 30px; height: 30px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.topic-green .topic-icon { color: #1a5c3c; background: #dcfce7; }
+.topic-amber .topic-icon { color: #92400e; background: #fef3c7; }
+.topic-blue .topic-icon { color: #1e3a8a; background: #dbeafe; }
+.topic-lilac .topic-icon { color: #4c1d95; background: #ede9fe; }
+.topic-title { display: block; margin: 0 0 8px; font-size: 20px; line-height: 1.2; font-weight: 800; letter-spacing: -.5px; color: var(--ink); }
+.topic-description { display: block; color: #68756f; font-size: 13.5px; line-height: 1.55; flex: 1; }
+.topic-arrow { align-self: flex-end; margin-top: 16px; width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; border: 1.5px solid #dde6de; border-radius: 50%; background: #f5f8f5; color: #32443a; transition: background .2s ease, color .2s ease, border-color .2s ease; flex: none; }
+.topic-card:hover .topic-arrow { color: #fff; background: var(--green); border-color: var(--green); }
+.topic-arrow svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
 
 /* Trust strip */
 .trust-strip { width: min(calc(100% - 48px), 900px); margin: 4px auto 24px; display: flex; align-items: center; justify-content: center; gap: 19px; color: #5d6b63; }
@@ -196,7 +203,7 @@ h1 span { color: var(--green); }
 @media (max-width: 1000px) {
   .site-header { padding-inline: 28px; }
   .topic-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
-  .topic-card { min-height: 195px; }
+  .topic-card { min-height: 200px; }
   .topics-section, .bench-section { width: min(calc(100% - 56px), 760px); }
   .nav-link:not(.primary) { display: none; }
 }
@@ -227,10 +234,12 @@ h1 span { color: var(--green); }
   .section-heading { display: block; margin-bottom: 15px; }
   .section-heading h2 { font-size: 23px; }
   .topic-grid { gap: 11px; }
-  .topic-card { min-height: 188px; padding: 15px 14px 19px; border-radius: 15px; }
-  .topic-icon { width: 51px; height: 51px; margin-bottom: 13px; }
-  .topic-title { font-size: 15px; margin-right: 0; }
-  .topic-description { font-size: 12px; margin-right: 0; }
+  .topic-card { min-height: 186px; border-radius: 16px; }
+  .topic-card-inner { padding: 14px 16px 16px; }
+  .topic-icon { width: 46px; height: 46px; margin-bottom: 12px; border-radius: 11px; }
+  .topic-icon svg { width: 26px; height: 26px; }
+  .topic-title { font-size: 16px; }
+  .topic-description { font-size: 12.5px; }
   .trust-strip { width: calc(100% - 34px); gap: 10px; }
   .trust-line { width: 20px; flex: none; }
   .site-footer { padding: 17px 18px; justify-content: center; gap: 8px 0; text-align: center; }
@@ -345,29 +354,41 @@ h1 span { color: var(--green); }
         <p class="section-aside">Pick a topic to begin.</p>
       </div>
       <div class="topic-grid">
-        <a class="topic-card topic-green" href="/citizen" aria-label="Laws and policies">
-          <span class="topic-icon"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 6v31M10 13h28M24 7l-4 5h8zM10 13 3 28h14L10 13Zm28 0-7 15h14L38 13Z"/><path d="M7 31c2 4 10 4 12 0M31 31c2 4 10 4 12 0M18 39h12M24 37v2M17 43h14"/><path d="M6 36h13v7H6zM29 36h13v7H29z"/></svg></span>
-          <span class="topic-title">Laws &amp; policies</span>
-          <span class="topic-description">Understand rules and your rights</span>
-          <span class="topic-arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></span>
+        <a class="topic-card topic-green" href="/citizen" aria-label="Know your rights">
+          <span class="topic-card-accent" aria-hidden="true"></span>
+          <span class="topic-card-inner">
+            <span class="topic-icon"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 6v31M10 13h28M24 7l-4 5h8zM10 13 3 28h14L10 13Zm28 0-7 15h14L38 13Z"/><path d="M7 31c2 4 10 4 12 0M31 31c2 4 10 4 12 0M18 39h12M24 37v2M17 43h14"/><path d="M6 36h13v7H6zM29 36h13v7H29z"/></svg></span>
+            <span class="topic-title">Know your rights</span>
+            <span class="topic-description">Laws, policies, and what they mean for you — in plain language</span>
+            <span class="topic-arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></span>
+          </span>
         </a>
-        <a class="topic-card topic-amber" href="/citizen" aria-label="Schemes and benefits">
-          <span class="topic-icon"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="25" cy="13" r="9"/><path d="M22 9h6M22 13h5M22 17h6M5 28c7-5 12-5 18-1l5 3 8-5c3-2 6 2 3 4L27 39H14l-9-5"/><path d="M5 29v10h9V29"/></svg></span>
-          <span class="topic-title">Schemes &amp; benefits</span>
-          <span class="topic-description">Find support you may qualify for</span>
-          <span class="topic-arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></span>
+        <a class="topic-card topic-amber" href="/citizen" aria-label="Benefits you can claim">
+          <span class="topic-card-accent" aria-hidden="true"></span>
+          <span class="topic-card-inner">
+            <span class="topic-icon"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="25" cy="13" r="9"/><path d="M22 9h6M22 13h5M22 17h6M5 28c7-5 12-5 18-1l5 3 8-5c3-2 6 2 3 4L27 39H14l-9-5"/><path d="M5 29v10h9V29"/></svg></span>
+            <span class="topic-title">Benefits you can claim</span>
+            <span class="topic-description">Schemes and support you may qualify for, checked against the official rule</span>
+            <span class="topic-arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></span>
+          </span>
         </a>
-        <a class="topic-card topic-blue" href="/citizen#decides" aria-label="Your representatives">
-          <span class="topic-icon"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M9 20h30M13 20V14l11-7 11 7v6M17 20v7M24 20v7M31 20v7M8 29h32v4H8zM5 39c0-4 3-6 7-6s7 2 7 6M29 39c0-4 3-6 7-6s7 2 7 6M19 39c0-4 2-6 5-6s5 2 5 6"/><circle cx="24" cy="5" r="2"/></svg></span>
-          <span class="topic-title">Your representatives</span>
-          <span class="topic-description">Know who is responsible for what</span>
-          <span class="topic-arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></span>
+        <a class="topic-card topic-blue" href="/citizen#leaders" aria-label="Know your leader">
+          <span class="topic-card-accent" aria-hidden="true"></span>
+          <span class="topic-card-inner">
+            <span class="topic-icon"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M9 20h30M13 20V14l11-7 11 7v6M17 20v7M24 20v7M31 20v7M8 29h32v4H8zM5 39c0-4 3-6 7-6s7 2 7 6M29 39c0-4 3-6 7-6s7 2 7 6M19 39c0-4 2-6 5-6s5 2 5 6"/><circle cx="24" cy="5" r="2"/></svg></span>
+            <span class="topic-title">Know your leader</span>
+            <span class="topic-description">Your MP, MLA, councillor — who they are and what they are accountable for</span>
+            <span class="topic-arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></span>
+          </span>
         </a>
-        <a class="topic-card topic-lilac" href="/officials" aria-label="Test a policy change">
-          <span class="topic-icon"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M15 8h25v32H15zM10 13H7v31h25v-4M21 15h13M21 21h13M21 27h13M21 33h8"/></svg></span>
-          <span class="topic-title">Test a policy change</span>
-          <span class="topic-description">See who is affected before it ships</span>
-          <span class="topic-arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></span>
+        <a class="topic-card topic-lilac" href="/citizen#decides" aria-label="Know your government">
+          <span class="topic-card-accent" aria-hidden="true"></span>
+          <span class="topic-card-inner">
+            <span class="topic-icon"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M15 8h25v32H15zM10 13H7v31h25v-4M21 15h13M21 21h13M21 27h13M21 33h8"/></svg></span>
+            <span class="topic-title">Know your government</span>
+            <span class="topic-description">Which office handles your problem and where to escalate if nothing happens</span>
+            <span class="topic-arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></span>
+          </span>
         </a>
       </div>
     </section>
