@@ -245,7 +245,8 @@ h1 span { color: var(--green); }
   .site-footer { padding: 17px 18px; justify-content: center; gap: 8px 0; text-align: center; }
 }
 /* Chat answer panel */
-.chat-answer { width: min(100%, 900px); margin: 0 auto; padding-top: 20px; }
+.chat-answer { width: min(calc(100% - 48px), 900px); margin: 0 auto; padding: 28px 0 4px; }
+.chat-answer[hidden] { display: none; }
 .chat-bubble { background: #fff; border: 1.5px solid #9bbba8; border-radius: 18px; padding: 22px 26px; box-shadow: 0 8px 28px rgba(21,83,63,.08); animation: slideUp .22s ease; }
 @keyframes slideUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 .chat-bubble .cb-label { font-size: 10px; font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase; color: var(--green); margin: 0 0 10px; display: flex; align-items: center; gap: 7px; }
@@ -345,6 +346,9 @@ h1 span { color: var(--green); }
       </div>
     </section>
 
+    <!-- Chat answer panel (shown after submit, pushes topic cards down) -->
+    <div class="chat-answer" id="chatAnswer" hidden aria-live="polite"></div>
+
     <section class="topics-section" aria-labelledby="topicsTitle">
       <div class="section-heading">
         <div>
@@ -392,9 +396,6 @@ h1 span { color: var(--green); }
         </a>
       </div>
     </section>
-
-    <!-- Chat answer panel (shown after submit) -->
-    <div class="chat-answer" id="chatAnswer" hidden aria-live="polite"></div>
 
     <!-- Feature 3: situation filter -->
     <div class="situation-section" id="situationSection">
@@ -628,18 +629,22 @@ function renderChat(data) {
   const redirectPath = data.redirect_path || "/citizen";
   const redirectLabel = REDIRECT_LABELS[redirectPath] || "Go to checker";
   const poweredNote = data.powered_by === "gemini" ? "Powered by Gemini" : "Keyword match — connect Gemini for full answers";
+  const href = esc(redirectPath) + (data.scheme_id ? '?scheme=' + esc(data.scheme_id) : '');
   chatAnswer.hidden = false;
   chatAnswer.innerHTML = `<div class="chat-bubble">
     <p class="cb-label"><span class="cb-dot"></span> Policy Wind Tunnel answer</p>
     <p>${esc(data.answer)}</p>
     <div class="cb-actions">
-      <a class="cb-redirect" href="${esc(redirectPath)}${data.scheme_id ? '?scheme=' + esc(data.scheme_id) : ''}">${esc(redirectLabel)} &rarr;</a>
+      <a class="cb-redirect" id="cbRedirect" href="${href}">${esc(redirectLabel)} &rarr;</a>
       <button class="cb-dismiss" id="chatDismiss">Ask something else</button>
     </div>
     <p class="cb-powered">${esc(poweredNote)}</p>
   </div>`;
-  chatAnswer.scrollIntoView({ behavior: "smooth", block: "nearest" });
   document.getElementById("chatDismiss").onclick = () => { chatAnswer.hidden = true; chatAnswer.innerHTML = ""; questionInput.value = ""; questionInput.focus(); };
+  document.getElementById("cbRedirect").addEventListener("click", () => {
+    sessionStorage.setItem("pwt_question", questionInput.value.trim());
+    sessionStorage.setItem("pwt_country", countrySelect.value);
+  });
 }
 
 document.getElementById("askForm").addEventListener("submit", async (e) => {
@@ -648,7 +653,6 @@ document.getElementById("askForm").addEventListener("submit", async (e) => {
   if (!q) { statusLine.textContent = "Type a question or pick a topic to get started."; questionInput.focus(); return; }
   chatAnswer.hidden = false;
   chatAnswer.innerHTML = '<p class="chat-loading"><span class="spinner" aria-hidden="true"></span>Thinking…</p>';
-  chatAnswer.scrollIntoView({ behavior: "smooth", block: "nearest" });
   const submitBtn = document.querySelector(".submit-button");
   submitBtn.disabled = true;
   try {

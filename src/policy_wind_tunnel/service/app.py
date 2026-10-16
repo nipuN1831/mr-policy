@@ -154,7 +154,23 @@ def create_app(llm: Any = _UNSET, searcher: Any = _UNSET) -> FastAPI:
         "rights": (None, "/citizen#rights", "Your key rights include the Right to Information (RTI Act 2005), Consumer Protection (Consumer Protection Act 2019), and Free Legal Services (Legal Services Authorities Act 1987). See the Rights tab for how to use each one."),
         "representative": (None, "/citizen#leaders", "You can look up your Member of Parliament, MLA, or local councillor from the My Area tab. For India, Sansad.in lists Lok Sabha members. The live search uses Gemini to find your area's current representatives."),
         "what if": (None, "/officials", "The Officials page lets you simulate a rule change — re-decide thousands of synthetic applicants and see who moves in or out. Try raising the income floor or changing a residency requirement."),
+        "broker": (None, "/citizen#decides", "If a broker cheated you, file a complaint with SEBI at scores.sebi.gov.in (for stock brokers) or with the Insurance Ombudsman at ecoi.co.in (for insurance brokers). For real estate agents, file with the state RERA authority. Keep all payment records and communication as evidence."),
+        "cheated": (None, "/citizen#decides", "If you were cheated, identify the authority: SEBI for financial brokers, RBI Ombudsman for banks, state RERA for real estate, or CPGRAMS for government services. File a police FIR and a consumer forum complaint (under Consumer Protection Act 2019) in parallel — consumer courts have no filing fee up to ₹5 lakh claims."),
+        "fraud": (None, "/citizen#decides", "For financial fraud, report immediately to your bank's fraud helpline, then file at cybercrime.gov.in (for online fraud). For offline fraud, file an FIR and a consumer complaint. The National Consumer Helpline is 1915."),
+        "scam": (None, "/citizen#decides", "For scams, report online fraud at cybercrime.gov.in. For phone/UPI scams, call your bank immediately to freeze the account and file at 1930 (National Cyber Crime helpline). Keep screenshots and transaction IDs."),
+        "consumer": (None, "/citizen#decides", "The Consumer Protection Act 2019 covers unfair trade practices, defective goods, and deficient services. File online at edaakhil.nic.in. No advocate needed for claims under ₹5 lakh. The district consumer forum must respond within 21 days of admission."),
+        "sebi": (None, "/citizen#decides", "SEBI handles complaints against stock brokers, mutual funds, and listed companies. File at scores.sebi.gov.in. The company must respond within 30 days. If unresolved, SEBI takes up the matter directly."),
+        "pension": (None, "/citizen#decides", "For pension grievances, use the Centralised Pension Grievance Redress and Monitoring System at pgportal.gov.in. For EPFO/PF issues, file at epfigms.gov.in. Include your UAN and employer details in the complaint."),
+        "refund": (None, "/citizen#decides", "For a refused refund from a business, file under Consumer Protection Act 2019 at edaakhil.nic.in. For a bank or payment gateway refund, escalate to the RBI Ombudsman at cms.rbi.org.in after 30 days without resolution."),
+        "hospital": (None, "/citizen#decides", "For medical negligence, file a complaint with the State Medical Council. For overcharging, file with the Consumer Forum (hospitals are 'services' under Consumer Protection Act 2019). Government hospital complaints go to the CPGRAMS or state health ministry."),
+        "police": (None, "/citizen#rights", "If police refuse to file an FIR, you can file a complaint directly to the Superintendent of Police or use Section 156(3) CrPC to approach a magistrate. The SC has ruled police cannot refuse an FIR for a cognizable offence. You can also file a zero FIR at any station regardless of jurisdiction."),
     }
+
+    def _keyword_match(q: str) -> dict | None:
+        for kw, (scheme_id, path, answer_text) in _CHAT_KEYWORDS.items():
+            if kw in q:
+                return {"answer": answer_text, "intent": "general", "scheme_id": scheme_id, "redirect_path": path, "powered_by": "fallback"}
+        return None
 
     @app.post("/api/chat")
     async def chat(request: ChatRequest):
@@ -163,25 +179,30 @@ def create_app(llm: Any = _UNSET, searcher: Any = _UNSET) -> FastAPI:
             try:
                 import json as _json
                 raw = model.generate_json(_CHAT_SYSTEM, f"Country: {request.country}\nQuestion: {request.question}")
-                # extract JSON block: last {...} in response
                 start = raw.rfind("{")
                 end = raw.rfind("}") + 1
                 if start >= 0 and end > start:
                     meta = _json.loads(raw[start:end])
                     answer_text = meta.get("answer") or raw[:start].strip()
+                    redirect = meta.get("redirect_path") or "/citizen"
+                    # if Gemini returns generic /citizen with no fragment, check keywords for a more specific redirect
+                    if redirect in ("/citizen", None) and meta.get("intent", "general") == "general":
+                        kw_hit = _keyword_match(q)
+                        if kw_hit:
+                            return {**kw_hit, "answer": answer_text, "powered_by": "gemini+keyword"}
                     return {
                         "answer": answer_text,
                         "intent": meta.get("intent", "general"),
                         "scheme_id": meta.get("scheme_id"),
-                        "redirect_path": meta.get("redirect_path"),
+                        "redirect_path": redirect,
                         "powered_by": "gemini",
                     }
             except Exception:
                 pass
-        # keyword fallback
-        for kw, (scheme_id, path, answer_text) in _CHAT_KEYWORDS.items():
-            if kw in q:
-                return {"answer": answer_text, "intent": "general", "scheme_id": scheme_id, "redirect_path": path, "powered_by": "fallback"}
+        # keyword fallback (when model is None or JSON extraction failed)
+        kw_hit = _keyword_match(q)
+        if kw_hit:
+            return kw_hit
         return {
             "answer": "I couldn't find a specific answer for that question. Try browsing the topics below or use the full citizen checker.",
             "intent": "general",
