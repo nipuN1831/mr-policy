@@ -8,7 +8,7 @@
 - [ ] **Deploy to Cloud Run** — get a live public URL
   ```
   gcloud config set project <YOUR_PROJECT_ID>
-  gcloud run deploy policy-wind-tunnel --source . --region asia-southeast1 --allow-unauthenticated --set-secrets=GOOGLE_API_KEY=GOOGLE_API_KEY:latest
+  gcloud run deploy policy-wind-tunnel --source . --region us-central1 --allow-unauthenticated --set-env-vars=GOOGLE_API_KEY=<YOUR_GEMINI_KEY> --min-instances=1
   ```
 - [ ] **Demo video** — 3–4 min, public YouTube or Drive link
   - Record on the Cloud Run URL (Gemini works there, not localhost)
@@ -73,7 +73,7 @@ uv run uvicorn policy_wind_tunnel.service.app:app --reload --port 8000
 uv run pytest tests/ -q
 
 # Deploy
-gcloud run deploy policy-wind-tunnel --source . --region asia-southeast1 --allow-unauthenticated --set-secrets=GOOGLE_API_KEY=GOOGLE_API_KEY:latest
+gcloud run deploy policy-wind-tunnel --source . --region us-central1 --allow-unauthenticated --set-env-vars=GOOGLE_API_KEY=<YOUR_GEMINI_KEY> --min-instances=1
 
 # Push to GitHub
 git add -A && git commit -m "..." && git push origin master
