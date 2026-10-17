@@ -8,5 +8,6 @@ __pycache__
 .venv
 venv
 tests/
-*.md
+SUBMISSION_CHECKLIST.md
+.pytest_cache/README.md
 Untitled
