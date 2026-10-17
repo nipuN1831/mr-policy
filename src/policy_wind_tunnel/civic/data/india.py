@@ -14,6 +14,14 @@ RBI = source("https://cms.rbi.org.in", "RBI Complaint Management System")
 NHRC = source("https://nhrc.nic.in", "National Human Rights Commission")
 NALSA = source("https://nalsa.gov.in", "National Legal Services Authority")
 PMUY = source("https://www.pmuy.gov.in/ujjwala2.html", "PM Ujjwala Yojana 2.0 eligibility")
+EPFO = source("https://epfigms.gov.in", "EPFO Grievance Portal")
+PFMS = source("https://pfms.nic.in", "Public Financial Management System — DBT payment status")
+PMKISAN = source("https://pmkisan.gov.in", "PM-KISAN portal")
+AYUSHMAN = source("https://beneficiary.nha.gov.in", "Ayushman Bharat PM-JAY beneficiary portal")
+UMANG = source("https://web.umang.gov.in", "UMANG — Unified Mobile Application for New-age Governance")
+SCHOLARSHIP = source("https://scholarships.gov.in", "National Scholarship Portal")
+DLRS = source("https://dilrmp.gov.in", "Digital India Land Records Modernisation Programme")
+SECC = source("https://secc.gov.in", "Socio Economic and Caste Census data portal")
 
 PACK = {
     "code": "in",
@@ -154,6 +162,185 @@ PACK = {
             "unverified_parts": ["Eligibility criteria were not on the page"],
             "source": NALSA,
         },
+        {
+            "id": "ration_not_received",
+            "title": "Ration not given or name missing from ration card",
+            "keywords": ["ration", "ration card", "pds", "fair price shop", "anaj", "grain", "rice", "wheat", "kerosene", "dealer"],
+            "first_body": "Fair Price Shop dealer → Block Supply Officer → District Supply Officer",
+            "steps": [
+                "First ask the Fair Price Shop (ration dealer) for the reason in writing.",
+                "If refused or no response, file a written complaint with the Block Supply Officer.",
+                "Escalate to the District Supply Officer or the state food department portal.",
+                "Central complaints go to CPGRAMS (pgportal.gov.in). Quote your ration card number.",
+            ],
+            "helplines": [{"name": "National Food Security helpline", "number": "1967", "hours": ""}],
+            "portal": "https://nfsa.gov.in",
+            "legal_basis": "National Food Security Act 2013",
+            "verified": True,
+            "unverified_parts": [],
+            "source": source("https://nfsa.gov.in", "National Food Security Act portal"),
+        },
+        {
+            "id": "pension_not_received",
+            "title": "Old age, widow or disability pension not received",
+            "keywords": ["pension", "old age", "widow", "disability", "vridha", "vidhwa", "divyang", "nsap", "social security"],
+            "first_body": "Gram Panchayat (rural) or Ward Office (urban) → Block Development Officer → District Social Welfare Officer",
+            "steps": [
+                "Check your payment status on the PFMS DBT tracker at pfms.nic.in using your Aadhaar or beneficiary ID.",
+                "If not credited, contact your Gram Panchayat or Ward Office with your Aadhaar and bank passbook.",
+                "Escalate to the Block Development Officer or state social welfare portal.",
+                "File on CPGRAMS if the matter concerns NSAP (the central pension component).",
+            ],
+            "helplines": [],
+            "portal": "https://nsap.nic.in",
+            "legal_basis": "National Social Assistance Programme (NSAP)",
+            "verified": True,
+            "unverified_parts": [],
+            "source": PFMS,
+        },
+        {
+            "id": "pm_kisan_not_received",
+            "title": "PM-KISAN instalment not credited",
+            "keywords": ["pm kisan", "kisan", "farmer", "instalment", "2000", "kheti", "agriculture payment", "pmkisan"],
+            "first_body": "PM-KISAN helpline or local Agriculture Officer",
+            "steps": [
+                "Check your payment status at pmkisan.gov.in → Beneficiary Status using Aadhaar or account number.",
+                "Common reasons: Aadhaar not seeded to bank account, name mismatch, land records not updated.",
+                "Call the PM-KISAN helpline to raise a grievance if status shows 'Payment Failed'.",
+                "Visit the local Agriculture Department office with your Aadhaar, land record (khatauni), and bank passbook.",
+            ],
+            "helplines": [{"name": "PM-KISAN helpline", "number": "155261", "hours": ""}, {"name": "PM-KISAN alternate", "number": "011-24300606", "hours": ""}],
+            "portal": "https://pmkisan.gov.in",
+            "legal_basis": "PM-KISAN scheme, Department of Agriculture and Farmers Welfare",
+            "verified": True,
+            "unverified_parts": [],
+            "source": PMKISAN,
+        },
+        {
+            "id": "ayushman_card",
+            "title": "Ayushman Bharat health card not received or hospital refusing treatment",
+            "keywords": ["ayushman", "health card", "pm jay", "pmjay", "hospital", "treatment", "cashless", "5 lakh", "insurance"],
+            "first_body": "Ayushman Bharat PM-JAY beneficiary portal or district NHA office",
+            "steps": [
+                "Check eligibility and download your e-card at beneficiary.nha.gov.in using Aadhaar.",
+                "If the hospital is empanelled but refusing cashless treatment, call the PM-JAY helpline immediately.",
+                "If denied, file a grievance on the NHA portal or at the state SHA (State Health Agency) office.",
+            ],
+            "helplines": [{"name": "PM-JAY helpline", "number": "14555", "hours": ""}],
+            "portal": "https://beneficiary.nha.gov.in",
+            "legal_basis": "Ayushman Bharat Pradhan Mantri Jan Arogya Yojana",
+            "verified": True,
+            "unverified_parts": [],
+            "source": AYUSHMAN,
+        },
+        {
+            "id": "certificate_not_issued",
+            "title": "Certificate not issued — birth, caste, income, domicile, death",
+            "keywords": ["certificate", "birth certificate", "caste certificate", "income certificate", "domicile", "death certificate", "residence proof", "bonafide"],
+            "first_body": "Gram Panchayat / Municipal office → Tehsildar / Sub-Divisional Magistrate",
+            "steps": [
+                "Apply online through your state's e-district portal or at the Gram Panchayat/Ward office.",
+                "Birth and death certificates: municipal body or Gram Panchayat as registrar.",
+                "Caste, income, domicile certificates: Tehsildar or SDM office.",
+                "If not issued within the prescribed time, file an RTI for the reason, then escalate to the District Magistrate.",
+            ],
+            "helplines": [],
+            "portal": "https://edistrict.gov.in",
+            "legal_basis": "Registration of Births and Deaths Act 1969; state-specific revenue laws",
+            "verified": False,
+            "unverified_parts": ["State-specific portals and timelines vary"],
+            "source": source("https://edistrict.gov.in", "National e-District portal"),
+        },
+        {
+            "id": "mnrega_work_denied",
+            "title": "MNREGA work not given or wages not paid",
+            "keywords": ["mnrega", "mgnrega", "job card", "work not given", "wages", "rozgar", "100 days", "rural employment"],
+            "first_body": "Gram Panchayat → Programme Officer (Block level) → District Programme Coordinator",
+            "steps": [
+                "You are entitled to work within 15 days of applying with your Job Card. If not given, you are entitled to an Unemployment Allowance.",
+                "Check payment status on the MNREGA MIS at mnregaweb4.nic.in using your Job Card number.",
+                "File a written complaint with the Gram Panchayat and the Block Programme Officer.",
+                "Escalate to the District Programme Coordinator or the state MNREGA commissioner.",
+            ],
+            "helplines": [{"name": "MNREGA helpline", "number": "1800-345-22-44", "hours": ""}],
+            "portal": "https://mnregaweb4.nic.in",
+            "legal_basis": "Mahatma Gandhi National Rural Employment Guarantee Act 2005",
+            "verified": True,
+            "unverified_parts": [],
+            "source": source("https://mnregaweb4.nic.in", "MNREGA MIS portal"),
+        },
+        {
+            "id": "scholarship_not_received",
+            "title": "Scholarship not received or application rejected",
+            "keywords": ["scholarship", "छात्रवृत्ति", "stipend", "student", "pre-matric", "post-matric", "minority scholarship", "obc scholarship", "sc st scholarship"],
+            "first_body": "National Scholarship Portal (scholarships.gov.in) → District Welfare Officer → State Nodal Officer",
+            "steps": [
+                "Track your application status at scholarships.gov.in using your application number.",
+                "Common rejection reasons: incomplete documents, institution not approved, income limit exceeded.",
+                "Contact your institution's nodal officer first — they often hold up approvals.",
+                "Escalate to the District Minority/Welfare Officer or file on CPGRAMS if a central scholarship.",
+            ],
+            "helplines": [{"name": "NSP helpline", "number": "0120-6619540", "hours": "Mon–Fri 8am–8pm"}],
+            "portal": "https://scholarships.gov.in",
+            "legal_basis": "National Scholarship Portal, Ministry of Electronics and IT",
+            "verified": True,
+            "unverified_parts": [],
+            "source": SCHOLARSHIP,
+        },
+        {
+            "id": "fir_not_filed",
+            "title": "Police refusing to file FIR",
+            "keywords": ["fir", "police complaint", "police not helping", "complaint not registered", "zero fir", "first information report"],
+            "first_body": "Any police station (zero FIR) → Superintendent of Police → Magistrate under Section 156(3) CrPC",
+            "steps": [
+                "You can file a zero FIR at ANY police station in India regardless of jurisdiction. The station must register it and transfer it to the right station.",
+                "If refused, send a written complaint to the Superintendent of Police of the district by registered post.",
+                "You can also apply to the Judicial Magistrate under Section 156(3) of CrPC to direct the police to register the FIR.",
+                "File a complaint with the State Human Rights Commission or the NHRC for police inaction.",
+            ],
+            "helplines": [{"name": "Police emergency", "number": "100", "hours": ""}, {"name": "Women's helpline", "number": "1091", "hours": ""}],
+            "portal": "https://nhrc.nic.in",
+            "legal_basis": "Code of Criminal Procedure 1973 Section 154 (mandatory FIR); Supreme Court judgment in Lalita Kumari v Govt of UP (2014)",
+            "verified": True,
+            "unverified_parts": [],
+            "source": NHRC,
+        },
+        {
+            "id": "electricity_bill_dispute",
+            "title": "Wrong electricity bill or power cut not fixed",
+            "keywords": ["electricity", "bijli", "power cut", "light gone", "meter", "bill", "overcharge", "transformer", "lineman"],
+            "first_body": "State electricity distribution company (DISCOM) → State Electricity Regulatory Commission (SERC)",
+            "steps": [
+                "Call your DISCOM customer care or submit a complaint on their app/portal for billing errors or outages.",
+                "For unresolved billing disputes, file a complaint with the Consumer Grievance Redressal Forum of your DISCOM.",
+                "If still unresolved, appeal to the State Electricity Regulatory Commission Ombudsman.",
+                "For broader consumer action, file with the District Consumer Commission.",
+            ],
+            "helplines": [{"name": "National electricity helpline", "number": "1912", "hours": ""}],
+            "portal": "https://mnre.gov.in",
+            "legal_basis": "Electricity Act 2003, Section 42 — consumer grievance redressal mechanism",
+            "verified": False,
+            "unverified_parts": ["DISCOM and SERC portals vary by state"],
+            "source": source("https://cercind.gov.in", "Central Electricity Regulatory Commission"),
+        },
+        {
+            "id": "land_record_dispute",
+            "title": "Land record wrong or property dispute with government",
+            "keywords": ["land", "property", "khasra", "khatauni", "patwari", "jamabandi", "mutation", "nakal", "registry", "encroachment"],
+            "first_body": "Patwari / Lekhpal → Tehsildar → Sub-Divisional Magistrate → District Magistrate",
+            "steps": [
+                "Check your land records (khasra, khatauni) online on your state's land records portal (most states are on DILRMP).",
+                "For mutation errors, apply to the Patwari or Lekhpal with supporting documents.",
+                "For disputes not resolved at revenue level, appeal to the Tehsildar, then SDM, then DM.",
+                "For encroachment by a government body, file an RTI for the order under which it was done, then appeal to the Revenue Court.",
+            ],
+            "helplines": [],
+            "portal": "https://dilrmp.gov.in",
+            "legal_basis": "State-specific revenue codes and land reform acts",
+            "verified": False,
+            "unverified_parts": ["State portals and escalation paths differ"],
+            "source": DLRS,
+        },
     ],
     "rights": [
         {
@@ -179,6 +366,30 @@ PACK = {
             "how_to_use": "Call the NALSA helpline 15100 or contact your District Legal Services Authority.",
             "law": "Legal Services Authorities Act 1987",
             "source": NALSA,
+        },
+        {
+            "id": "food_security",
+            "title": "Right to subsidised food",
+            "summary": "Up to 75% of rural and 50% of urban population are entitled to 5 kg of rice/wheat/coarse grain per person per month at subsidised rates.",
+            "how_to_use": "Check your name on the state ration card list. Complaints go to the Block Supply Officer or CPGRAMS. Helpline: 1967.",
+            "law": "National Food Security Act 2013",
+            "source": source("https://nfsa.gov.in", "National Food Security Act portal"),
+        },
+        {
+            "id": "employment_guarantee",
+            "title": "Right to 100 days of rural work",
+            "summary": "Any rural household member can demand work under MNREGA. Work must be given within 15 days or an unemployment allowance is payable.",
+            "how_to_use": "Apply with your Job Card at the Gram Panchayat. Check payment at mnregaweb4.nic.in. Complaints: Block Programme Officer.",
+            "law": "Mahatma Gandhi National Rural Employment Guarantee Act 2005",
+            "source": source("https://mnregaweb4.nic.in", "MNREGA MIS portal"),
+        },
+        {
+            "id": "health_entitlement",
+            "title": "Ayushman Bharat — free treatment up to ₹5 lakh",
+            "summary": "Eligible families get cashless treatment up to ₹5 lakh per year at empanelled public and private hospitals.",
+            "how_to_use": "Check eligibility and get your e-card at beneficiary.nha.gov.in. Helpline 14555 if a hospital refuses cashless treatment.",
+            "law": "Ayushman Bharat Pradhan Mantri Jan Arogya Yojana (PM-JAY)",
+            "source": AYUSHMAN,
         },
     ],
     "schemes": [
@@ -246,6 +457,40 @@ PACK["schemes"] = PACK["schemes"][:0] + [
             "The adult woman must belong to a poor household based on submission of a deprivation declaration (as per prescribed format)."
         ),
         "source": PMUY,
+    },
+    {
+        "id": "in_pm_kisan",
+        "name": "PM-KISAN: ₹6,000 annual income support for farmers",
+        "summary": (
+            "Farmer families with cultivable land get ₹2,000 every four months directly in their bank account. "
+            "Check if your instalment is stuck and what to do."
+        ),
+        "policy_text": (
+            "PM Kisan Samman Nidhi (PM-KISAN). "
+            "All landholding farmer families are eligible unless excluded (income tax payers, institutional landholders, "
+            "constitutional post holders, serving/retired government employees getting ₹10,000+ pension, professionals). "
+            "Land must be in the farmer's own name in land records. "
+            "Aadhaar must be seeded to the bank account. "
+            "Instalment is credited directly to the bank account; failed transfers show on pmkisan.gov.in → Beneficiary Status."
+        ),
+        "source": PMKISAN,
+    },
+    {
+        "id": "in_ayushman",
+        "name": "Ayushman Bharat PM-JAY: free hospital treatment up to ₹5 lakh",
+        "summary": (
+            "Eligible families can get cashless treatment for serious illness at empanelled hospitals. "
+            "Check if your family is covered and what to do if a hospital refuses."
+        ),
+        "policy_text": (
+            "Ayushman Bharat Pradhan Mantri Jan Arogya Yojana (PM-JAY). "
+            "Covers bottom 40% of population by SECC 2011 deprivation criteria and occupational categories. "
+            "Benefit: ₹5 lakh per family per year for secondary and tertiary hospitalisation. "
+            "Cashless and paperless at any empanelled public or private hospital in India. "
+            "Eligibility check and e-card download at beneficiary.nha.gov.in using Aadhaar number. "
+            "Hospitals cannot refuse a beneficiary — report refusals on helpline 14555."
+        ),
+        "source": AYUSHMAN,
     },
     {
         "id": "in_caa_2019",

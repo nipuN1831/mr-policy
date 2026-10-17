@@ -38,6 +38,8 @@ REPUTABLE = frozenset({
     "wikipedia.org", "channelnewsasia.com", "straitstimes.com", "thehindu.com", "indianexpress.com", "hindustantimes.com",
     "timesofindia.indiatimes.com", "livemint.com", "reuters.com", "bbc.com", "aninews.in", "ptinews.com", "prsindia.org",
     "myneta.info", "mothership.sg", "todayonline.com", "abc.net.au", "theguardian.com", "nas.gov.sg",
+    "sansad.in", "eci.gov.in", "vidhansabha.gov.in", "ndtv.com", "theprint.in", "scroll.in", "wire.in",
+    "tribuneindia.com", "deccanherald.com", "newindianexpress.com", "business-standard.com",
 })
 ASPIRATION = re.compile(
     r"\b(aims?|believes?|committed|dedicat\w*|passion\w*|strives?|promis\w*|vision|aspir\w*|hopes?|wants?|seeks?|"
@@ -390,8 +392,15 @@ PERSON_SEARCH = """Using web search, find the CURRENT elected representatives fo
 Country: {country}
 Place: {place}
 
+For India, look for:
+- Member of Parliament (Lok Sabha) for the parliamentary constituency — find on sansad.in or prsindia.org/mptrack
+- Member of Legislative Assembly (MLA) for the state assembly constituency — find on the state Vidhan Sabha website
+- If a village or block: Sarpanch or Gram Panchayat President — find on the state panchayat portal or egramswaraj.gov.in
+- If urban: Mayor or Ward Councillor — find on the municipal body website
+
 For each person give their name, role, body, party, terms served, and up to {facts} neutral, checkable facts such as offices held,
 committee memberships, bills introduced, or earlier posts with dates. Cite the official page for every fact.
+Prefer sources: sansad.in, prsindia.org, myneta.info, eci.gov.in, thehindu.com, indianexpress.com, state Vidhan Sabha official sites.
 Also give their official social media usernames if an official page lists them.
 Use only what you find in official or reputable pages. Do not guess and do not fill gaps from memory.
 Do not include phone numbers, addresses, dates of birth, emails, assets, criminal cases, family details, or any opinion, praise or criticism.
