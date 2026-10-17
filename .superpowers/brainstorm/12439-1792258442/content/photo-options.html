@@ -1,0 +1,64 @@
+<h2>Hero Photo Options</h2>
+<p class="subtitle">Real photos from Unsplash — click to select the one that feels right for the cause. These are CC0 licensed.</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="photo-a" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="position:relative;height:200px;border-radius:10px;overflow:hidden">
+        <img src="https://images.unsplash.com/photo-1593113630400-ea4288922559?w=700&q=70" style="width:100%;height:100%;object-fit:cover" alt="Woman reading document" onerror="this.parentElement.style.background='#2d5c3f';this.style.display='none'"/>
+        <div style="position:absolute;inset:0;background:rgba(8,22,14,0.45)"></div>
+        <div style="position:absolute;bottom:10px;left:12px;color:rgba(255,255,255,0.7);font-size:11px">Woman reading a document — focused, mid-process</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Person with document</h3>
+      <p>Someone holding or reading official paperwork. Direct connection to the tool's purpose. Feels like the exact moment before Policy Wind Tunnel helps.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="photo-b" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="position:relative;height:200px;border-radius:10px;overflow:hidden">
+        <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=700&q=70" style="width:100%;height:100%;object-fit:cover" alt="Community meeting" onerror="this.parentElement.style.background='#1e3828';this.style.display='none'"/>
+        <div style="position:absolute;inset:0;background:rgba(8,22,14,0.45)"></div>
+        <div style="position:absolute;bottom:10px;left:12px;color:rgba(255,255,255,0.7);font-size:11px">Community gathering — collective, grassroots</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Community gathering</h3>
+      <p>Group of people in a meeting or outdoor gathering. Signals "this is a movement, not just a tool." Wider social initiative feeling.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="photo-c" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="position:relative;height:200px;border-radius:10px;overflow:hidden">
+        <img src="https://images.unsplash.com/photo-1604537466158-719b1972feb8?w=700&q=70" style="width:100%;height:100%;object-fit:cover" alt="Hands on paperwork" onerror="this.parentElement.style.background='#173322';this.style.display='none'"/>
+        <div style="position:absolute;inset:0;background:rgba(8,22,14,0.45)"></div>
+        <div style="position:absolute;bottom:10px;left:12px;color:rgba(255,255,255,0.7);font-size:11px">Hands + paperwork — universal, no identity</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Hands with paperwork</h3>
+      <p>Close-up of hands holding forms, stamps, documents. Universal — no face, no identity. Connects to the bureaucracy struggle without singling out one group.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="photo-d" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="position:relative;height:200px;border-radius:10px;overflow:hidden">
+        <img src="https://images.unsplash.com/photo-1521791136064-7986c2920216?w=700&q=70" style="width:100%;height:100%;object-fit:cover" alt="Government office queue" onerror="this.parentElement.style.background='#0e2318';this.style.display='none'"/>
+        <div style="position:absolute;inset:0;background:rgba(8,22,14,0.45)"></div>
+        <div style="position:absolute;bottom:10px;left:12px;color:rgba(255,255,255,0.7);font-size:11px">Office queue / counter — the problem in one frame</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>D — Government office / queue</h3>
+      <p>People waiting at a counter or in a queue. Instantly recognisable struggle. Visceral — everyone has been here. Strong "this is why we built this" energy.</p>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:12px">Note: if any photo fails to load (Unsplash CDN), a coloured placeholder shows instead. Click your choice and confirm in the terminal — we'll use the actual Unsplash photo URL in the implementation.</p>

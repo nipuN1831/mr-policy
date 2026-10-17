@@ -55,25 +55,20 @@ button:focus-visible, a:focus-visible, select:focus-visible, textarea:focus-visi
 .chevron { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
 
 /* Hero */
-.hero { overflow: hidden; position: relative; isolation: isolate; padding: 52px 24px 42px; background: radial-gradient(ellipse at 50% 5%, #fffefa 0%, #f7faf6 63%, #f2f6ef 100%); }
-.hero::before, .hero::after { content: ""; position: absolute; z-index: -1; pointer-events: none; border-radius: 50%; }
-.hero::before { width: 380px; height: 260px; left: -190px; bottom: 7px; background: radial-gradient(ellipse, rgba(207,226,210,.55), rgba(207,226,210,0) 70%); }
-.hero::after { width: 450px; height: 290px; right: -170px; bottom: 4px; background: radial-gradient(ellipse, rgba(222,232,211,.6), rgba(222,232,211,0) 70%); }
-.ambient { position: absolute; z-index: -1; bottom: 0; width: 34%; height: 118px; opacity: .55; pointer-events: none; }
-.ambient-left { left: 0; background: linear-gradient(164deg, transparent 25%, #e5efe1 25.5%, #e5efe1 53%, transparent 53.5%); }
-.ambient-right { right: 0; background: linear-gradient(196deg, transparent 25%, #e8efe2 25.5%, #e8efe2 53%, transparent 53.5%); }
-.hero-inner { width: min(100%, 1050px); margin: 0 auto; text-align: center; position: relative; }
+.hero { overflow: hidden; position: relative; padding: 52px 24px 42px; background: #0e2318 url('/static/img/hero-bg.jpg') center top / cover no-repeat; }
+.hero::before { content: ""; position: absolute; inset: 0; background: rgba(8,22,14,.52); z-index: 0; pointer-events: none; }
+.hero-inner { width: min(100%, 1050px); margin: 0 auto; text-align: center; position: relative; z-index: 1; }
 .country-control { display: inline-flex; align-items: center; gap: 10px; padding: 5px 6px 5px 14px; background: rgba(255,255,255,.78); border: 1px solid #e2e9e2; border-radius: 999px; color: var(--muted); font-size: 13px; margin-bottom: 28px; }
 .country-select-shell { display: inline-flex; align-items: center; gap: 8px; min-height: 34px; padding: 0 10px; border-radius: 999px; color: var(--ink); background: #fff; border: 1px solid #e7ebe5; }
 .country-select-shell select { appearance: none; -webkit-appearance: none; background: transparent; border: 0; outline: 0; color: inherit; cursor: pointer; max-width: 150px; font-size: 14px; font-weight: 700; }
 .country-flag { font-size: 18px; line-height: 1; }
-.eyebrow { margin: 0 0 13px; color: var(--green); font-size: 11px; font-weight: 700; letter-spacing: 1.9px; display: inline-flex; align-items: center; gap: 8px; }
+.eyebrow { margin: 0 0 13px; color: #6fcf97; font-size: 11px; font-weight: 700; letter-spacing: 1.9px; display: inline-flex; align-items: center; gap: 8px; }
 .eyebrow-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #68a586; box-shadow: 0 0 0 4px #e3f0e7; }
 h1, h2, p { margin-top: 0; }
 h1, h2, .topic-title { font-family: Manrope, "DM Sans", sans-serif; }
-h1 { margin: 0; font-size: clamp(37px, 5vw, 64px); line-height: 1.13; letter-spacing: -.055em; font-weight: 800; color: #102a22; }
-h1 span { color: var(--green); }
-.hero-subtitle { max-width: 700px; margin: 18px auto 31px; color: #55645d; font-size: clamp(16px, 2vw, 21px); line-height: 1.55; }
+h1 { margin: 0; font-size: clamp(37px, 5vw, 64px); line-height: 1.13; letter-spacing: -.055em; font-weight: 800; color: #f0f7f3; }
+h1 span { color: #6fcf97; }
+.hero-subtitle { max-width: 700px; margin: 18px auto 31px; color: rgba(240,247,243,.78); font-size: clamp(16px, 2vw, 21px); line-height: 1.55; }
 
 /* Ask box */
 .ask-box { background: rgba(255,255,255,.96); border: 1.5px solid #9bbba8; border-radius: 20px; box-shadow: 0 15px 42px rgba(30,67,47,.075); padding: 20px 20px 16px 25px; text-align: left; transition: border-color .2s ease, box-shadow .2s ease; }
@@ -93,7 +88,7 @@ h1 span { color: var(--green); }
 .submit-button:hover { background: #1a6449; transform: translateY(-1px); }
 .submit-button:active { transform: translateY(0); }
 .submit-button svg { width: 25px; height: 25px; }
-.privacy-note { display: flex; align-items: center; justify-content: center; gap: 7px; margin: 14px 0 0; color: #69786f; font-size: 12px; }
+.privacy-note { display: flex; align-items: center; justify-content: center; gap: 7px; margin: 14px 0 0; color: rgba(240,247,243,.65); font-size: 12px; }
 .privacy-note .icon { width: 16px; height: 16px; color: #54856a; }
 .interaction-status { min-height: 0; margin: 8px 0 0; color: #375f4a; font-size: 13px; }
 .interaction-status:empty { display: none; }
@@ -109,6 +104,7 @@ h1 span { color: var(--green); }
 .topic-card:hover { transform: translateY(-5px); box-shadow: 0 18px 44px rgba(24,48,37,.12); border-color: transparent; }
 .topic-card:focus-visible { outline-offset: 3px; }
 .topic-card-accent { height: 5px; width: 100%; flex: none; }
+.topic-card-photo { height: 96px; background-size: cover; background-position: center; filter: brightness(0.72) saturate(0.85); flex: none; }
 .topic-green .topic-card-accent { background: linear-gradient(90deg, #1a5c3c, #4caf7d); }
 .topic-amber .topic-card-accent { background: linear-gradient(90deg, #b45309, #f59e0b); }
 .topic-blue .topic-card-accent { background: linear-gradient(90deg, #1e3a8a, #3b82f6); }
@@ -292,9 +288,6 @@ h1 span { color: var(--green); }
         <select id="languageSelect" aria-label="Language">
           <option value="English">English</option>
           <option value="हिन्दी">हिन्दी</option>
-          <option value="বাংলা">বাংলা</option>
-          <option value="தமிழ்">தமிழ்</option>
-          <option value="తెలుగు">తెలుగు</option>
           <option value="मराठी">मराठी</option>
         </select>
         <svg class="chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
@@ -304,8 +297,6 @@ h1 span { color: var(--green); }
 
   <main id="main">
     <section class="hero" id="top" aria-labelledby="heroTitle">
-      <div class="ambient ambient-left" aria-hidden="true"></div>
-      <div class="ambient ambient-right" aria-hidden="true"></div>
       <div class="hero-inner">
         <div class="country-control">
           <label for="countrySelect">Explore policies for</label>
@@ -361,6 +352,7 @@ h1 span { color: var(--green); }
       <div class="topic-grid">
         <a class="topic-card topic-green" href="/citizen" aria-label="Know your rights">
           <span class="topic-card-accent" aria-hidden="true"></span>
+          <div class="topic-card-photo" style="background-image:url('/static/img/card-rights.jpg')" aria-hidden="true"></div>
           <span class="topic-card-inner">
             <span class="topic-icon"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 6v31M10 13h28M24 7l-4 5h8zM10 13 3 28h14L10 13Zm28 0-7 15h14L38 13Z"/><path d="M7 31c2 4 10 4 12 0M31 31c2 4 10 4 12 0M18 39h12M24 37v2M17 43h14"/><path d="M6 36h13v7H6zM29 36h13v7H29z"/></svg></span>
             <span class="topic-title" data-i18n="card1Title">Know your rights</span>
@@ -370,6 +362,7 @@ h1 span { color: var(--green); }
         </a>
         <a class="topic-card topic-amber" href="/citizen" aria-label="Benefits you can claim">
           <span class="topic-card-accent" aria-hidden="true"></span>
+          <div class="topic-card-photo" style="background-image:url('/static/img/card-benefits.jpg')" aria-hidden="true"></div>
           <span class="topic-card-inner">
             <span class="topic-icon"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="25" cy="13" r="9"/><path d="M22 9h6M22 13h5M22 17h6M5 28c7-5 12-5 18-1l5 3 8-5c3-2 6 2 3 4L27 39H14l-9-5"/><path d="M5 29v10h9V29"/></svg></span>
             <span class="topic-title" data-i18n="card2Title">Benefits you can claim</span>
@@ -379,6 +372,7 @@ h1 span { color: var(--green); }
         </a>
         <a class="topic-card topic-blue" href="/citizen#leaders" aria-label="Know your leader">
           <span class="topic-card-accent" aria-hidden="true"></span>
+          <div class="topic-card-photo" style="background-image:url('/static/img/card-leaders.jpg')" aria-hidden="true"></div>
           <span class="topic-card-inner">
             <span class="topic-icon"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M9 20h30M13 20V14l11-7 11 7v6M17 20v7M24 20v7M31 20v7M8 29h32v4H8zM5 39c0-4 3-6 7-6s7 2 7 6M29 39c0-4 3-6 7-6s7 2 7 6M19 39c0-4 2-6 5-6s5 2 5 6"/><circle cx="24" cy="5" r="2"/></svg></span>
             <span class="topic-title" data-i18n="card3Title">Know your leader</span>
@@ -388,6 +382,7 @@ h1 span { color: var(--green); }
         </a>
         <a class="topic-card topic-lilac" href="/citizen#decides" aria-label="Know your government">
           <span class="topic-card-accent" aria-hidden="true"></span>
+          <div class="topic-card-photo" style="background-image:url('/static/img/card-govt.jpg')" aria-hidden="true"></div>
           <span class="topic-card-inner">
             <span class="topic-icon"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M15 8h25v32H15zM10 13H7v31h25v-4M21 15h13M21 21h13M21 27h13M21 33h8"/></svg></span>
             <span class="topic-title" data-i18n="card4Title">Know your government</span>

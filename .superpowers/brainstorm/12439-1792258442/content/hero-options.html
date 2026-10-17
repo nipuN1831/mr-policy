@@ -1,0 +1,116 @@
+<h2>Hero + Topic Card Photo Options</h2>
+<p class="subtitle">Three approaches to adding empathy photography. Click one to select it.</p>
+
+<div class="cards">
+
+  <!-- OPTION A -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="position:relative;width:100%;height:260px;border-radius:10px;overflow:hidden;background:#1a2e1f;">
+        <!-- Simulated photo with gradient overlay -->
+        <div style="position:absolute;inset:0;background:linear-gradient(to right, rgba(10,20,14,0.85) 45%, rgba(10,20,14,0.15) 100%);z-index:1"></div>
+        <!-- Photo placeholder: candid scene right side -->
+        <div style="position:absolute;right:0;top:0;bottom:0;width:60%;background:linear-gradient(135deg,#3d6b4f 0%,#2a4a35 40%,#1e3828 100%);display:flex;align-items:center;justify-content:center;">
+          <div style="text-align:center;opacity:0.4;color:#fff;font-size:13px;padding:12px">📷<br/>Candid photo<br/>right half<br/><em style="font-size:11px">"rural India government office"</em></div>
+        </div>
+        <!-- Text overlay on dark left -->
+        <div style="position:absolute;top:0;left:0;bottom:0;width:55%;z-index:2;padding:20px;display:flex;flex-direction:column;justify-content:center;">
+          <p style="margin:0 0 4px;color:#a8c8b0;font-size:9px;letter-spacing:2px;font-weight:700;text-transform:uppercase">YOUR GUIDE TO PUBLIC POLICY</p>
+          <h1 style="margin:0 0 8px;color:#fff;font-size:22px;font-weight:800;line-height:1.2;letter-spacing:-0.03em">Government policies,<br/><span style="color:#ffd84d">made simple.</span></h1>
+          <p style="margin:0 0 14px;color:rgba(255,255,255,0.75);font-size:13px;line-height:1.5">Find out what you qualify for, understand your rights.</p>
+          <!-- Ask box -->
+          <div style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);border-radius:10px;padding:10px 12px;color:rgba(255,255,255,0.5);font-size:12px">Ask about any law or scheme…</div>
+          <!-- Story pill -->
+          <div style="margin-top:10px;background:rgba(0,0,0,0.45);border-radius:99px;padding:5px 10px;display:inline-block;font-size:10px;color:rgba(255,255,255,0.8)">"Lakshmi, domestic worker, Chennai — found her PF scheme in 3 min."</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Left-gradient hero + story pill</h3>
+      <p>Full-bleed photo behind the hero. Dark gradient left → transparent right. Candid face/scene visible on right. A first-person story pill bottom-left. Text stays readable. Most impactful above the fold.</p>
+      <div class="pros-cons" style="font-size:12px;display:flex;gap:12px;margin-top:8px">
+        <div style="color:#15703f">✓ Immediate empathy<br/>✓ Standard NGO pattern<br/>✓ Works on mobile (stack)</div>
+        <div style="color:#b3261e">✗ Need good photo<br/>✗ Overlay must match each photo</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OPTION B -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="position:relative;width:100%;height:260px;border-radius:10px;overflow:hidden;background:#1a2e1f;">
+        <!-- Full dark overlay -->
+        <div style="position:absolute;inset:0;background:rgba(14,26,19,0.55);z-index:1"></div>
+        <!-- Full photo bg -->
+        <div style="position:absolute;inset:0;background:linear-gradient(160deg,#2d5c3f 0%,#1a3828 50%,#0f2217 100%);display:flex;align-items:center;justify-content:center;">
+          <div style="opacity:0.25;color:#fff;font-size:13px;text-align:center">📷<br/>"India community meeting village"<br/><em style="font-size:11px">Full-bleed, group scene</em></div>
+        </div>
+        <!-- Centered text -->
+        <div style="position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px">
+          <p style="margin:0 0 6px;color:#a8c8b0;font-size:9px;letter-spacing:2px;font-weight:700;text-transform:uppercase">YOUR GUIDE TO PUBLIC POLICY</p>
+          <h1 style="margin:0 0 8px;color:#fff;font-size:24px;font-weight:800;line-height:1.2;letter-spacing:-0.03em">Government policies,<br/><span style="color:#ffd84d">made simple.</span></h1>
+          <p style="margin:0 0 14px;color:rgba(255,255,255,0.75);font-size:13px;max-width:340px">Find out what you qualify for, understand your rights.</p>
+          <div style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:10px;padding:8px 16px;color:rgba(255,255,255,0.5);font-size:12px;width:100%;max-width:320px">Ask about any law or scheme…</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Full-bleed centred hero</h3>
+      <p>Photo fills the entire hero. Uniform dark overlay (40–50%). Text centred. Feels like a news site or campaign page. Bold and cinematic.</p>
+      <div class="pros-cons" style="font-size:12px;display:flex;gap:12px;margin-top:8px">
+        <div style="color:#15703f">✓ Maximum drama<br/>✓ Works with group/landscape photos<br/>✓ Easy to implement</div>
+        <div style="color:#b3261e">✗ Hides photo detail<br/>✗ Less personal than a face</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OPTION C -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <!-- Hero stays text-based, but topic cards get photos -->
+      <div style="width:100%;border-radius:10px;overflow:hidden;background:#f5f8f5;border:1px solid #dce8dc">
+        <!-- Mini nav -->
+        <div style="background:#fff;border-bottom:1px solid #e4ece4;padding:8px 12px;display:flex;align-items:center;gap:8px">
+          <div style="width:20px;height:20px;background:#15533f;border-radius:5px"></div>
+          <span style="font-size:11px;font-weight:700;color:#1a2e1f">Policy Wind Tunnel</span>
+        </div>
+        <!-- Hero: text-only, current style -->
+        <div style="padding:14px 16px 10px;background:linear-gradient(135deg,#1a3828,#0f2217)">
+          <p style="margin:0 0 3px;color:#a8c8b0;font-size:8px;letter-spacing:2px;font-weight:700">YOUR GUIDE TO PUBLIC POLICY</p>
+          <h1 style="margin:0 0 6px;color:#fff;font-size:16px;font-weight:800;line-height:1.3">Government policies,<br/><span style="color:#ffd84d">made simple.</span></h1>
+          <div style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:8px;padding:7px 10px;color:rgba(255,255,255,0.45);font-size:11px">Ask about any law…</div>
+        </div>
+        <!-- Topic cards with photos -->
+        <div style="padding:10px 12px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div style="background:#fff;border-radius:8px;overflow:hidden;border:1px solid #dce8dc">
+            <div style="height:48px;background:linear-gradient(135deg,#2d5c3f,#1a3828);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.3);font-size:10px">📷 ration shop</div>
+            <div style="padding:6px 8px"><p style="margin:0;font-size:10px;font-weight:700;color:#1a2e1f">Know Your Rights</p><p style="margin:2px 0 0;font-size:9px;color:#5d7a66">Laws in plain language</p></div>
+          </div>
+          <div style="background:#fff;border-radius:8px;overflow:hidden;border:1px solid #dce8dc">
+            <div style="height:48px;background:linear-gradient(135deg,#3a6b50,#234535);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.3);font-size:10px">📷 woman+documents</div>
+            <div style="padding:6px 8px"><p style="margin:0;font-size:10px;font-weight:700;color:#1a2e1f">Benefits & Schemes</p><p style="margin:2px 0 0;font-size:9px;color:#5d7a66">What you qualify for</p></div>
+          </div>
+          <div style="background:#fff;border-radius:8px;overflow:hidden;border:1px solid #dce8dc">
+            <div style="height:48px;background:linear-gradient(135deg,#345e45,#1e3b2c);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.3);font-size:10px">📷 panchayat meeting</div>
+            <div style="padding:6px 8px"><p style="margin:0;font-size:10px;font-weight:700;color:#1a2e1f">Know Your Leaders</p><p style="margin:2px 0 0;font-size:9px;color:#5d7a66">Your MP, MLA, ward</p></div>
+          </div>
+          <div style="background:#fff;border-radius:8px;overflow:hidden;border:1px solid #dce8dc">
+            <div style="height:48px;background:linear-gradient(135deg,#2a5240,#173322);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.3);font-size:10px">📷 govt office counter</div>
+            <div style="padding:6px 8px"><p style="margin:0;font-size:10px;font-weight:700;color:#1a2e1f">Navigate Government</p><p style="margin:2px 0 0;font-size:9px;color:#5d7a66">Which office to go to</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Text hero + photo topic cards</h3>
+      <p>Hero stays clean/text-based (current style). Each of the 4 topic cards gets a contextual photo at the top — ration shop, woman with documents, village meeting, government counter. Empathy at scroll, not above fold.</p>
+      <div class="pros-cons" style="font-size:12px;display:flex;gap:12px;margin-top:8px">
+        <div style="color:#15703f">✓ No overlay complexity<br/>✓ Each card tells its own story<br/>✓ Safe / fast to implement</div>
+        <div style="color:#b3261e">✗ Weaker first impression<br/>✗ Hero still feels like a dev tool</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:16px">You chose: mix of A (hero background) + D (topic cards). Option A gives the hero, Option C gives the cards — you can combine both. Click your preferred hero style above, then tell me in the terminal.</p>
