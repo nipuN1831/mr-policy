@@ -78,7 +78,7 @@ h1 span { color: var(--green); }
 /* Ask box */
 .ask-box { background: rgba(255,255,255,.96); border: 1.5px solid #9bbba8; border-radius: 20px; box-shadow: 0 15px 42px rgba(30,67,47,.075); padding: 20px 20px 16px 25px; text-align: left; transition: border-color .2s ease, box-shadow .2s ease; }
 .ask-box:focus-within { border-color: #36765a; box-shadow: 0 0 0 4px rgba(54,118,90,.10), 0 15px 42px rgba(30,67,47,.075); }
-.ask-box textarea { display: block; width: 100%; min-height: 57px; max-height: 190px; resize: vertical; padding: 4px 4px 12px; border: 0; outline: none; background: transparent; color: var(--ink); font-size: 18px; line-height: 1.5; font-family: inherit; }
+.ask-box textarea { display: block; width: 100%; height: auto; min-height: 57px; max-height: 190px; resize: none; padding: 4px 4px 12px; border: 0; outline: none; background: transparent; color: var(--ink); font-size: 18px; line-height: 1.5; font-family: inherit; border-radius: 0; }
 .ask-box textarea::placeholder { color: #77827c; opacity: 1; }
 .ask-toolbar, .ask-tools { display: flex; align-items: center; }
 .ask-toolbar { justify-content: space-between; gap: 16px; }
@@ -105,7 +105,7 @@ h1 span { color: var(--green); }
 .section-heading h2 { margin: 0; font-size: clamp(22px, 2.5vw, 29px); line-height: 1.25; letter-spacing: -.04em; }
 .section-aside { margin: 0 0 4px; color: var(--muted); font-size: 14px; }
 .topic-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
-.topic-card { min-height: 228px; position: relative; display: flex; flex-direction: column; background: #fff; border: 1px solid #e4e8e3; border-radius: 20px; cursor: pointer; box-shadow: 0 2px 10px rgba(25,49,36,.04); transition: transform .2s ease, box-shadow .22s ease, border-color .2s ease; text-decoration: none; color: inherit; overflow: hidden; }
+.topic-card { position: relative; display: flex; flex-direction: column; background: #fff; border: 1px solid #e4e8e3; border-radius: 20px; cursor: pointer; box-shadow: 0 2px 10px rgba(25,49,36,.04); transition: transform .2s ease, box-shadow .22s ease, border-color .2s ease; text-decoration: none; color: inherit; overflow: hidden; }
 .topic-card:hover { transform: translateY(-5px); box-shadow: 0 18px 44px rgba(24,48,37,.12); border-color: transparent; }
 .topic-card:focus-visible { outline-offset: 3px; }
 .topic-card-accent { height: 5px; width: 100%; flex: none; }
@@ -224,7 +224,7 @@ h1 span { color: var(--green); }
   .desktop-break { display: none; }
   .hero-subtitle { margin: 14px auto 24px; max-width: 390px; font-size: 16px; }
   .ask-box { border-radius: 17px; padding: 15px 14px 13px; }
-  .ask-box textarea { font-size: 16px; min-height: 65px; }
+  .ask-box textarea { font-size: 16px; min-height: 57px; }
   .ask-tools { gap: 7px; }
   .tool-button { gap: 7px; min-height: 41px; font-size: 12px; }
   .tool-icon-circle { width: 34px; height: 34px; }
@@ -282,10 +282,10 @@ h1 span { color: var(--green); }
     </a>
     <div class="header-right">
       <nav class="header-nav" aria-label="Main">
-        <a class="nav-link" href="/citizen">For citizens</a>
-        <a class="nav-link" href="/officials">For officials</a>
-        <a class="nav-link" href="/about">How it works</a>
-        <a class="nav-link primary" href="/citizen">Check a policy</a>
+        <a class="nav-link" href="/citizen" data-i18n="nav1">For citizens</a>
+        <a class="nav-link" href="/officials" data-i18n="nav2">For officials</a>
+        <a class="nav-link" href="/about" data-i18n="nav3">How it works</a>
+        <a class="nav-link primary" href="/citizen" data-i18n="nav4">Check a policy</a>
       </nav>
       <div class="select-wrap" aria-label="Choose language">
         <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/></svg>
@@ -319,8 +319,8 @@ h1 span { color: var(--green); }
           </div>
         </div>
         <p class="eyebrow"><span class="eyebrow-dot"></span> YOUR GUIDE TO PUBLIC POLICY</p>
-        <h1 id="heroTitle">Government policies,<br class="desktop-break" /> made <span>simple.</span></h1>
-        <p class="hero-subtitle">Find out what you qualify for, understand your rights, and see the exact rule behind every answer.</p>
+        <h1 id="heroTitle" data-i18n="heroTitle">Government policies,<br class="desktop-break" /> made <span>simple.</span></h1>
+        <p class="hero-subtitle" data-i18n="heroSubtitle">Find out what you qualify for, understand your rights, and see the exact rule behind every answer.</p>
 
         <form class="ask-box" id="askForm" autocomplete="off">
           <label class="sr-only" for="questionInput">Ask about a law, policy, scheme or government decision</label>
@@ -329,12 +329,12 @@ h1 span { color: var(--green); }
             <div class="ask-tools">
               <button class="tool-button voice-button" type="button" id="voiceButton" aria-label="Speak your question" title="Speak your question">
                 <span class="tool-icon-circle"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="2" width="6" height="13" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v5M8 22h8"/></svg></span>
-                <span id="voiceLabel">Speak your question</span>
+                <span id="voiceLabel" data-i18n="voiceLabel">Speak your question</span>
               </button>
               <span class="tool-separator" aria-hidden="true"></span>
               <button class="tool-button" type="button" id="exampleBtn" aria-label="Try an example">
                 <span class="tool-icon-circle neutral"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 2A2.5 2.5 0 0 0 7 4.5v15A2.5 2.5 0 0 0 9.5 22h5a2.5 2.5 0 0 0 2.5-2.5v-15A2.5 2.5 0 0 0 14.5 2h-5ZM10 7h4M10 11h4M10 15h2"/></svg></span>
-                <span id="exampleLabel">Try an example</span>
+                <span id="exampleLabel" data-i18n="exampleLabel">Try an example</span>
               </button>
             </div>
             <button class="submit-button" type="submit" aria-label="Ask Policy Wind Tunnel" title="Go">
@@ -342,7 +342,7 @@ h1 span { color: var(--green); }
             </button>
           </div>
         </form>
-        <p class="privacy-note"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="m9 12 2 2 4-4"/></svg> Every answer shows the exact rule that decided it. Nothing you enter is stored.</p>
+        <p class="privacy-note" data-i18n="privacyNote"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="m9 12 2 2 4-4"/></svg> Every answer shows the exact rule that decided it. Nothing you enter is stored.</p>
         <p class="interaction-status" id="interactionStatus" role="status" aria-live="polite"></p>
       </div>
     </section>
@@ -353,18 +353,18 @@ h1 span { color: var(--green); }
     <section class="topics-section" aria-labelledby="topicsTitle">
       <div class="section-heading">
         <div>
-          <p class="section-kicker">NOT SURE WHERE TO START</p>
-          <h2 id="topicsTitle">Explore what matters to you</h2>
+          <p class="section-kicker" data-i18n="topicsKicker">NOT SURE WHERE TO START</p>
+          <h2 id="topicsTitle" data-i18n="topicsTitle">Explore what matters to you</h2>
         </div>
-        <p class="section-aside">Pick a topic to begin.</p>
+        <p class="section-aside" data-i18n="topicsAside">Pick a topic to begin.</p>
       </div>
       <div class="topic-grid">
         <a class="topic-card topic-green" href="/citizen" aria-label="Know your rights">
           <span class="topic-card-accent" aria-hidden="true"></span>
           <span class="topic-card-inner">
             <span class="topic-icon"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 6v31M10 13h28M24 7l-4 5h8zM10 13 3 28h14L10 13Zm28 0-7 15h14L38 13Z"/><path d="M7 31c2 4 10 4 12 0M31 31c2 4 10 4 12 0M18 39h12M24 37v2M17 43h14"/><path d="M6 36h13v7H6zM29 36h13v7H29z"/></svg></span>
-            <span class="topic-title">Know your rights</span>
-            <span class="topic-description">Laws, policies, and what they mean for you — in plain language</span>
+            <span class="topic-title" data-i18n="card1Title">Know your rights</span>
+            <span class="topic-description" data-i18n="card1Desc">Laws, policies, and what they mean for you — in plain language</span>
             <span class="topic-arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></span>
           </span>
         </a>
@@ -372,8 +372,8 @@ h1 span { color: var(--green); }
           <span class="topic-card-accent" aria-hidden="true"></span>
           <span class="topic-card-inner">
             <span class="topic-icon"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="25" cy="13" r="9"/><path d="M22 9h6M22 13h5M22 17h6M5 28c7-5 12-5 18-1l5 3 8-5c3-2 6 2 3 4L27 39H14l-9-5"/><path d="M5 29v10h9V29"/></svg></span>
-            <span class="topic-title">Benefits you can claim</span>
-            <span class="topic-description">Schemes and support you may qualify for, checked against the official rule</span>
+            <span class="topic-title" data-i18n="card2Title">Benefits you can claim</span>
+            <span class="topic-description" data-i18n="card2Desc">Schemes and support you may qualify for, checked against the official rule</span>
             <span class="topic-arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></span>
           </span>
         </a>
@@ -381,8 +381,8 @@ h1 span { color: var(--green); }
           <span class="topic-card-accent" aria-hidden="true"></span>
           <span class="topic-card-inner">
             <span class="topic-icon"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M9 20h30M13 20V14l11-7 11 7v6M17 20v7M24 20v7M31 20v7M8 29h32v4H8zM5 39c0-4 3-6 7-6s7 2 7 6M29 39c0-4 3-6 7-6s7 2 7 6M19 39c0-4 2-6 5-6s5 2 5 6"/><circle cx="24" cy="5" r="2"/></svg></span>
-            <span class="topic-title">Know your leader</span>
-            <span class="topic-description">Your MP, MLA, councillor — who they are and what they are accountable for</span>
+            <span class="topic-title" data-i18n="card3Title">Know your leader</span>
+            <span class="topic-description" data-i18n="card3Desc">Your MP, MLA, councillor — who they are and what they are accountable for</span>
             <span class="topic-arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></span>
           </span>
         </a>
@@ -390,8 +390,8 @@ h1 span { color: var(--green); }
           <span class="topic-card-accent" aria-hidden="true"></span>
           <span class="topic-card-inner">
             <span class="topic-icon"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M15 8h25v32H15zM10 13H7v31h25v-4M21 15h13M21 21h13M21 27h13M21 33h8"/></svg></span>
-            <span class="topic-title">Know your government</span>
-            <span class="topic-description">Which office handles your problem and where to escalate if nothing happens</span>
+            <span class="topic-title" data-i18n="card4Title">Know your government</span>
+            <span class="topic-description" data-i18n="card4Desc">Which office handles your problem and where to escalate if nothing happens</span>
             <span class="topic-arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></span>
           </span>
         </a>
@@ -400,40 +400,40 @@ h1 span { color: var(--green); }
 
     <!-- Feature 3: situation filter -->
     <div class="situation-section" id="situationSection">
-      <p class="situation-label">Which policies affect me?</p>
+      <p class="situation-label" data-i18n="pillsKicker">Which policies affect me?</p>
       <div class="situation-pills" role="group" aria-label="Filter by your situation">
-        <button class="pill-btn" data-tags="woman,rural,lpg,ujjwala" type="button"><span class="pemoji">👩</span> Woman in rural area</button>
-        <button class="pill-btn" data-tags="minority,caa,religion,rights" type="button"><span class="pemoji">🕌</span> Minority community</button>
-        <button class="pill-btn" data-tags="bank,loan,rbi,fraud" type="button"><span class="pemoji">🏦</span> Bank or loan problem</button>
-        <button class="pill-btn" data-tags="complaint,grievance,cpgrams,rti" type="button"><span class="pemoji">📋</span> Government complaint</button>
-        <button class="pill-btn" data-tags="legal,court,nalsa,rights,aid" type="button"><span class="pemoji">⚖️</span> Need legal help</button>
+        <button class="pill-btn" data-tags="woman,rural,lpg,ujjwala" type="button"><span class="pemoji">👩</span><span class="pill-label" data-i18n="pill1">Woman in rural area</span></button>
+        <button class="pill-btn" data-tags="minority,caa,religion,rights" type="button"><span class="pemoji">🕌</span><span class="pill-label" data-i18n="pill2">Minority community</span></button>
+        <button class="pill-btn" data-tags="bank,loan,rbi,fraud" type="button"><span class="pemoji">🏦</span><span class="pill-label" data-i18n="pill3">Bank or loan problem</span></button>
+        <button class="pill-btn" data-tags="complaint,grievance,cpgrams,rti" type="button"><span class="pemoji">📋</span><span class="pill-label" data-i18n="pill4">Government complaint</span></button>
+        <button class="pill-btn" data-tags="legal,court,nalsa,rights,aid" type="button"><span class="pemoji">⚖️</span><span class="pill-label" data-i18n="pill5">Need legal help</span></button>
       </div>
     </div>
 
     <!-- Features 1+2+4+6: transparency + fine print + real examples -->
     <section class="transparency-section" aria-labelledby="transpTitle" id="transpSection">
-      <p class="section-kicker" style="color:#6c8475;font-size:10px;letter-spacing:1.6px;font-weight:700;margin:0 0 6px">READ THE FINE PRINT</p>
-      <h2 id="transpTitle">What the headline doesn't tell you</h2>
-      <p class="lead">Official names are often simpler than the rules behind them. Here is what the text actually says, verified from government pages.</p>
+      <p class="section-kicker" style="color:#6c8475;font-size:10px;letter-spacing:1.6px;font-weight:700;margin:0 0 6px" data-i18n="transpKicker">READ THE FINE PRINT</p>
+      <h2 id="transpTitle" data-i18n="transpTitle">What the headline doesn't tell you</h2>
+      <p class="lead" data-i18n="transpLead">Official names are often simpler than the rules behind them. Here is what the text actually says, verified from government pages.</p>
       <div class="t-grid">
 
         <!-- Ujjwala PMUY 2.0 -->
         <div class="t-card" data-tags="woman,rural,lpg,ujjwala">
           <p class="t-policy-name">
-            Ujjwala PMUY 2.0
+            <span data-i18n="tCard1Name">Ujjwala PMUY 2.0</span>
             <span class="t-badge checkable">✓ Checkable</span>
           </p>
           <div class="t-row">
-            <p class="t-row-label official">What it says</p>
-            <p>"Free LPG connection for poor women."</p>
+            <p class="t-row-label official" data-i18n="tRowOfficial1">What it says</p>
+            <p data-i18n="tCard1Official">"Free LPG connection for poor women."</p>
           </div>
           <div class="t-row">
-            <p class="t-row-label reality">What the rule actually means</p>
-            <p>Free <strong>connection</strong> only — not the cylinder or gas. You must have <strong>no existing LPG connection from any oil company</strong> in your household. You also need to submit a <strong>deprivation declaration form</strong>, not just an Aadhaar card.</p>
+            <p class="t-row-label reality" data-i18n="tRowReality1">What the rule actually means</p>
+            <p data-i18n="tCard1Reality">Free <strong>connection</strong> only — not the cylinder or gas. You must have <strong>no existing LPG connection from any oil company</strong> in your household. You also need to submit a <strong>deprivation declaration form</strong>, not just an Aadhaar card.</p>
           </div>
           <div class="t-row">
-            <p class="t-row-label excluded">Who the rules exclude</p>
-            <p>Men. Households with any OMC connection already registered. Anyone who cannot produce the declaration form in the prescribed format.</p>
+            <p class="t-row-label excluded" data-i18n="tRowExcluded1">Who the rules exclude</p>
+            <p data-i18n="tCard1Excluded">Men. Households with any OMC connection already registered. Anyone who cannot produce the declaration form in the prescribed format.</p>
           </div>
           <span class="t-source"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="m9 12 2 2 4-4"/></svg> Verified from pmuy.gov.in — Oct 2026</span>
         </div>
@@ -441,20 +441,20 @@ h1 span { color: var(--green); }
         <!-- CAA 2019 -->
         <div class="t-card" data-tags="minority,caa,religion,rights">
           <p class="t-policy-name">
-            Citizenship Amendment Act 2019
+            <span data-i18n="tCard2Name">Citizenship Amendment Act 2019</span>
             <span class="t-badge checkable">✓ Checkable</span>
           </p>
           <div class="t-row">
-            <p class="t-row-label official">What it says</p>
-            <p>"Citizenship path for persecuted minorities from neighbouring countries."</p>
+            <p class="t-row-label official" data-i18n="tRowOfficial2">What it says</p>
+            <p data-i18n="tCard2Official">"Citizenship path for persecuted minorities from neighbouring countries."</p>
           </div>
           <div class="t-row">
-            <p class="t-row-label reality">What the rule actually means</p>
-            <p>Applies to <strong>6 religions only</strong> (Hindu, Sikh, Buddhist, Jain, Parsi, Christian) — not Muslim, Jewish, or atheist. You must have entered India <strong>on or before 31 December 2014</strong>. You still need <strong>5 years of continuous residency</strong> before applying.</p>
+            <p class="t-row-label reality" data-i18n="tRowReality2">What the rule actually means</p>
+            <p data-i18n="tCard2Reality">Applies to <strong>6 religions only</strong> (Hindu, Sikh, Buddhist, Jain, Parsi, Christian) — not Muslim, Jewish, or atheist. You must have entered India <strong>on or before 31 December 2014</strong>. You still need <strong>5 years of continuous residency</strong> before applying.</p>
           </div>
           <div class="t-row">
-            <p class="t-row-label excluded">Who the rules exclude</p>
-            <p>Anyone from a country other than Afghanistan, Bangladesh or Pakistan. Residents of Inner Line Permit states (Arunachal, Nagaland, Mizoram, Manipur) and Sixth Schedule tribal areas.</p>
+            <p class="t-row-label excluded" data-i18n="tRowExcluded2">Who the rules exclude</p>
+            <p data-i18n="tCard2Excluded">Anyone from a country other than Afghanistan, Bangladesh or Pakistan. Residents of Inner Line Permit states (Arunachal, Nagaland, Mizoram, Manipur) and Sixth Schedule tribal areas.</p>
           </div>
           <span class="t-source"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="m9 12 2 2 4-4"/></svg> Source: PRS Legislative Research, Act No. 47 of 2019</span>
         </div>
@@ -462,20 +462,20 @@ h1 span { color: var(--green); }
         <!-- RTI Act -->
         <div class="t-card" data-tags="complaint,grievance,rti,information">
           <p class="t-policy-name">
-            Right to Information Act 2005
+            <span data-i18n="tCard3Name">Right to Information Act 2005</span>
             <span class="t-badge info">ℹ Civic info</span>
           </p>
           <div class="t-row">
-            <p class="t-row-label official">What it says</p>
-            <p>"Any citizen can ask for government information."</p>
+            <p class="t-row-label official" data-i18n="tRowOfficial3">What it says</p>
+            <p data-i18n="tCard3Official">"Any citizen can ask for government information."</p>
           </div>
           <div class="t-row">
-            <p class="t-row-label reality">What the rule actually means</p>
-            <p>The central portal <strong>only accepts central government requests</strong> — filing a state matter here gets it returned with no refund. RTI does not cover <strong>RAW, IB, and certain security agencies</strong>. The PIO has 30 days to reply, not indefinitely.</p>
+            <p class="t-row-label reality" data-i18n="tRowReality3">What the rule actually means</p>
+            <p data-i18n="tCard3Reality">The central portal <strong>only accepts central government requests</strong> — filing a state matter here gets it returned with no refund. RTI does not cover <strong>RAW, IB, and certain security agencies</strong>. The PIO has 30 days to reply, not indefinitely.</p>
           </div>
           <div class="t-row">
-            <p class="t-row-label excluded">What most people miss</p>
-            <p>Cabinet papers, trade secrets, and information that would prejudice law enforcement can be withheld. A first appeal and then a second appeal to the Central Information Commission are available if your request is refused.</p>
+            <p class="t-row-label excluded" data-i18n="tRowExcluded3">What most people miss</p>
+            <p data-i18n="tCard3Excluded">Cabinet papers, trade secrets, and information that would prejudice law enforcement can be withheld. A first appeal and then a second appeal to the Central Information Commission are available if your request is refused.</p>
           </div>
           <span class="t-source"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="m9 12 2 2 4-4"/></svg> Verified from rtionline.gov.in — Oct 2026</span>
         </div>
@@ -483,20 +483,20 @@ h1 span { color: var(--green); }
         <!-- RBI Ombudsman -->
         <div class="t-card" data-tags="bank,loan,rbi,fraud">
           <p class="t-policy-name">
-            RBI Integrated Ombudsman Scheme
+            <span data-i18n="tCard4Name">RBI Integrated Ombudsman Scheme</span>
             <span class="t-badge info">ℹ Civic info</span>
           </p>
           <div class="t-row">
-            <p class="t-row-label official">What it says</p>
-            <p>"Free and quick resolution for banking complaints."</p>
+            <p class="t-row-label official" data-i18n="tRowOfficial4">What it says</p>
+            <p data-i18n="tCard4Official">"Free and quick resolution for banking complaints."</p>
           </div>
           <div class="t-row">
-            <p class="t-row-label reality">What the rule actually means</p>
-            <p>You <strong>must complain to the bank first</strong> and wait for their response (or 30 days) before the Ombudsman will accept your case. Keep your reference number — without it, the complaint is not admissible.</p>
+            <p class="t-row-label reality" data-i18n="tRowReality4">What the rule actually means</p>
+            <p data-i18n="tCard4Reality">You <strong>must complain to the bank first</strong> and wait for their response (or 30 days) before the Ombudsman will accept your case. Keep your reference number — without it, the complaint is not admissible.</p>
           </div>
           <div class="t-row">
-            <p class="t-row-label excluded">What most people miss</p>
-            <p>Does not cover disputes about the bank's internal policy, loans outside its control, or matters already in a court of law. The scheme covers banks, NBFCs and payment systems — not insurance or mutual funds.</p>
+            <p class="t-row-label excluded" data-i18n="tRowExcluded4">What most people miss</p>
+            <p data-i18n="tCard4Excluded">Does not cover disputes about the bank's internal policy, loans outside its control, or matters already in a court of law. The scheme covers banks, NBFCs and payment systems — not insurance or mutual funds.</p>
           </div>
           <span class="t-source"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="m9 12 2 2 4-4"/></svg> Source: cms.rbi.org.in — Oct 2026</span>
         </div>
@@ -506,10 +506,10 @@ h1 span { color: var(--green); }
 
     <!-- Feature 5: coverage / feature limit -->
     <div class="coverage-section" id="coverageSection">
-      <h3>What you can check right now</h3>
+      <h3 data-i18n="covTitle">What you can check right now</h3>
       <div class="cov-row">
         <span class="cov-icon">✅</span>
-        <span class="cov-label">Check eligibility now</span>
+        <span class="cov-label" data-i18n="covLabel1">Check eligibility now</span>
         <span class="cov-items">
           <span class="cov-chip">CAA 2019</span>
           <span class="cov-chip">Ujjwala LPG</span>
@@ -518,7 +518,7 @@ h1 span { color: var(--green); }
       </div>
       <div class="cov-row">
         <span class="cov-icon">⏳</span>
-        <span class="cov-label">Coming soon</span>
+        <span class="cov-label" data-i18n="covLabel2">Coming soon</span>
         <span class="cov-items">
           <span class="cov-chip soon">Ration card</span>
           <span class="cov-chip soon">PM-KISAN</span>
@@ -528,7 +528,7 @@ h1 span { color: var(--green); }
       </div>
       <div class="cov-row">
         <span class="cov-icon">ℹ️</span>
-        <span class="cov-label">Civic info (not a checker)</span>
+        <span class="cov-label" data-i18n="covLabel3">Civic info (not a checker)</span>
         <span class="cov-items">
           <span class="cov-chip civic">RTI</span>
           <span class="cov-chip civic">Consumer helpline</span>
@@ -543,22 +543,22 @@ h1 span { color: var(--green); }
     <div class="trust-strip" aria-label="Our approach">
       <span class="trust-line" aria-hidden="true"></span>
       <span class="trust-icon"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="m9 12 2 2 4-4"/></svg></span>
-      <p><strong>Every answer cites its source.</strong> Official pages only. No political opinion.</p>
+      <p data-i18n="trustText"><strong>Every answer cites its source.</strong> Official pages only. No political opinion.</p>
       <span class="trust-line" aria-hidden="true"></span>
     </div>
 
     <section class="bench-section" aria-labelledby="benchTitle">
-      <p class="section-kicker" style="color:#6c8475;font-size:10px;letter-spacing:1.6px;font-weight:700;margin:0 0 6px">EVIDENCE, MEASURED LIVE</p>
-      <h2 id="benchTitle">Tests built from the rule beat tests written by hand</h2>
-      <p class="lead">Ten realistic bugs were planted in a copy of a lending engine. A suite generated from the policy contract tried to catch them alongside a hand-written suite.</p>
+      <p class="section-kicker" style="color:#6c8475;font-size:10px;letter-spacing:1.6px;font-weight:700;margin:0 0 6px" data-i18n="benchKicker">EVIDENCE, MEASURED LIVE</p>
+      <h2 id="benchTitle" data-i18n="benchTitle">Tests built from the rule beat tests written by hand</h2>
+      <p class="lead" data-i18n="benchLead">Ten realistic bugs were planted in a copy of a lending engine. A suite generated from the policy contract tried to catch them alongside a hand-written suite.</p>
       <div class="tiles" id="benchTiles">
         <div class="tile"><div class="big">…</div><div class="label">running benchmark</div></div>
       </div>
-      <p class="bench-note">The bugs, the hand-written suite and the generator were all written by the same team, so this shows recall on known kinds of bug only. <a href="/about">Read the limits.</a></p>
+      <p class="bench-note" data-i18n="benchNote">The bugs, the hand-written suite and the generator were all written by the same team, so this shows recall on known kinds of bug only. <a href="/about">Read the limits.</a></p>
     </section>
 
     <footer class="site-footer">
-      <span>Demonstration with published rules and fictional people. Not legal advice.</span>
+      <span data-i18n="footerNote">Demonstration with published rules and fictional people. Not legal advice.</span>
       <span>
         <a href="/about">How it works</a>
         <a href="/citizen">Citizens</a>
@@ -573,9 +573,20 @@ const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":
 // Country flag
 const countrySelect = document.getElementById("countrySelect");
 const countryFlag = document.getElementById("countryFlag");
+// restore saved country on load
+(function() {
+  const saved = localStorage.getItem("pwt_country") || sessionStorage.getItem("pwt_country");
+  if (saved && countrySelect.querySelector(`option[value="${saved}"]`)) {
+    countrySelect.value = saved;
+    const opt = countrySelect.selectedOptions[0];
+    countryFlag.textContent = opt.dataset.flag || "🌐";
+  }
+})();
 countrySelect.addEventListener("change", () => {
   const opt = countrySelect.selectedOptions[0];
   countryFlag.textContent = opt.dataset.flag || "🌐";
+  localStorage.setItem("pwt_country", countrySelect.value);
+  sessionStorage.setItem("pwt_country", countrySelect.value);
 });
 
 // Language / voice
@@ -583,18 +594,169 @@ const languageSelect = document.getElementById("languageSelect");
 const questionInput = document.getElementById("questionInput");
 const statusLine = document.getElementById("interactionStatus");
 const voiceButton = document.getElementById("voiceButton");
-const voiceLabel = document.getElementById("voiceLabel");
 const localeMap = {"हिन्दी":"hi-IN","বাংলা":"bn-IN","தமிழ்":"ta-IN","తెలుగు":"te-IN","मराठी":"mr-IN","English":"en-IN"};
+
+const TRANSLATIONS = {
+  "English": {},
+  "हिन्दी": {
+    heroTitle: 'सरकारी नीतियाँ,<br class="desktop-break" /> बनाई <span>आसान।</span>',
+    heroSubtitle: 'जानें आप किस योजना के पात्र हैं, अपने अधिकार समझें, और हर जवाब के पीछे का नियम देखें।',
+    askPlaceholder: 'कोई कानून, योजना या सरकारी फ़ैसले के बारे में पूछें…',
+    voiceLabel: 'अपना सवाल बोलें',
+    exampleLabel: 'उदाहरण देखें',
+    privacyNote: '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="m9 12 2 2 4-4"/></svg> हर जवाब उस नियम को दिखाता है जिसने फ़ैसला किया। आपका डेटा सेव नहीं होता।',
+    topicsKicker: 'शुरू कहाँ से करें',
+    topicsTitle: 'आपसे जुड़े विषय चुनें',
+    topicsAside: 'एक विषय चुनें।',
+    card1Title: 'अपने अधिकार जानें',
+    card1Desc: 'कानून और नीतियाँ — सरल भाषा में',
+    card2Title: 'मिलने वाली सुविधाएँ',
+    card2Desc: 'कौन सी योजनाओं के आप पात्र हैं',
+    card3Title: 'अपने नेता को जानें',
+    card3Desc: 'आपके सांसद, विधायक, पार्षद — कौन हैं और किसके लिए जिम्मेदार',
+    card4Title: 'सरकार को समझें',
+    card4Desc: 'कौन सा दफ़्तर आपकी समस्या सुनेगा',
+    pillsKicker: 'कौन सी नीतियाँ मुझ पर लागू होती हैं',
+    pill1: 'ग्रामीण महिला',
+    pill2: 'अल्पसंख्यक समुदाय',
+    pill3: 'बैंक या कर्ज़ की समस्या',
+    pill4: 'सरकारी शिकायत',
+    pill5: 'क़ानूनी मदद चाहिए',
+    transpKicker: 'असली नियम पढ़ें',
+    transpTitle: 'जो हेडलाइन नहीं बताती',
+    transpLead: 'सरकारी योजनाओं के नाम अक्सर सरल लगते हैं, पर असली नियम अलग होते हैं। यहाँ सरकारी पेजों से जाँचे गए नियम हैं।',
+    tCard1Name: 'उज्ज्वला PMUY 2.0',
+    tCard2Name: 'नागरिकता संशोधन अधिनियम 2019',
+    tCard3Name: 'सूचना का अधिकार अधिनियम 2005',
+    tCard4Name: 'RBI इंटीग्रेटेड लोकपाल योजना',
+    tRowOfficial1: 'क्या कहता है', tRowOfficial2: 'क्या कहता है', tRowOfficial3: 'क्या कहता है', tRowOfficial4: 'क्या कहता है',
+    tRowReality1: 'नियम का असली मतलब', tRowReality2: 'नियम का असली मतलब', tRowReality3: 'नियम का असली मतलब', tRowReality4: 'नियम का असली मतलब',
+    tRowExcluded1: 'किसे छोड़ा गया है', tRowExcluded2: 'किसे छोड़ा गया है', tRowExcluded3: 'अक्सर क्या छूट जाता है', tRowExcluded4: 'अक्सर क्या छूट जाता है',
+    tCard1Official: '"गरीब महिलाओं को मुफ़्त LPG कनेक्शन।"',
+    tCard1Reality: 'सिर्फ <strong>कनेक्शन</strong> मुफ़्त है — सिलेंडर या गैस नहीं। घर में किसी भी तेल कंपनी का <strong>कोई पुराना कनेक्शन नहीं होना चाहिए</strong>। साथ ही <strong>वंचन घोषणा पत्र</strong> देना होगा।',
+    tCard1Excluded: 'पुरुष। जिन घरों में पहले से OMC कनेक्शन है। जो घोषणा पत्र नहीं दे सकते।',
+    tCard2Official: '"पड़ोसी देशों के पीड़ित अल्पसंख्यकों के लिए नागरिकता।"',
+    tCard2Reality: 'सिर्फ <strong>6 धर्मों</strong> पर लागू (हिंदू, सिख, बौद्ध, जैन, पारसी, ईसाई)। <strong>31 दिसंबर 2014 से पहले</strong> भारत आना जरूरी। फिर भी <strong>5 साल की निरंतर निवास</strong> की जरूरत।',
+    tCard2Excluded: 'अफगानिस्तान, बांग्लादेश या पाकिस्तान के अलावा के देश। ILP राज्य और छठी अनुसूची क्षेत्र के निवासी।',
+    tCard3Official: '"कोई भी नागरिक सरकारी जानकारी माँग सकता है।"',
+    tCard3Reality: 'केंद्रीय पोर्टल <strong>सिर्फ केंद्र सरकार</strong> के अनुरोध स्वीकार करता है। <strong>RAW, IB</strong> और कुछ सुरक्षा एजेंसियाँ इसमें शामिल नहीं। PIO के पास जवाब देने के लिए 30 दिन हैं।',
+    tCard3Excluded: 'कैबिनेट कागजात, व्यापार रहस्य, और कानून प्रवर्तन को नुकसान पहुँचाने वाली जानकारी रोकी जा सकती है।',
+    tCard4Official: '"बैंकिंग शिकायतों का मुफ़्त और त्वरित समाधान।"',
+    tCard4Reality: 'पहले <strong>बैंक को शिकायत करें</strong> और उनका जवाब आने तक (या 30 दिन) इंतजार करें। अपना संदर्भ नंबर संभालकर रखें।',
+    tCard4Excluded: 'बैंक की आंतरिक नीति, उनके नियंत्रण से बाहर के कर्ज़, या कोर्ट में चल रहे मामले शामिल नहीं।',
+    covTitle: 'अभी क्या जाँच सकते हैं',
+    covLabel1: 'अभी पात्रता जाँचें',
+    covLabel2: 'जल्द आएगा',
+    covLabel3: 'नागरिक जानकारी (जाँचकर्ता नहीं)',
+    trustText: '<strong>हर जवाब अपना स्रोत बताता है।</strong> केवल सरकारी पेज। कोई राजनीतिक राय नहीं।',
+    benchKicker: 'प्रमाण, लाइव मापा गया',
+    benchTitle: 'नियम से बने टेस्ट हाथ से लिखे टेस्ट से बेहतर',
+    benchLead: 'एक लेंडिंग इंजन की कॉपी में दस बग डाले गए। पॉलिसी कॉन्ट्रैक्ट से बने सूट ने उन्हें हाथ से लिखे सूट के साथ पकड़ने की कोशिश की।',
+    benchNote: 'बग, हाथ से लिखा सूट और जेनरेटर एक ही टीम ने बनाए थे। <a href="/about">सीमाएँ पढ़ें।</a>',
+    nav1: 'नागरिकों के लिए',
+    nav2: 'अधिकारियों के लिए',
+    nav3: 'कैसे काम करता है',
+    nav4: 'नीति जाँचें',
+    footerNote: 'प्रकाशित नियमों और काल्पनिक लोगों के साथ प्रदर्शन। कानूनी सलाह नहीं।',
+  },
+  "मराठी": {
+    heroTitle: 'सरकारी धोरणे,<br class="desktop-break" /> केली <span>सोपी।</span>',
+    heroSubtitle: 'तुम्ही कोणत्या योजनेसाठी पात्र आहात ते जाणा, तुमचे हक्क समजा.',
+    askPlaceholder: 'कोणताही कायदा, योजना किंवा सरकारी निर्णयाबद्दल विचारा…',
+    voiceLabel: 'तुमचा प्रश्न बोला',
+    exampleLabel: 'उदाहरण पाहा',
+    privacyNote: '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="m9 12 2 2 4-4"/></svg> प्रत्येक उत्तर तो नियम दाखवतो ज्याने निर्णय घेतला. तुमचा डेटा साठवला जात नाही.',
+    topicsKicker: 'कोठून सुरुवात करायची',
+    topicsTitle: 'तुमच्याशी संबंधित विषय निवडा',
+    topicsAside: 'एक विषय निवडा.',
+    card1Title: 'तुमचे हक्क जाणा',
+    card1Desc: 'कायदे आणि धोरणे — सोप्या भाषेत',
+    card2Title: 'मिळणाऱ्या सुविधा',
+    card2Desc: 'तुम्ही कोणत्या योजनांसाठी पात्र आहात',
+    card3Title: 'तुमच्या नेत्याला ओळखा',
+    card3Desc: 'तुमचे खासदार, आमदार — ते कोण आहेत',
+    card4Title: 'सरकार समजून घ्या',
+    card4Desc: 'तुमची समस्या कोणते कार्यालय हाताळेल',
+    pillsKicker: 'कोणती धोरणे माझ्यावर लागू होतात',
+    pill1: 'ग्रामीण महिला',
+    pill2: 'अल्पसंख्यांक समुदाय',
+    pill3: 'बँक किंवा कर्जाची समस्या',
+    pill4: 'सरकारी तक्रार',
+    pill5: 'कायदेशीर मदत हवी',
+    transpKicker: 'खरे नियम वाचा',
+    transpTitle: 'बातमीत जे सांगत नाहीत',
+    transpLead: 'सरकारी योजनांची नावे साधी वाटतात, पण खरे नियम वेगळे असतात.',
+    tCard1Name: 'उज्ज्वला PMUY 2.0',
+    tCard2Name: 'नागरिकत्व सुधारणा कायदा 2019',
+    tCard3Name: 'माहिती अधिकार कायदा 2005',
+    tCard4Name: 'RBI एकात्मिक लोकपाल योजना',
+    tRowOfficial1: 'काय म्हणतो', tRowOfficial2: 'काय म्हणतो', tRowOfficial3: 'काय म्हणतो', tRowOfficial4: 'काय म्हणतो',
+    tRowReality1: 'नियमाचा खरा अर्थ', tRowReality2: 'नियमाचा खरा अर्थ', tRowReality3: 'नियमाचा खरा अर्थ', tRowReality4: 'नियमाचा खरा अर्थ',
+    tRowExcluded1: 'कोणाला वगळले', tRowExcluded2: 'कोणाला वगळले', tRowExcluded3: 'बहुतेक लोक काय चुकतात', tRowExcluded4: 'बहुतेक लोक काय चुकतात',
+    tCard1Official: '"गरीब महिलांना मोफत LPG कनेक्शन."',
+    tCard1Reality: 'फक्त <strong>कनेक्शन</strong> मोफत आहे — सिलेंडर नाही. घरात कोणाच्याही नावावर <strong>जुने कनेक्शन नसावे</strong>.',
+    tCard1Excluded: 'पुरुष. ज्यांच्याकडे आधीच OMC कनेक्शन आहे.',
+    tCard2Official: '"शेजारील देशांतील पीडित अल्पसंख्यांकांसाठी नागरिकत्व."',
+    tCard2Reality: 'फक्त <strong>6 धर्मांना</strong> लागू. <strong>31 डिसेंबर 2014 पूर्वी</strong> भारतात येणे आवश्यक.',
+    tCard2Excluded: 'अफगाणिस्तान, बांगलादेश किंवा पाकिस्तान वगळता इतर देश.',
+    tCard3Official: '"कोणताही नागरिक सरकारी माहिती मागवू शकतो."',
+    tCard3Reality: 'केंद्रीय पोर्टल <strong>फक्त केंद्र सरकारच्या</strong> विनंत्या स्वीकारते.',
+    tCard3Excluded: 'मंत्रिमंडळाची कागदपत्रे, व्यापार रहस्ये रोखता येतात.',
+    tCard4Official: '"बँकिंग तक्रारींचे मोफत व जलद निराकरण."',
+    tCard4Reality: 'आधी <strong>बँकेकडे तक्रार करा</strong> आणि त्यांचा प्रतिसाद (किंवा 30 दिवस) प्रतीक्षा करा.',
+    tCard4Excluded: 'बँकेच्या अंतर्गत धोरण, न्यायालयात असलेल्या प्रकरणांना लागू नाही.',
+    covTitle: 'आत्ता काय तपासता येईल',
+    covLabel1: 'आत्ता पात्रता तपासा',
+    covLabel2: 'लवकरच येणार',
+    covLabel3: 'नागरिक माहिती (तपासणी नाही)',
+    trustText: '<strong>प्रत्येक उत्तर स्रोत सांगतो.</strong> फक्त सरकारी पृष्ठे. कोणतेही राजकीय मत नाही.',
+    benchKicker: 'पुरावा, थेट मोजलेला',
+    benchTitle: 'नियमातून बनवलेले टेस्ट हाताने लिहिलेल्या टेस्टपेक्षा चांगले',
+    benchLead: 'एका लेंडिंग इंजिनच्या कॉपीत दहा बग लावले. धोरण करारातून बनवलेल्या सूटने ते पकडण्याचा प्रयत्न केला.',
+    benchNote: 'बग, हाताने लिहिलेला सूट आणि जेनरेटर एकाच टीमने बनवले. <a href="/about">मर्यादा वाचा.</a>',
+    nav1: 'नागरिकांसाठी',
+    nav2: 'अधिकाऱ्यांसाठी',
+    nav3: 'कसे कार्य करते',
+    nav4: 'धोरण तपासा',
+    footerNote: 'प्रकाशित नियम आणि काल्पनिक लोकांसह प्रात्यक्षिक. कायदेशीर सल्ला नाही.',
+  },
+};
+
+// Capture DOM originals once (before any translation)
+const DOM_ORIGINALS = {};
+function captureI18nOriginals() {
+  document.querySelectorAll("[data-i18n]").forEach(el => {
+    DOM_ORIGINALS[el.dataset.i18n] = el.innerHTML;
+  });
+  const inp = document.getElementById("questionInput");
+  if (inp) DOM_ORIGINALS["askPlaceholder"] = inp.placeholder;
+}
+
+let currentLang = "English";
+function applyLang(newLang) {
+  currentLang = newLang;
+  const t = TRANSLATIONS[newLang] || {};
+  document.querySelectorAll("[data-i18n]").forEach(el => {
+    const key = el.dataset.i18n;
+    el.innerHTML = t[key] !== undefined ? t[key] : (DOM_ORIGINALS[key] || el.innerHTML);
+  });
+  const inp = document.getElementById("questionInput");
+  if (inp) inp.placeholder = t.askPlaceholder || DOM_ORIGINALS.askPlaceholder || inp.placeholder;
+}
+
+document.addEventListener("DOMContentLoaded", captureI18nOriginals);
+languageSelect.addEventListener("change", () => applyLang(languageSelect.value));
+
 let recognition = null, isListening = false;
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 if (SR) {
   recognition = new SR();
   recognition.interimResults = true;
   recognition.continuous = false;
-  recognition.onstart = () => { isListening = true; voiceLabel.textContent = "Listening…"; voiceButton.setAttribute("aria-pressed","true"); statusLine.textContent = "Listening. Speak your question, then pause."; };
+  recognition.onstart = () => { isListening = true; document.getElementById("voiceLabel").textContent = "Listening…"; voiceButton.setAttribute("aria-pressed","true"); statusLine.textContent = "Listening. Speak your question, then pause."; };
   recognition.onresult = (e) => { let t = ""; for (let i = e.resultIndex; i < e.results.length; i++) t += e.results[i][0].transcript; questionInput.value = t; };
   recognition.onerror = (e) => { statusLine.textContent = e.error === "not-allowed" ? "Microphone access blocked. Type your question instead." : "Voice stopped. Type your question instead."; };
-  recognition.onend = () => { isListening = false; voiceLabel.textContent = "Speak your question"; voiceButton.setAttribute("aria-pressed","false"); questionInput.focus(); };
+  recognition.onend = () => { isListening = false; document.getElementById("voiceLabel").textContent = DOM_ORIGINALS.voiceLabel || "Speak your question"; voiceButton.setAttribute("aria-pressed","false"); questionInput.focus(); };
 }
 voiceButton.addEventListener("click", () => {
   if (!recognition) { statusLine.textContent = "Voice input not supported here. Try Chrome."; return; }

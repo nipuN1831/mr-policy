@@ -524,8 +524,8 @@ $("country").onchange = () => { loadCountry($("country").value); if ($("liveOut"
 (async function init() {
   const countries = await api("/api/civic/countries");
   $("country").innerHTML = countries.map((c) => `<option value="${esc(c.code)}">${esc(c.name)}${c.status === "partial" ? " (partial)" : ""}</option>`).join("");
-  // pre-select country from landing page sessionStorage or default to India
-  const preferred = sessionStorage.getItem("pwt_country") || "in";
+  // pre-select country from landing page storage or default to India
+  const preferred = sessionStorage.getItem("pwt_country") || localStorage.getItem("pwt_country") || "in";
   const found = countries.find((c) => c.code === preferred) || countries.find((c) => c.code === "sg") || countries[0];
   $("country").value = found.code;
   await loadCountry(found.code);
