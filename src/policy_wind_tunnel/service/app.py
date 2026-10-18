@@ -251,7 +251,8 @@ def create_app(llm: Any = _UNSET, searcher: Any = _UNSET, *, enable_login_gate: 
         "surface what is NOT obvious, what official announcements downplay, or where public understanding diverges from the "
         "actual rule. Do NOT use leading labels like 'Myth:' or numbers. Do NOT include if no genuine misconception exists "
         "(return empty array). Never make up statistics or invent sources. "
-        "Write the 'answer' field in the language given by 'Respond in:' (English, हिन्दी, or मराठी) — everything else in the JSON stays as specified."
+        "Write BOTH the 'answer' field AND each string in 'misconceptions' in the language given by 'Respond in:' "
+        "(English, हिन्दी, or मराठी) — everything else in the JSON stays as specified."
     )
     _CHAT_KEYWORDS = {
         "caa": ("in_caa_2019", "/citizen", "The CAA 2019 fast-tracks citizenship for six religious minorities from Afghanistan, Bangladesh or Pakistan who entered India by 31 Dec 2014, after 5 years of residency. It does not apply to Muslims, Inner Line Permit states, or Sixth Schedule areas. Check your exact eligibility on the next page."),

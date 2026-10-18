@@ -690,6 +690,7 @@ const TRANSLATIONS = {
     typeOrPick: 'सवाल टाइप करें या शुरू करने के लिए कोई विषय चुनें।',
     thinkingStatus: 'सोचा जा रहा है…', askSomethingElse: 'कुछ और पूछें',
     chatAnswerLabel: 'Policy Wind Tunnel का जवाब',
+    commonMisconceptions: 'इस विषय पर आम भ्रांतियाँ',
     redirectCitizen: 'मेरी पात्रता जाँचें', redirectDecides: 'सही कार्यालय खोजें', redirectRights: 'मेरे अधिकार देखें',
     redirectLeaders: 'मेरे क्षेत्र के प्रतिनिधि', redirectOfficials: 'नीति में बदलाव जाँचें', redirectDefault: 'जाँचकर्ता पर जाएं',
   },
@@ -760,6 +761,7 @@ const TRANSLATIONS = {
     typeOrPick: 'प्रश्न टाइप करा किंवा सुरुवात करण्यासाठी एखादा विषय निवडा.',
     thinkingStatus: 'विचार केला जात आहे…', askSomethingElse: 'आणखी काही विचारा',
     chatAnswerLabel: 'Policy Wind Tunnel चे उत्तर',
+    commonMisconceptions: 'या विषयावरील सामान्य गैरसमज',
     redirectCitizen: 'माझी पात्रता तपासा', redirectDecides: 'योग्य कार्यालय शोधा', redirectRights: 'माझे हक्क पाहा',
     redirectLeaders: 'माझ्या परिसरातील प्रतिनिधी', redirectOfficials: 'धोरणातील बदल तपासा', redirectDefault: 'तपासणीकडे जा',
   },
@@ -863,7 +865,7 @@ function renderChat(data) {
   const misc = Array.isArray(data.misconceptions) ? data.misconceptions.filter(Boolean) : [];
   const miscHtml = misc.length ? `
     <details class="cb-misc">
-      <summary>Common misconceptions about this topic</summary>
+      <summary>${esc(tr("commonMisconceptions") || "Common misconceptions about this topic")}</summary>
       <ul>${misc.map(m => `<li>${esc(m)}</li>`).join("")}</ul>
     </details>` : "";
   chatAnswer.hidden = false;

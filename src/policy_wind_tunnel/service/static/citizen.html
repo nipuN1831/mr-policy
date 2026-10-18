@@ -399,7 +399,7 @@ const I18N = {
     loadingLiveDetails: "Loading live details from Gemini…", loadingLiveDetailsSub: "Searching career timeline, elections, parliament work, policies & social handles. Takes 15–45 seconds.",
     liveEnrichmentUnavailable: "Live enrichment unavailable: {msg}", connectGeminiForLiveDetails: "Connect Gemini for live details including career timeline, election history, parliament work, policies, and social media.",
     noAdditionalLiveData: "No additional live data found for this person.", photoPageLabel: "Photo page: ", socialMediaHeading: "Social media",
-    liveDetailsHeading: "Live details", geminiNotReviewedPill: "Gemini web search · not reviewed",
+    liveDetailsHeading: "Live details", geminiSearchPill: "Gemini web search",
     careerTimelineHeading: "Career timeline", electionsHeading: "Elections", parliamentWorkHeading: "Parliament work", policiesSchemesHeading: "Policies & schemes",
     liveResultsFooterNote: "As of {asOf}. Live search — results vary. Facts link to the source domain, not each sentence.",
   },
@@ -470,7 +470,7 @@ const I18N = {
     loadingLiveDetails: "Gemini से लाइव विवरण लोड हो रहा है…", loadingLiveDetailsSub: "करियर समयरेखा, चुनाव, संसद कार्य, नीतियाँ और सोशल हैंडल खोजे जा रहे हैं। 15–45 सेकंड लग सकते हैं।",
     liveEnrichmentUnavailable: "लाइव जानकारी उपलब्ध नहीं: {msg}", connectGeminiForLiveDetails: "करियर समयरेखा, चुनाव इतिहास, संसद कार्य, नीतियाँ और सोशल मीडिया सहित लाइव विवरण के लिए Gemini कनेक्ट करें।",
     noAdditionalLiveData: "इस व्यक्ति के लिए कोई अतिरिक्त लाइव डेटा नहीं मिला।", photoPageLabel: "फ़ोटो पेज: ", socialMediaHeading: "सोशल मीडिया",
-    liveDetailsHeading: "लाइव विवरण", geminiNotReviewedPill: "Gemini वेब खोज · समीक्षित नहीं",
+    liveDetailsHeading: "लाइव विवरण", geminiSearchPill: "Gemini वेब खोज",
     careerTimelineHeading: "करियर समयरेखा", electionsHeading: "चुनाव", parliamentWorkHeading: "संसद कार्य", policiesSchemesHeading: "नीतियाँ और योजनाएँ",
     liveResultsFooterNote: "{asOf} तक की जानकारी। लाइव खोज — परिणाम अलग हो सकते हैं। तथ्य स्रोत डोमेन से जुड़े हैं, हर वाक्य से नहीं।",
   },
@@ -541,7 +541,7 @@ const I18N = {
     loadingLiveDetails: "Gemini कडून थेट तपशील लोड होत आहे…", loadingLiveDetailsSub: "करिअर कालरेषा, निवडणुका, संसद कार्य, धोरणे आणि सोशल हँडल शोधले जात आहेत. 15–45 सेकंद लागू शकतात.",
     liveEnrichmentUnavailable: "थेट माहिती उपलब्ध नाही: {msg}", connectGeminiForLiveDetails: "करिअर कालरेषा, निवडणूक इतिहास, संसद कार्य, धोरणे आणि सोशल मीडियासह थेट तपशीलांसाठी Gemini कनेक्ट करा.",
     noAdditionalLiveData: "या व्यक्तीसाठी अतिरिक्त थेट डेटा आढळला नाही.", photoPageLabel: "फोटो पृष्ठ: ", socialMediaHeading: "सोशल मीडिया",
-    liveDetailsHeading: "थेट तपशील", geminiNotReviewedPill: "Gemini वेब शोध · पुनरावलोकन नाही",
+    liveDetailsHeading: "थेट तपशील", geminiSearchPill: "Gemini वेब शोध",
     careerTimelineHeading: "करिअर कालरेषा", electionsHeading: "निवडणुका", parliamentWorkHeading: "संसद कार्य", policiesSchemesHeading: "धोरणे आणि योजना",
     liveResultsFooterNote: "{asOf} पर्यंतची माहिती. थेट शोध — निकाल वेगळे असू शकतात. तथ्ये स्रोत डोमेनशी जोडलेली आहेत, प्रत्येक वाक्याशी नाही.",
   },
@@ -863,7 +863,7 @@ function renderMpLiveEnrichment(d) {
     ? `<h4 style="margin:16px 0 6px">${t("socialMediaHeading")}</h4><ul style="margin:0;padding:0 0 0 18px">${Object.entries(d.handles).map(([k, v]) => `<li>${esc(k)}: @${esc(v)}</li>`).join("")}</ul>`
     : "";
   $("mpDetailLive").innerHTML = `
-    <h3 style="margin:0 0 12px">${t("liveDetailsHeading")} <span class="pill warn">${t("geminiNotReviewedPill")}</span></h3>
+    <h3 style="margin:0 0 12px">${t("liveDetailsHeading")} <span class="pill warn">${t("geminiSearchPill")}</span></h3>
     ${photoHtml}
     ${_detailSection(t("careerTimelineHeading"), d.career)}
     ${_detailSection(t("electionsHeading"), d.elections)}
