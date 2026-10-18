@@ -4,7 +4,16 @@ from fastapi.testclient import TestClient
 from policy_wind_tunnel import settings
 from policy_wind_tunnel.service.app import create_app
 
-KEYS = ("GOOGLE_API_KEY", "GOOGLE_GENAI_USE_VERTEXAI", "GOOGLE_CLOUD_PROJECT", "GOOGLE_CLOUD_LOCATION", "PWT_MODEL", "PWT_LIVE_LEADERS")
+KEYS = (
+    "GOOGLE_API_KEY",
+    "GOOGLE_GENAI_USE_VERTEXAI",
+    "GOOGLE_CLOUD_PROJECT",
+    "GOOGLE_CLOUD_LOCATION",
+    "PWT_MODEL",
+    "PWT_LIVE_LEADERS",
+    "PWT_LOGIN_EMAILS",
+    "PWT_LOGIN_PASSWORD",
+)
 
 
 @pytest.fixture(autouse=True)
@@ -82,6 +91,21 @@ def test_describe_never_contains_the_key(monkeypatch):
 def test_describe_reports_the_kill_switch(monkeypatch):
     monkeypatch.setenv("PWT_LIVE_LEADERS", "0")
     assert settings.describe()["live_leaders"] is False
+
+
+def test_login_emails_defaults_to_empty(monkeypatch):
+    assert settings.login_emails() == set()
+
+
+def test_login_emails_parses_a_comma_separated_case_insensitive_list(monkeypatch):
+    monkeypatch.setenv("PWT_LOGIN_EMAILS", " Demo@Example.com, other@example.com ,,")
+    assert settings.login_emails() == {"demo@example.com", "other@example.com"}
+
+
+def test_login_password_defaults_to_empty_string(monkeypatch):
+    assert settings.login_password() == ""
+    monkeypatch.setenv("PWT_LOGIN_PASSWORD", "shared-secret")
+    assert settings.login_password() == "shared-secret"
 
 
 def test_health_reports_model_and_credential_mode_but_not_the_key(monkeypatch):

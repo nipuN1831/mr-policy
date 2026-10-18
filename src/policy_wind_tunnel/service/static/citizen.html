@@ -61,22 +61,40 @@ button:focus-visible, a:focus-visible, select:focus-visible, textarea:focus-visi
 .card ul { margin: 6px 0 6px 18px; padding: 0; }
 .card p { margin: 4px 0; font-size: 15px; }
 
-/* Tabs */
-.tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 16px 0 20px; padding: 6px; background: #f0f4f0; border-radius: 16px; }
-.tabs button { flex: 1 1 auto; background: transparent; color: var(--muted); border: 0; border-radius: 11px; padding: 10px 14px; font: 600 15px "DM Sans", sans-serif; cursor: pointer; min-height: 44px; transition: background .15s, color .15s; }
-.tabs button:hover { color: var(--ink); }
-.tabs button.on { background: #fff; color: var(--green-dark); box-shadow: var(--shadow); }
+/* Feature grid: all 5 tools visible up top; clicking one swaps the panel below it */
+.feature-nav { margin: 18px 0 20px; }
+.feature-nav-label { font: 700 10px/1 "DM Sans", sans-serif; letter-spacing: 1.6px; text-transform: uppercase; color: #6c8475; margin: 0 0 12px; }
+.feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; }
+.feature-card { display: flex; align-items: flex-start; gap: 12px; text-align: left; background: #fff; border: 1.5px solid var(--line); border-radius: 14px; padding: 14px 16px; cursor: pointer; transition: border-color .15s, background .15s; min-height: 48px; }
+.feature-card:hover { border-color: #9bbba8; background: #fbfdfc; }
+.feature-card.on { border-color: var(--green-dark); background: var(--green-soft); }
+.feature-icon { width: 36px; height: 36px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+.feature-icon svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.feature-icon.qualify { color: #92400e; background: #fef3c7; }
+.feature-icon.decides { color: #4c1d95; background: #ede9fe; }
+.feature-icon.rights { color: #1a5c3c; background: #dcfce7; }
+.feature-icon.bodies { color: #0b6e7a; background: #dff1f3; }
+.feature-icon.leaders { color: #1e3a8a; background: #dbeafe; }
+.feature-title { display: block; font: 700 14.5px/1.3 Manrope, sans-serif; color: var(--ink); }
+.feature-desc { display: block; font-size: 12.5px; color: var(--muted); margin-top: 2px; line-height: 1.4; }
+
+/* Styled select: keeps the native <select> for behaviour, swaps the OS arrow for the brand chevron.
+   The open option list is still drawn by the OS — only its color/font can be themed, not its shape. */
+.select-shell { position: relative; display: inline-flex; align-items: center; }
+.select-shell select { appearance: none; -webkit-appearance: none; padding-right: 36px; }
+.select-shell svg.chevron { position: absolute; right: 13px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; stroke: var(--green-dark); fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
+select option { font: inherit; background: #fff; color: var(--ink); }
 
 /* Buttons */
 button.primary, button#extract, button#run, button#simulate, button#checkBtn, button#findBtn, button#runExploratory, button#bench {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   background: var(--green-dark); color: #fff; border: 0; border-radius: 11px;
-  padding: 11px 22px; font: 650 16px "DM Sans", sans-serif; cursor: pointer; min-height: 46px; transition: background .15s;
+  padding: 11px 22px; font: 650 16px "DM Sans", sans-serif; cursor: pointer; min-height: 48px; transition: background .15s;
 }
 button.primary:hover, button#extract:hover, button#run:hover, button#simulate:hover, button#checkBtn:hover, button#findBtn:hover, button#runExploratory:hover, button#bench:hover { background: var(--green); }
 button.secondary, button.ghost, button#bench, button#changeBtn, button#toggleJson, button#againBtn, button#backBtn, button#startBtn, button#exampleBtn, button#resultBtn {
   background: #fff; color: var(--ink); border: 1.5px solid #9bbba8; border-radius: 11px;
-  padding: 10px 18px; font: 600 15px "DM Sans", sans-serif; cursor: pointer; min-height: 44px;
+  padding: 10px 18px; font: 600 15px "DM Sans", sans-serif; cursor: pointer; min-height: 48px;
   display: inline-flex; align-items: center; text-decoration: none;
 }
 button.secondary:hover, button.ghost:hover, button#bench:hover, button#changeBtn:hover, button#toggleJson:hover, button#againBtn:hover, button#backBtn:hover, button#startBtn:hover, button#exampleBtn:hover, button#resultBtn:hover { background: #f4f7f3; }
@@ -84,7 +102,7 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 .link { background: none; border: 0; color: var(--green-dark); text-decoration: underline; cursor: pointer; font: inherit; padding: 4px 6px; }
 
 /* Inputs */
-select, input[type=text], input[type=number] { background: #fff; color: var(--ink); border: 1.5px solid #6b8190; border-radius: 10px; padding: 10px 14px; min-height: 46px; max-width: 100%; font-size: 16px; }
+select, input[type=text], input[type=number] { background: #fff; color: var(--ink); border: 1.5px solid #6b8190; border-radius: 10px; padding: 10px 14px; min-height: 48px; max-width: 100%; font-size: 16px; }
 input[type=checkbox] { width: 18px; height: 18px; vertical-align: -3px; accent-color: var(--green-dark); }
 textarea { width: 100%; height: 260px; resize: vertical; background: #fbfdfe; color: var(--ink); border: 1.5px solid #6b8190; border-radius: 10px; padding: 12px; font: 13.5px/1.55 ui-monospace, Menlo, monospace; }
 details { border: 1px solid var(--line); border-radius: 12px; padding: 4px 16px; background: #fbfdfe; margin-top: 16px; }
@@ -131,7 +149,7 @@ mark, .mark { background: linear-gradient(transparent 12%, var(--amber) 12%, var
 .tile.good .big { color: var(--pass); } .tile.bad .big { color: var(--fail); }
 
 /* Progress bar */
-.progress { height: 6px; background: #e4e8e3; border-radius: 6px; overflow: hidden; margin: 0 0 20px; }
+.progress { height: 6px; background: #e4e8e3; border-radius: 6px; overflow: hidden; margin: 14px 0 20px; }
 .progress > span { display: block; height: 100%; background: var(--green-dark); transition: width .25s ease; }
 
 /* Stepper */
@@ -169,9 +187,9 @@ section, .panel { background: #fff; border: 1px solid var(--line); border-radius
   .site-header { height: 64px; padding-inline: 16px; }
   .nav-link:not(.on):not(.primary) { display: none; }
   section, .panel { padding: 16px; }
-  .tabs button { flex: 1 1 45%; font-size: 14px; padding: 9px 10px; }
   select, input[type=text], input[type=number] { width: 100%; }
-  .row > select, .row > input[type=text] { flex: 1 1 100%; }
+  .row > select, .row > input[type=text], .row > .select-shell { flex: 1 1 100%; }
+  .feature-grid { grid-template-columns: 1fr; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; } }
 .live-loading { display: flex; align-items: flex-start; gap: 14px; padding: 16px; background: #f2f8f5; border: 1.5px solid #c5ddd1; border-radius: 12px; margin-top: 8px; }
@@ -191,56 +209,75 @@ section, .panel { background: #fff; border: 1px solid var(--line); border-radius
     <span>Policy Wind Tunnel</span>
   </a>
   <nav class="header-nav" aria-label="Main">
-    <a class="nav-link on" href="/citizen" aria-current="page">For citizens</a>
-    <a class="nav-link" href="/officials">For officials</a>
-    <a class="nav-link" href="/about">How it works</a>
+    <a class="nav-link on" href="/citizen" data-i18n="nav1" aria-current="page">For citizens</a>
+    <a class="nav-link" href="/officials" data-i18n="nav2">For officials</a>
+    <a class="nav-link" href="/about" data-i18n="nav3">How it works</a>
+    <a class="nav-link" href="/login" id="signOutLink">Sign out</a>
   </nav>
 </header>
 
 <main id="main" class="wrap">
   <div class="hero">
-    <p class="eyebrow">Citizens</p>
-    <h1>Know what you are entitled to</h1>
-    <p>Check whether you qualify for a scheme, see the exact rule that decided it, and find who handles your problem.</p>
+    <p class="eyebrow" data-i18n="heroEyebrow">Citizens</p>
+    <h1 data-i18n="heroH1">Know what you are entitled to</h1>
+    <p data-i18n="heroLead">Check whether you qualify for a scheme, see the exact rule that decided it, and find who handles your problem.</p>
   </div>
-  <div class="banner">Information only. Not legal advice and not an official decision. Nothing you enter is stored. India MP data from ECI 2024 + sansad.in; other countries may show representative placeholders. Live area results come from a web search and are not reviewed by a person.</div>
+  <div class="banner" data-i18n="banner">Information only. Not legal advice and not an official decision. Nothing you enter is stored. India MP data from ECI 2024 + sansad.in; other countries may show representative placeholders. Live area results come from a web search and are not reviewed by a person.</div>
 
   <div class="row">
-    <label for="country"><b>Country</b></label>
-    <select id="country"></select>
+    <label for="country"><b data-i18n="countryLabel">Country</b></label>
+    <span class="select-shell"><select id="country"></select><svg class="chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></span>
     <span id="status"></span>
   </div>
-  <details id="notesBox" hidden><summary>What is not verified for this country</summary><div class="muted" id="notes"></div></details>
+  <details id="notesBox" hidden><summary data-i18n="notesSummary">What is not verified for this country</summary><div class="muted" id="notes"></div></details>
 
-  <div class="tabs" id="tabs" style="margin-top:16px">
-    <button data-tab="qualify" class="on">Do I qualify?</button>
-    <button data-tab="decides">Who handles my problem?</button>
-    <button data-tab="rights">My rights</button>
-    <button data-tab="bodies">How government is organised</button>
-    <button data-tab="leaders">My area: who represents me</button>
+  <div class="feature-nav">
+    <p class="feature-nav-label" id="featureNavLabel" data-i18n="featureNavLabel">What would you like to do?</p>
+    <div class="feature-grid" role="group" aria-labelledby="featureNavLabel">
+      <button type="button" class="feature-card on" data-tab="qualify" aria-pressed="true">
+        <span class="feature-icon qualify" aria-hidden="true"><svg viewBox="0 0 48 48"><circle cx="25" cy="13" r="9"/><path d="M22 9h6M22 13h5M22 17h6M5 28c7-5 12-5 18-1l5 3 8-5c3-2 6 2 3 4L27 39H14l-9-5"/><path d="M5 29v10h9V29"/></svg></span>
+        <span><span class="feature-title" data-i18n="qualifyTitle">Do I qualify?</span><span class="feature-desc" data-i18n="qualifyDesc">Check against a published scheme, step by step</span></span>
+      </button>
+      <button type="button" class="feature-card" data-tab="decides" aria-pressed="false">
+        <span class="feature-icon decides" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M15 8h25v32H15zM10 13H7v31h25v-4M21 15h13M21 21h13M21 27h13M21 33h8"/></svg></span>
+        <span><span class="feature-title" data-i18n="decidesTitle">Who handles my problem?</span><span class="feature-desc" data-i18n="decidesDesc">Find the right office and escalation path</span></span>
+      </button>
+      <button type="button" class="feature-card" data-tab="rights" aria-pressed="false">
+        <span class="feature-icon rights" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M24 6v31M10 13h28M24 7l-4 5h8zM10 13 3 28h14L10 13Zm28 0-7 15h14L38 13Z"/><path d="M7 31c2 4 10 4 12 0M31 31c2 4 10 4 12 0M18 39h12M24 37v2M17 43h14"/><path d="M6 36h13v7H6zM29 36h13v7H29z"/></svg></span>
+        <span><span class="feature-title" data-i18n="rightsTitle">My rights</span><span class="feature-desc" data-i18n="rightsDesc">Laws and policies, in plain language</span></span>
+      </button>
+      <button type="button" class="feature-card" data-tab="bodies" aria-pressed="false">
+        <span class="feature-icon bodies" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19h16M6 19V9m4 10V9m4 10V9m4 10V9M4 9l8-5 8 5M4 6h16"/></svg></span>
+        <span><span class="feature-title" data-i18n="bodiesTitle">How government is organised</span><span class="feature-desc" data-i18n="bodiesDesc">Which tier controls what, and who's accountable</span></span>
+      </button>
+      <button type="button" class="feature-card" data-tab="leaders" aria-pressed="false">
+        <span class="feature-icon leaders" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M9 20h30M13 20V14l11-7 11 7v6M17 20v7M24 20v7M31 20v7M8 29h32v4H8zM5 39c0-4 3-6 7-6s7 2 7 6M29 39c0-4 3-6 7-6s7 2 7 6M19 39c0-4 2-6 5-6s5 2 5 6"/><circle cx="24" cy="5" r="2"/></svg></span>
+        <span><span class="feature-title" data-i18n="leadersCardTitle">My area</span><span class="feature-desc" data-i18n="leadersCardDesc">Your MP, MLA, councillor — who's accountable</span></span>
+      </button>
+    </div>
   </div>
 
   <section id="tab-qualify">
-    <div class="row" style="margin-top:0"><label for="scheme"><b>Scheme</b></label><select id="scheme"></select></div>
+    <div class="row" style="margin-top:0"><label for="scheme"><b data-i18n="schemeLabel">Scheme</b></label><span class="select-shell"><select id="scheme"></select><svg class="chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></span></div>
     <div id="flow" aria-live="polite"></div>
   </section>
 
   <section id="tab-decides" hidden>
-    <h2>Who handles my problem?</h2>
-    <p class="lead">Describe it in your own words, or browse the list below.</p>
-    <div class="row"><input type="text" id="problemText" size="46" aria-label="Describe your problem" placeholder="For example: my bank refused a refund"><button id="findBtn">Find</button></div>
+    <h2 data-i18n="decidesTitle">Who handles my problem?</h2>
+    <p class="lead" data-i18n="decidesLead">Describe it in your own words, or browse the list below.</p>
+    <div class="row"><input type="text" id="problemText" size="46" aria-label="Describe your problem" placeholder="For example: my bank refused a refund" data-i18n-placeholder="problemPlaceholder"><button id="findBtn" data-i18n="findBtn">Find</button></div>
     <div id="matches"></div>
-    <h3>All problems</h3>
+    <h3 data-i18n="allProblemsTitle">All problems</h3>
     <div class="grid" id="allProblems"></div>
   </section>
 
   <section id="tab-rights" hidden>
-    <h2>My rights</h2>
+    <h2 data-i18n="rightsTitle">My rights</h2>
     <div class="grid" id="rights"></div>
   </section>
 
   <section id="tab-bodies" hidden>
-    <h2>How government is organised</h2>
+    <h2 data-i18n="bodiesTitle">How government is organised</h2>
     <div class="grid" id="bodies"></div>
   </section>
 
@@ -260,13 +297,256 @@ section, .panel { background: #fff; border: 1px solid var(--line); border-radius
     </div>
   </section>
 
-  <p class="footer"><a href="/about">How it works and what is verified</a><a href="/">Home</a><a href="/officials">For officials</a></p>
+  <p class="footer"><a href="/about" data-i18n="footerHowItWorks">How it works and what is verified</a><a href="/" data-i18n="footerHome">Home</a><a href="/officials" data-i18n="nav2">For officials</a></p>
 </main>
 
 <script>
 const $ = (id) => document.getElementById(id);
 const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-let pack = null, form = null, answers = {}, step = 0;
+document.getElementById("signOutLink").addEventListener("click", (e) => {
+  e.preventDefault();
+  fetch("/api/logout", { method: "POST" }).finally(() => { window.location.href = "/login"; });
+});
+let pack = null, form = null, answers = {}, step = 0, countryList = [];
+
+// A <select> left at width:auto sizes itself to fit its widest option, not the one
+// currently shown, which leaves a gap between the visible text and our chevron icon.
+// This measures just the selected option's text and sets the box to fit that instead.
+function fitSelectWidth(select) {
+  const opt = select.options[select.selectedIndex];
+  if (!opt) return;
+  const cs = getComputedStyle(select);
+  const span = document.createElement("span");
+  span.style.cssText = "position:absolute;visibility:hidden;white-space:nowrap;font:" + cs.font + ";letter-spacing:" + cs.letterSpacing;
+  span.textContent = opt.text;
+  document.body.appendChild(span);
+  const textWidth = span.getBoundingClientRect().width;
+  document.body.removeChild(span);
+  const extra = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight) + parseFloat(cs.borderLeftWidth) + parseFloat(cs.borderRightWidth);
+  select.style.width = Math.ceil(textWidth + extra) + 6 + "px"; // small buffer: span measurement can slightly undercount the select's own text rendering
+}
+
+// --- Language ---------------------------------------------------------
+// Chrome (labels, buttons, instructions) is translated. Scheme names, eligibility
+// questions, and Rights/Problems/Representatives content come from the backend in
+// English only — translating that is content work, not UI work, and isn't done here.
+const LANG_KEY = "pwt_lang";
+let LANG = sessionStorage.getItem(LANG_KEY) || localStorage.getItem(LANG_KEY) || "English";
+
+const I18N = {
+  English: {
+    nav1: "For citizens", nav2: "For officials", nav3: "How it works",
+    heroEyebrow: "Citizens", heroH1: "Know what you are entitled to",
+    heroLead: "Check whether you qualify for a scheme, see the exact rule that decided it, and find who handles your problem.",
+    banner: "Information only. Not legal advice and not an official decision. Nothing you enter is stored. India MP data from ECI 2024 + sansad.in; other countries may show representative placeholders. Live area results come from a web search and are not reviewed by a person.",
+    countryLabel: "Country", notesSummary: "What is not verified for this country",
+    featureNavLabel: "What would you like to do?",
+    qualifyTitle: "Do I qualify?", qualifyDesc: "Check against a published scheme, step by step",
+    decidesTitle: "Who handles my problem?", decidesDesc: "Find the right office and escalation path",
+    rightsTitle: "My rights", rightsDesc: "Laws and policies, in plain language",
+    bodiesTitle: "How government is organised", bodiesDesc: "Which tier controls what, and who's accountable",
+    leadersCardTitle: "My area", leadersCardDesc: "Your MP, MLA, councillor — who's accountable",
+    schemeLabel: "Scheme", decidesLead: "Describe it in your own words, or browse the list below.",
+    problemPlaceholder: "For example: my bank refused a refund", findBtn: "Find", allProblemsTitle: "All problems",
+    leadersH2: "My area: who represents me, and who decides",
+    leadersLead: "Type your constituency, town or district. Live results come from a web search. Each entry lists the pages that support it, so you can open them and check.",
+    demoLayoutLabel: "Demo layout", fictionalPeoplePill: "fictional people",
+    demoLayoutNote: "These people are invented to show the layout. They are always available, even when live search is off.",
+    footerHowItWorks: "How it works and what is verified", footerHome: "Home",
+    noSchemeMsg: "No scheme with verified numeric rules is available for this country yet. Try the other tabs, or pick Singapore or India.",
+    noSelfCheckNote: "No self-check for this scheme. Eligibility is decided by a caseworker or a government database, and no numeric rule could be verified from an official page.",
+    whatLawSays: "What the law says", schemeCheckSuffix: "scheme check",
+    questionsIntro: "You will answer {n} short questions, one at a time. You get an answer, the rule that decided it, and what would change it. Nothing is stored.",
+    startBtn: "Start", useExampleBtn: "Use an example person", readRuleFirst: "Read the rule first",
+    ruleAsPublished: "The rule, as published", backWord: "Back", cancelWord: "Cancel",
+    questionOf: "Question {n} of {total}", fixedFactNote: "This is a fixed fact, so it is never suggested as a way to qualify.",
+    yesLabel: "Yes", noLabel: "No", continueBtn: "Continue", idontKnowBtn: "I do not know",
+    enterNumberOrUnknown: "Enter a number, or choose I do not know.", enterNumberToContinue: "Enter a number to continue.",
+    startAgainLink: "Start again", exampleReviewTitle: "An example person", checkAnswersTitle: "Check your answers",
+    exampleReviewLead: "These are made-up answers so you can see how a result looks. Change any of them.",
+    checkAnswersLead: "Make sure these are right, then see your result.",
+    changeWord: "Change", seeResultBtn: "See my result", checkingRule: "Checking the rule...",
+    changeMyAnswersLink: "Change my answers", sentenceThatDecided: "The sentence that decided it",
+    noClauseQuote: "No clause quote recorded.", assumptionsSummary: "Assumptions this check makes",
+    checkSomeoneElseBtn: "Check someone else", thatDidNotWork: "That did not work",
+    answersNotStored: "Your answers were not stored. Go back and try again.",
+    lookingForChange: "Looking for the smallest change that would alter this...", whatWouldChange: "What would change my answer?",
+    fixedFactBlocks: "A fixed fact blocks this: {list}. It cannot be changed, so no change in your circumstances would make a difference.",
+    noChangeWouldAlter: "No change to the things you can influence would alter the answer.",
+    optionLabel: "Option {n}", thenRuleGives: "Then the rule gives: ",
+    changeFootnote: "Each option was re-checked against the same rule. It shows what the published rule would say, not a promise of approval.",
+    lookUpBtn: "Look up",
+    liveSearchNote: "The search describes the place and its officials. It never rates, ranks or comments on anyone, and it will refuse if asked to.",
+    liveOffNote: "Live lookup is off. It needs Gemini web search, which is not connected in this session, so only the fictional demo layout below is shown.",
+    enterPlaceFirst: "Enter a place first.", searchingWeb: "Searching the web. This can take up to a minute...",
+    noResultTitle: "No result", placeAriaLabel: "Your constituency, town or district",
+    placeExamplePlaceholder: "For example: Marine Parade GRC", foundBySearch: "found by search",
+    pagesSupport: "Pages that support this entry: ", linkOnlySuffix: " (link only)", asOfLabel: "As of ",
+    responsibleFor: "Responsible for:", phoneLabel: "Phone:", hoursLabel: "Hours:", sourceLabel: "Source: ",
+    representativesFor: "Representatives for {place}", noRepConfirmed: "No representative could be confirmed from a source for this place.",
+    bodiesDecideTitle: "Bodies that decide everyday matters", noBodyConfirmed: "No body could be confirmed from a source for this place.",
+    leftOutLabel: "Left out for lack of a trustworthy source: ", leftOutNote: " They may still hold office, so check the official pages.",
+    droppedNote: "{n} item(s) were left out because they had no matching source.",
+    resultsVaryNote: "Results can differ each time the search runs. Facts on this page are tied to the person's entry, not to single sentences.",
+    noMatchNote: "No match. Browse all problems below.",
+    startWithLabel: "Start with: ", portalLabel: "Portal: ", basisLabel: "Basis: ",
+    verifiedPill: "verified", partlyUnverifiedPill: "partly unverified", notVerifiedLabel: "Not verified: ",
+    noProblemsVerified: "No problems are verified for this country yet.", noRightsVerified: "No rights are verified for this country yet.",
+    noGovStructureVerified: "Government structure is not verified for this country yet.",
+    howToUseLabel: "How to use it: ", lawLabel: "Law: ", infoOnlySuffix: " (information only)", partialSuffix: " (partial)",
+    notKnown: "Not known", demoDataPill: "demo data",
+    layoutOnlyNote: "Shown for layout only. A real card would give each fact a source link and date.",
+    termsLabel: "Terms: ", sourceAsOfMiddle: " · as of ", changeAriaLabel: "Change: {label}",
+  },
+  "हिन्दी": {
+    nav1: "नागरिकों के लिए", nav2: "अधिकारियों के लिए", nav3: "कैसे काम करता है",
+    heroEyebrow: "नागरिक", heroH1: "जानें आप किसके हकदार हैं",
+    heroLead: "जाँचें कि आप किसी योजना के लिए पात्र हैं या नहीं, वह सटीक नियम देखें जिसने फ़ैसला किया, और जानें कि आपकी समस्या कौन सुलझाएगा।",
+    banner: "केवल जानकारी के लिए। यह कानूनी सलाह या आधिकारिक फैसला नहीं है। आपका डेटा सेव नहीं होता। भारत के सांसदों का डेटा ECI 2024 और sansad.in से लिया गया है; अन्य देशों में प्रतिनिधि डेटा काल्पनिक हो सकता है। लाइव क्षेत्र परिणाम वेब खोज से आते हैं और किसी व्यक्ति द्वारा समीक्षित नहीं हैं।",
+    countryLabel: "देश", notesSummary: "इस देश के लिए क्या सत्यापित नहीं है",
+    featureNavLabel: "आप क्या करना चाहेंगे?",
+    qualifyTitle: "क्या मैं पात्र हूँ?", qualifyDesc: "किसी प्रकाशित योजना के विरुद्ध चरण दर चरण जाँचें",
+    decidesTitle: "मेरी समस्या कौन सुलझाएगा?", decidesDesc: "सही कार्यालय और आगे की शिकायत प्रक्रिया खोजें",
+    rightsTitle: "मेरे अधिकार", rightsDesc: "कानून और नीतियाँ, सरल भाषा में",
+    bodiesTitle: "सरकार कैसे संगठित है", bodiesDesc: "कौन सा स्तर क्या नियंत्रित करता है, और कौन जिम्मेदार है",
+    leadersCardTitle: "मेरा क्षेत्र", leadersCardDesc: "आपके सांसद, विधायक, पार्षद — कौन जिम्मेदार है",
+    schemeLabel: "योजना", decidesLead: "अपने शब्दों में बताएं, या नीचे सूची देखें।",
+    problemPlaceholder: "उदाहरण के लिए: बैंक ने मेरा रिफंड मना किया", findBtn: "खोजें", allProblemsTitle: "सभी समस्याएँ",
+    leadersH2: "मेरा क्षेत्र: मेरा प्रतिनिधित्व कौन करता है, और कौन फैसला लेता है",
+    leadersLead: "अपना निर्वाचन क्षेत्र, शहर या जिला टाइप करें। लाइव परिणाम वेब खोज से आते हैं। हर प्रविष्टि उन पेजों को सूचीबद्ध करती है जो इसका समर्थन करते हैं, ताकि आप उन्हें खोलकर जाँच सकें।",
+    demoLayoutLabel: "डेमो लेआउट", fictionalPeoplePill: "काल्पनिक लोग",
+    demoLayoutNote: "ये लोग लेआउट दिखाने के लिए बनाए गए हैं। ये हमेशा उपलब्ध रहते हैं, भले ही लाइव खोज बंद हो।",
+    footerHowItWorks: "यह कैसे काम करता है और क्या सत्यापित है", footerHome: "होम",
+    noSchemeMsg: "इस देश के लिए अभी कोई सत्यापित संख्यात्मक नियम वाली योजना उपलब्ध नहीं है। अन्य टैब आज़माएं, या सिंगापुर या भारत चुनें।",
+    noSelfCheckNote: "इस योजना के लिए स्वयं-जाँच उपलब्ध नहीं है। पात्रता किसी केसवर्कर या सरकारी डेटाबेस द्वारा तय की जाती है, और किसी आधिकारिक पेज से कोई संख्यात्मक नियम सत्यापित नहीं किया जा सका।",
+    whatLawSays: "कानून क्या कहता है", schemeCheckSuffix: "योजना जाँच",
+    questionsIntro: "आप एक-एक करके {n} छोटे सवालों के जवाब देंगे। आपको जवाब मिलेगा, वह नियम जिसने फैसला किया, और वह क्या बदल सकता है। कुछ भी सेव नहीं होता।",
+    startBtn: "शुरू करें", useExampleBtn: "एक उदाहरण व्यक्ति का उपयोग करें", readRuleFirst: "पहले नियम पढ़ें",
+    ruleAsPublished: "नियम, जैसा प्रकाशित हुआ", backWord: "वापस", cancelWord: "रद्द करें",
+    questionOf: "सवाल {n} / {total}", fixedFactNote: "यह एक तय तथ्य है, इसलिए इसे पात्र बनने के तरीके के रूप में कभी सुझाया नहीं जाता।",
+    yesLabel: "हाँ", noLabel: "नहीं", continueBtn: "जारी रखें", idontKnowBtn: "मुझे नहीं पता",
+    enterNumberOrUnknown: "एक संख्या डालें, या 'मुझे नहीं पता' चुनें।", enterNumberToContinue: "जारी रखने के लिए एक संख्या डालें।",
+    startAgainLink: "फिर से शुरू करें", exampleReviewTitle: "एक उदाहरण व्यक्ति", checkAnswersTitle: "अपने जवाब जाँचें",
+    exampleReviewLead: "ये बनाए गए जवाब हैं ताकि आप देख सकें कि परिणाम कैसा दिखता है। इनमें से किसी को भी बदलें।",
+    checkAnswersLead: "सुनिश्चित करें कि ये सही हैं, फिर अपना परिणाम देखें।",
+    changeWord: "बदलें", seeResultBtn: "मेरा परिणाम देखें", checkingRule: "नियम जाँचा जा रहा है...",
+    changeMyAnswersLink: "मेरे जवाब बदलें", sentenceThatDecided: "वह वाक्य जिसने फैसला किया",
+    noClauseQuote: "कोई खंड उद्धरण दर्ज नहीं है।", assumptionsSummary: "इस जाँच की मान्यताएं",
+    checkSomeoneElseBtn: "किसी और की जाँच करें", thatDidNotWork: "यह काम नहीं किया",
+    answersNotStored: "आपके जवाब सेव नहीं हुए। वापस जाकर फिर से कोशिश करें।",
+    lookingForChange: "सबसे छोटा बदलाव खोजा जा रहा है जो इसे बदल सके...", whatWouldChange: "मेरा जवाब क्या बदलेगा?",
+    fixedFactBlocks: "एक तय तथ्य इसे रोकता है: {list}। इसे बदला नहीं जा सकता, इसलिए आपकी परिस्थितियों में कोई बदलाव फर्क नहीं डालेगा।",
+    noChangeWouldAlter: "आपके प्रभाव की चीज़ों में कोई बदलाव जवाब नहीं बदलेगा।",
+    optionLabel: "विकल्प {n}", thenRuleGives: "फिर नियम यह कहता है: ",
+    changeFootnote: "हर विकल्प को उसी नियम के विरुद्ध फिर से जाँचा गया। यह दिखाता है कि प्रकाशित नियम क्या कहेगा, स्वीकृति का वादा नहीं।",
+    lookUpBtn: "खोजें",
+    liveSearchNote: "यह खोज जगह और उसके अधिकारियों का वर्णन करती है। यह कभी किसी को रेट, रैंक या उस पर टिप्पणी नहीं करती, और अगर ऐसा करने को कहा जाए तो मना कर देगी।",
+    liveOffNote: "लाइव खोज बंद है। इसके लिए Gemini वेब खोज चाहिए, जो इस सत्र में जुड़ी नहीं है, इसलिए नीचे केवल काल्पनिक डेमो लेआउट दिखाया गया है।",
+    enterPlaceFirst: "पहले एक जगह डालें।", searchingWeb: "वेब खोजा जा रहा है। इसमें एक मिनट तक लग सकता है...",
+    noResultTitle: "कोई परिणाम नहीं", placeAriaLabel: "आपका निर्वाचन क्षेत्र, शहर या जिला",
+    placeExamplePlaceholder: "उदाहरण के लिए: Marine Parade GRC", foundBySearch: "खोज से मिला",
+    pagesSupport: "इस प्रविष्टि का समर्थन करने वाले पेज: ", linkOnlySuffix: " (केवल लिंक)", asOfLabel: "जैसा कि ",
+    responsibleFor: "इसके लिए जिम्मेदार:", phoneLabel: "फ़ोन:", hoursLabel: "समय:", sourceLabel: "स्रोत: ",
+    representativesFor: "{place} के प्रतिनिधि", noRepConfirmed: "इस जगह के लिए किसी स्रोत से कोई प्रतिनिधि सत्यापित नहीं हो सका।",
+    bodiesDecideTitle: "रोज़मर्रा के मामलों का फैसला करने वाले निकाय", noBodyConfirmed: "इस जगह के लिए किसी स्रोत से कोई निकाय सत्यापित नहीं हो सका।",
+    leftOutLabel: "विश्वसनीय स्रोत न होने के कारण छोड़े गए: ", leftOutNote: " वे अभी भी पद पर हो सकते हैं, इसलिए आधिकारिक पेज जाँचें।",
+    droppedNote: "{n} आइटम छोड़े गए क्योंकि कोई मिलान स्रोत नहीं था।",
+    resultsVaryNote: "हर बार खोज चलाने पर परिणाम अलग हो सकते हैं। इस पेज के तथ्य व्यक्ति की प्रविष्टि से जुड़े हैं, किसी एक वाक्य से नहीं।",
+    noMatchNote: "कोई मिलान नहीं। नीचे सभी समस्याएँ देखें।",
+    startWithLabel: "इससे शुरू करें: ", portalLabel: "पोर्टल: ", basisLabel: "आधार: ",
+    verifiedPill: "सत्यापित", partlyUnverifiedPill: "आंशिक रूप से असत्यापित", notVerifiedLabel: "असत्यापित: ",
+    noProblemsVerified: "इस देश के लिए अभी कोई समस्या सत्यापित नहीं है।", noRightsVerified: "इस देश के लिए अभी कोई अधिकार सत्यापित नहीं है।",
+    noGovStructureVerified: "इस देश के लिए सरकारी ढांचा अभी सत्यापित नहीं है।",
+    howToUseLabel: "इसका उपयोग कैसे करें: ", lawLabel: "कानून: ", infoOnlySuffix: " (केवल जानकारी)", partialSuffix: " (आंशिक)",
+    notKnown: "पता नहीं", demoDataPill: "डेमो डेटा",
+    layoutOnlyNote: "केवल लेआउट के लिए दिखाया गया है। असली कार्ड में हर तथ्य का एक स्रोत लिंक और तारीख होगी।",
+    termsLabel: "कार्यकाल: ", sourceAsOfMiddle: " · जैसा कि ", changeAriaLabel: "बदलें: {label}",
+  },
+  "मराठी": {
+    nav1: "नागरिकांसाठी", nav2: "अधिकाऱ्यांसाठी", nav3: "कसे कार्य करते",
+    heroEyebrow: "नागरिक", heroH1: "तुम्ही कशाचे हक्कदार आहात ते जाणा",
+    heroLead: "तुम्ही एखाद्या योजनेसाठी पात्र आहात का ते तपासा, निर्णय घेणारा नेमका नियम पाहा, आणि तुमची समस्या कोण सोडवेल ते जाणा.",
+    banner: "फक्त माहितीसाठी. हा कायदेशीर सल्ला किंवा अधिकृत निर्णय नाही. तुमचा डेटा साठवला जात नाही. भारताच्या खासदारांचा डेटा ECI 2024 आणि sansad.in वरून घेतला आहे; इतर देशांमध्ये प्रतिनिधींचा डेटा काल्पनिक असू शकतो. थेट क्षेत्र निकाल वेब शोधातून येतात आणि एखाद्या व्यक्तीने तपासलेले नाहीत.",
+    countryLabel: "देश", notesSummary: "या देशासाठी काय सत्यापित नाही",
+    featureNavLabel: "तुम्हाला काय करायचे आहे?",
+    qualifyTitle: "मी पात्र आहे का?", qualifyDesc: "प्रकाशित योजनेनुसार टप्प्याटप्प्याने तपासा",
+    decidesTitle: "माझी समस्या कोण सोडवेल?", decidesDesc: "योग्य कार्यालय आणि पुढील तक्रार प्रक्रिया शोधा",
+    rightsTitle: "माझे हक्क", rightsDesc: "कायदे आणि धोरणे, सोप्या भाषेत",
+    bodiesTitle: "सरकार कसे संघटित आहे", bodiesDesc: "कोणता स्तर काय नियंत्रित करतो, आणि कोण जबाबदार आहे",
+    leadersCardTitle: "माझा परिसर", leadersCardDesc: "तुमचे खासदार, आमदार, नगरसेवक — कोण जबाबदार आहे",
+    schemeLabel: "योजना", decidesLead: "तुमच्या शब्दांत सांगा, किंवा खालील यादी पाहा.",
+    problemPlaceholder: "उदाहरणार्थ: बँकेने माझा परतावा नाकारला", findBtn: "शोधा", allProblemsTitle: "सर्व समस्या",
+    leadersH2: "माझा परिसर: माझे प्रतिनिधित्व कोण करते, आणि कोण निर्णय घेते",
+    leadersLead: "तुमचा मतदारसंघ, शहर किंवा जिल्हा टाइप करा. थेट निकाल वेब शोधातून येतात. प्रत्येक नोंद त्याला आधार देणारी पाने दाखवते, जेणेकरून तुम्ही ती उघडून तपासू शकता.",
+    demoLayoutLabel: "डेमो मांडणी", fictionalPeoplePill: "काल्पनिक लोक",
+    demoLayoutNote: "ही माणसे मांडणी दाखवण्यासाठी तयार केली आहेत. थेट शोध बंद असतानाही ती नेहमी उपलब्ध असतात.",
+    footerHowItWorks: "हे कसे कार्य करते आणि काय सत्यापित आहे", footerHome: "मुख्यपृष्ठ",
+    noSchemeMsg: "या देशासाठी सत्यापित संख्यात्मक नियम असलेली कोणतीही योजना अजून उपलब्ध नाही. इतर टॅब वापरून पाहा, किंवा सिंगापूर किंवा भारत निवडा.",
+    noSelfCheckNote: "या योजनेसाठी स्वयं-तपासणी उपलब्ध नाही. पात्रता केसवर्कर किंवा सरकारी डेटाबेसद्वारे ठरवली जाते, आणि अधिकृत पानावरून कोणताही संख्यात्मक नियम सत्यापित करता आला नाही.",
+    whatLawSays: "कायदा काय सांगतो", schemeCheckSuffix: "योजना तपासणी",
+    questionsIntro: "तुम्ही एकावेळी एक असे {n} छोटे प्रश्न सोडवाल. तुम्हाला उत्तर मिळेल, निर्णय घेणारा नियम मिळेल, आणि काय बदलू शकते तेही मिळेल. काहीही साठवले जात नाही.",
+    startBtn: "सुरू करा", useExampleBtn: "उदाहरण व्यक्ती वापरा", readRuleFirst: "आधी नियम वाचा",
+    ruleAsPublished: "नियम, जसा प्रकाशित झाला", backWord: "मागे", cancelWord: "रद्द करा",
+    questionOf: "प्रश्न {n} / {total}", fixedFactNote: "हे एक निश्चित तथ्य आहे, त्यामुळे पात्र होण्याचा मार्ग म्हणून ते कधीही सुचवले जात नाही.",
+    yesLabel: "होय", noLabel: "नाही", continueBtn: "पुढे सुरू ठेवा", idontKnowBtn: "मला माहीत नाही",
+    enterNumberOrUnknown: "एक संख्या टाका, किंवा 'मला माहीत नाही' निवडा.", enterNumberToContinue: "पुढे जाण्यासाठी एक संख्या टाका.",
+    startAgainLink: "पुन्हा सुरू करा", exampleReviewTitle: "एक उदाहरण व्यक्ती", checkAnswersTitle: "तुमची उत्तरे तपासा",
+    exampleReviewLead: "ही बनवलेली उत्तरे आहेत जेणेकरून निकाल कसा दिसतो ते तुम्ही पाहू शकाल. यापैकी कोणतेही बदला.",
+    checkAnswersLead: "ही बरोबर आहेत याची खात्री करा, मग तुमचा निकाल पाहा.",
+    changeWord: "बदला", seeResultBtn: "माझा निकाल पाहा", checkingRule: "नियम तपासला जात आहे...",
+    changeMyAnswersLink: "माझी उत्तरे बदला", sentenceThatDecided: "निर्णय घेणारे वाक्य",
+    noClauseQuote: "कोणतेही कलम उद्धरण नोंदवलेले नाही.", assumptionsSummary: "या तपासणीच्या गृहीतके",
+    checkSomeoneElseBtn: "दुसऱ्याची तपासणी करा", thatDidNotWork: "हे काम झाले नाही",
+    answersNotStored: "तुमची उत्तरे साठवली गेली नाहीत. मागे जाऊन पुन्हा प्रयत्न करा.",
+    lookingForChange: "हे बदलू शकणारा सर्वात लहान बदल शोधला जात आहे...", whatWouldChange: "माझे उत्तर काय बदलेल?",
+    fixedFactBlocks: "एक निश्चित तथ्य हे रोखते: {list}. ते बदलता येत नाही, त्यामुळे तुमच्या परिस्थितीत कोणताही बदल फरक पाडणार नाही.",
+    noChangeWouldAlter: "तुमच्या प्रभावाखालील गोष्टींमधील कोणताही बदल उत्तर बदलणार नाही.",
+    optionLabel: "पर्याय {n}", thenRuleGives: "मग नियम असे सांगतो: ",
+    changeFootnote: "प्रत्येक पर्याय त्याच नियमाविरुद्ध पुन्हा तपासला गेला. हे प्रकाशित नियम काय सांगेल ते दाखवते, मंजुरीचे आश्वासन नाही.",
+    lookUpBtn: "शोधा",
+    liveSearchNote: "हा शोध जागा आणि तिच्या अधिकाऱ्यांचे वर्णन करतो. तो कधीही कोणाला रेट, रँक किंवा त्यावर भाष्य करत नाही, आणि तसे करण्यास सांगितल्यास नकार देईल.",
+    liveOffNote: "थेट शोध बंद आहे. यासाठी Gemini वेब शोध आवश्यक आहे, जो या सत्रात जोडलेला नाही, त्यामुळे खाली फक्त काल्पनिक डेमो मांडणी दाखवली आहे.",
+    enterPlaceFirst: "आधी एक जागा टाका.", searchingWeb: "वेब शोधले जात आहे. यासाठी एक मिनिट लागू शकतो...",
+    noResultTitle: "निकाल नाही", placeAriaLabel: "तुमचा मतदारसंघ, शहर किंवा जिल्हा",
+    placeExamplePlaceholder: "उदाहरणार्थ: Marine Parade GRC", foundBySearch: "शोधात सापडले",
+    pagesSupport: "या नोंदीला आधार देणारी पाने: ", linkOnlySuffix: " (फक्त लिंक)", asOfLabel: "दिनांक ",
+    responsibleFor: "यासाठी जबाबदार:", phoneLabel: "फोन:", hoursLabel: "वेळ:", sourceLabel: "स्रोत: ",
+    representativesFor: "{place} साठी प्रतिनिधी", noRepConfirmed: "या जागेसाठी कोणत्याही स्रोतावरून प्रतिनिधी सत्यापित करता आला नाही.",
+    bodiesDecideTitle: "दैनंदिन बाबींचा निर्णय घेणाऱ्या संस्था", noBodyConfirmed: "या जागेसाठी कोणत्याही स्रोतावरून संस्था सत्यापित करता आली नाही.",
+    leftOutLabel: "विश्वासार्ह स्रोत नसल्यामुळे वगळलेले: ", leftOutNote: " ते अजूनही पदावर असू शकतात, त्यामुळे अधिकृत पाने तपासा.",
+    droppedNote: "{n} गोष्टी वगळल्या कारण जुळणारा स्रोत नव्हता.",
+    resultsVaryNote: "शोध प्रत्येक वेळी चालवल्यास निकाल वेगळे येऊ शकतात. या पानावरील तथ्ये व्यक्तीच्या नोंदीशी जोडलेली आहेत, एखाद्या वाक्याशी नाहीत.",
+    noMatchNote: "जुळणी नाही. खाली सर्व समस्या पाहा.",
+    startWithLabel: "यापासून सुरुवात करा: ", portalLabel: "पोर्टल: ", basisLabel: "आधार: ",
+    verifiedPill: "सत्यापित", partlyUnverifiedPill: "अंशतः असत्यापित", notVerifiedLabel: "असत्यापित: ",
+    noProblemsVerified: "या देशासाठी अजून कोणतीही समस्या सत्यापित नाही.", noRightsVerified: "या देशासाठी अजून कोणताही हक्क सत्यापित नाही.",
+    noGovStructureVerified: "या देशासाठी सरकारी रचना अजून सत्यापित नाही.",
+    howToUseLabel: "हे कसे वापरावे: ", lawLabel: "कायदा: ", infoOnlySuffix: " (फक्त माहिती)", partialSuffix: " (अंशतः)",
+    notKnown: "माहीत नाही", demoDataPill: "डेमो डेटा",
+    layoutOnlyNote: "फक्त मांडणीसाठी दाखवले आहे. खऱ्या कार्डात प्रत्येक तथ्याला स्रोत लिंक आणि तारीख असेल.",
+    termsLabel: "कार्यकाळ: ", sourceAsOfMiddle: " · दिनांक ", changeAriaLabel: "बदला: {label}",
+  },
+};
+
+function t(key, vars) {
+  const dict = I18N[LANG] || I18N.English;
+  let s = dict[key] !== undefined ? dict[key] : I18N.English[key] !== undefined ? I18N.English[key] : key;
+  if (vars) Object.entries(vars).forEach(([k, v]) => { s = s.split("{" + k + "}").join(v); });
+  return s;
+}
+
+function applyStaticI18n() {
+  document.querySelectorAll("[data-i18n]").forEach((el) => { el.innerHTML = t(el.dataset.i18n); });
+  document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => { el.placeholder = t(el.dataset.i18nPlaceholder); });
+}
+
+let rerenderFlow = () => {};
+let renderLiveBox = () => {};
+let lastLiveResult = null;
+
+// Language is chosen once on the homepage and carried everywhere via storage —
+// this page only ever reads it, it has no selector of its own.
+applyStaticI18n();
 
 async function api(path, body) {
   const options = body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : {};
@@ -275,15 +555,16 @@ async function api(path, body) {
   if (!response.ok) throw new Error(typeof data.detail === "string" ? data.detail : JSON.stringify(data.detail || data));
   return data;
 }
-const sourceChip = (s) => `<span class="src">Source: <b>${esc(s.title)}</b> <span class="muted">${esc(s.url)}</span> &middot; as of ${esc(s.as_of)}</span>`;
+const sourceChip = (s) => `<span class="src">${t("sourceLabel")}<b>${esc(s.title)}</b> <span class="muted">${esc(s.url)}</span>${t("sourceAsOfMiddle")}${esc(s.as_of)}</span>`;
 const empty = (text) => `<p class="muted">${esc(text)}</p>`;
 function focusHeading() { const h = $("flow").querySelector("h2, h3"); if (h) { h.setAttribute("tabindex", "-1"); h.focus({ preventScroll: true }); } }
 
+// All 5 tools are listed as feature cards up top; whichever is picked shows its panel below.
 const TABS = ["qualify", "decides", "rights", "bodies", "leaders"];
 
 function applyTab(name) {
   if (!TABS.includes(name)) name = "qualify";
-  document.querySelectorAll("#tabs button").forEach((b) => { const on = b.dataset.tab === name; b.classList.toggle("on", on); b.setAttribute("aria-pressed", on); });
+  document.querySelectorAll(".feature-card").forEach((b) => { const on = b.dataset.tab === name; b.classList.toggle("on", on); b.setAttribute("aria-pressed", on); });
   TABS.forEach((t) => ($("tab-" + t).hidden = t !== name));
 }
 
@@ -292,41 +573,41 @@ function showTab(name) {
   const target = name === "qualify" ? location.pathname : "#" + name;
   if (location.hash !== (name === "qualify" ? "" : "#" + name)) history.pushState(null, "", target);
 }
-document.querySelectorAll("#tabs button").forEach((b) => (b.onclick = () => showTab(b.dataset.tab)));
+document.querySelectorAll(".feature-card").forEach((b) => (b.onclick = () => showTab(b.dataset.tab)));
 window.addEventListener("hashchange", () => applyTab(location.hash.replace("#", "")));
 window.addEventListener("popstate", () => applyTab(location.hash.replace("#", "")));
 
 function renderProblem(p) {
   const lines = p.helplines.map((h) => `<li><b>${esc(h.name)}</b>: ${esc(h.number)} ${esc(h.hours)}</li>`).join("");
   return `<div class="card"><h3>${esc(p.title)}</h3>
-    <div class="muted">Start with: ${esc(p.first_body)}</div>
+    <div class="muted">${t("startWithLabel")}${esc(p.first_body)}</div>
     <ul>${p.steps.map((s) => `<li>${esc(s)}</li>`).join("")}</ul>
     ${lines ? `<ul>${lines}</ul>` : ""}
-    ${p.portal ? `<div class="muted">Portal: ${esc(p.portal)}</div>` : ""}
-    ${p.legal_basis ? `<div class="muted">Basis: ${esc(p.legal_basis)}</div>` : ""}
-    <div style="margin-top:8px">${p.verified ? '<span class="pill good">verified</span>' : '<span class="pill warn">partly unverified</span>'}</div>
-    ${p.unverified_parts.length ? `<div class="muted">Not verified: ${p.unverified_parts.map(esc).join("; ")}</div>` : ""}
+    ${p.portal ? `<div class="muted">${t("portalLabel")}${esc(p.portal)}</div>` : ""}
+    ${p.legal_basis ? `<div class="muted">${t("basisLabel")}${esc(p.legal_basis)}</div>` : ""}
+    <div style="margin-top:8px">${p.verified ? `<span class="pill good">${t("verifiedPill")}</span>` : `<span class="pill warn">${t("partlyUnverifiedPill")}</span>`}</div>
+    ${p.unverified_parts.length ? `<div class="muted">${t("notVerifiedLabel")}${p.unverified_parts.map(esc).join("; ")}</div>` : ""}
     <div style="margin-top:8px">${sourceChip(p.source)}</div></div>`;
 }
 
 function renderReference() {
-  $("status").innerHTML = pack.status === "verified" ? '<span class="pill good">verified</span>' : '<span class="pill warn">partial: some content is not yet verified</span>';
+  $("status").innerHTML = "";
   $("notes").innerHTML = pack.notes.length ? "<ul>" + pack.notes.map((n) => `<li>${esc(n)}</li>`).join("") + "</ul>" : "";
   $("notesBox").hidden = pack.notes.length === 0;
-  $("allProblems").innerHTML = pack.problems.length ? pack.problems.map(renderProblem).join("") : empty("No problems are verified for this country yet.");
+  $("allProblems").innerHTML = pack.problems.length ? pack.problems.map(renderProblem).join("") : empty(t("noProblemsVerified"));
   $("matches").innerHTML = "";
-  $("rights").innerHTML = pack.rights.length ? pack.rights.map((r) => `<div class="card"><h3>${esc(r.title)}</h3><p>${esc(r.summary)}</p><p class="muted">How to use it: ${esc(r.how_to_use)}</p>${r.law ? `<p class="muted">Law: ${esc(r.law)}</p>` : ""}${sourceChip(r.source)}</div>`).join("") : empty("No rights are verified for this country yet.");
-  $("bodies").innerHTML = pack.tiers.length ? pack.tiers.map((t) => `<div class="card"><h3>${esc(t.name)}</h3><ul>${t.controls.map((c) => `<li>${esc(c)}</li>`).join("")}</ul>${t.note ? `<p class="muted">${esc(t.note)}</p>` : ""}${sourceChip(t.source)}</div>`).join("") : empty("Government structure is not verified for this country yet.");
-$("scheme").innerHTML = pack.schemes.map((s) => `<option value="${esc(s.id)}">${esc(s.name)}${s.self_check ? "" : " (information only)"}</option>`).join("");
+  $("rights").innerHTML = pack.rights.length ? pack.rights.map((r) => `<div class="card"><h3>${esc(r.title)}</h3><p>${esc(r.summary)}</p><p class="muted">${t("howToUseLabel")}${esc(r.how_to_use)}</p>${r.law ? `<p class="muted">${t("lawLabel")}${esc(r.law)}</p>` : ""}${sourceChip(r.source)}</div>`).join("") : empty(t("noRightsVerified"));
+  $("bodies").innerHTML = pack.tiers.length ? pack.tiers.map((tier) => `<div class="card"><h3>${esc(tier.name)}</h3><ul>${tier.controls.map((c) => `<li>${esc(c)}</li>`).join("")}</ul>${tier.note ? `<p class="muted">${esc(tier.note)}</p>` : ""}${sourceChip(tier.source)}</div>`).join("") : empty(t("noGovStructureVerified"));
+  $("scheme").innerHTML = pack.schemes.map((s) => `<option value="${esc(s.id)}">${esc(s.name)}${s.self_check ? "" : t("infoOnlySuffix")}</option>`).join("");
   $("scheme").disabled = pack.schemes.length === 0;
-  openScheme();
+  fitSelectWidth($("scheme"));
 }
 
 function fieldById(name) { return form.fields.find((f) => f.name === name); }
 function display(f, value) {
-  if (f.kind === "bool") return value ? "Yes" : "No";
+  if (f.kind === "bool") return value ? t("yesLabel") : t("noLabel");
   if (f.kind === "enum") return (f.options.find((o) => o.value === value) || { label: value }).label;
-  if (value === null || value === undefined || value === "") return "Not known";
+  if (value === null || value === undefined || value === "") return t("notKnown");
   return Number(value).toLocaleString();
 }
 function statuteHtml(quotes) {
@@ -336,17 +617,22 @@ function statuteHtml(quotes) {
     return `<p>${html}</p>`;
   }).join("");
 }
-const publishedRule = (quotes) => `<h3>The rule, as published</h3><div class="statute">${statuteHtml(quotes || [])}</div><p>${sourceChip(form.source)}</p>`;
+const publishedRule = (quotes) => `<h3>${t("ruleAsPublished")}</h3><div class="statute">${statuteHtml(quotes || [])}</div><p>${sourceChip(form.source)}</p>`;
 const currentScheme = () => pack.schemes.find((s) => s.id === (form ? form.id : $("scheme").value));
 
 async function openScheme() {
   const chosen = pack.schemes.find((s) => s.id === $("scheme").value);
   answers = {}; step = 0; form = null;
-  if (!chosen) { $("flow").innerHTML = `<h2>Do I qualify?</h2>${empty("No scheme with verified numeric rules is available for this country yet. Try the other tabs, or pick Singapore or India.")}`; return; }
+  if (!chosen) {
+    rerenderFlow = openScheme;
+    $("flow").innerHTML = `<h2>${t("qualifyTitle")}</h2>${empty(t("noSchemeMsg"))}`;
+    return;
+  }
   if (!chosen.self_check) {
+    rerenderFlow = openScheme;
     $("flow").innerHTML = `<h2>${esc(chosen.name)}</h2><p class="lead">${esc(chosen.summary)}</p>
-      <div class="note">No self-check for this scheme. Eligibility is decided by a caseworker or a government database, and no numeric rule could be verified from an official page.</div>
-      <h3>What the law says</h3><div class="statute"><p>${esc(chosen.policy_text)}</p></div><p>${sourceChip(chosen.source)}</p>`;
+      <div class="note">${t("noSelfCheckNote")}</div>
+      <h3>${t("whatLawSays")}</h3><div class="statute"><p>${esc(chosen.policy_text)}</p></div><p>${sourceChip(chosen.source)}</p>`;
     return;
   }
   form = await api(`/api/civic/schemes/${chosen.id}/form`);
@@ -354,33 +640,35 @@ async function openScheme() {
 }
 
 function showIntro() {
+  rerenderFlow = showIntro;
   const chosen = currentScheme(), total = form.fields.length;
   $("flow").innerHTML = `
-    <p class="eyebrow">${esc(form.country.toUpperCase())} &middot; scheme check</p>
+    <p class="eyebrow">${esc(form.country.toUpperCase())} &middot; ${t("schemeCheckSuffix")}</p>
     <h2>${esc(chosen.name)}</h2>
     <p class="lead">${esc(chosen.summary)}</p>
-    <p>You will answer ${total} short questions, one at a time. You get an answer, the rule that decided it, and what would change it. Nothing is stored.</p>
-    <div class="row"><button class="primary" id="startBtn">Start</button><button class="ghost" id="exampleBtn">Use an example person</button></div>
-    <details><summary>Read the rule first</summary>${publishedRule([])}</details>`;
+    <p>${t("questionsIntro", { n: total })}</p>
+    <div class="row"><button class="primary" id="startBtn">${t("startBtn")}</button><button class="ghost" id="exampleBtn">${t("useExampleBtn")}</button></div>
+    <details><summary>${t("readRuleFirst")}</summary>${publishedRule([])}</details>`;
   $("startBtn").onclick = () => { answers = {}; step = 0; ask(); };
   $("exampleBtn").onclick = () => { answers = {}; form.fields.forEach((f) => (answers[f.name] = f.kind === "set" ? [] : f.typical ?? null)); review(true); };
 }
 
 function ask() {
+  rerenderFlow = ask;
   const f = form.fields[step], total = form.fields.length;
   let inputs = "";
   if (f.kind === "bool") {
-    inputs = `<button class="answer${answers[f.name] === true ? " sel" : ""}" data-v="true">Yes</button><button class="answer${answers[f.name] === false ? " sel" : ""}" data-v="false">No</button>`;
+    inputs = `<button class="answer${answers[f.name] === true ? " sel" : ""}" data-v="true">${t("yesLabel")}</button><button class="answer${answers[f.name] === false ? " sel" : ""}" data-v="false">${t("noLabel")}</button>`;
   } else if (f.kind === "enum") {
     inputs = f.options.map((o) => `<button class="answer${answers[f.name] === o.value ? " sel" : ""}" data-v="${esc(o.value)}">${esc(o.label)}</button>`).join("");
   } else {
     inputs = `<div class="field"><input type="number" id="numAns" inputmode="numeric" aria-label="${esc(f.label)}" ${f.min != null ? `min="${f.min}"` : ""} ${f.max != null ? `max="${f.max}"` : ""} value="${answers[f.name] ?? ""}"></div>
-      <div class="row"><button class="primary" id="nextBtn">Continue</button>${f.nullable ? '<button class="ghost" id="unknownBtn">I do not know</button>' : ""}</div><div class="err" id="numErr" role="alert"></div>`;
+      <div class="row"><button class="primary" id="nextBtn">${t("continueBtn")}</button>${f.nullable ? `<button class="ghost" id="unknownBtn">${t("idontKnowBtn")}</button>` : ""}</div><div class="err" id="numErr" role="alert"></div>`;
   }
-  $("flow").innerHTML = `<button class="link" id="backBtn">&larr; ${step > 0 ? "Back" : "Cancel"}</button>
+  $("flow").innerHTML = `<button class="link" id="backBtn">&larr; ${step > 0 ? t("backWord") : t("cancelWord")}</button>
     <div class="progress" role="progressbar" aria-label="Progress" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${step}"><span style="width:${(step / total) * 100}%"></span></div>
-    <div class="qcard"><p class="eyebrow">Question ${step + 1} of ${total}</p><h2>${esc(f.label)}</h2>
-    ${f.changeable ? "" : '<p class="muted">This is a fixed fact, so it is never suggested as a way to qualify.</p>'}
+    <div class="qcard"><p class="eyebrow">${t("questionOf", { n: step + 1, total })}</p><h2>${esc(f.label)}</h2>
+    ${f.changeable ? "" : `<p class="muted">${t("fixedFactNote")}</p>`}
     ${inputs}</div>`;
   $("backBtn").onclick = () => { if (step > 0) { step--; ask(); } else showIntro(); };
   document.querySelectorAll(".answer").forEach((b) => (b.onclick = () => { answers[f.name] = f.kind === "bool" ? b.dataset.v === "true" : b.dataset.v; advance(); }));
@@ -388,7 +676,7 @@ function ask() {
     $("numAns").focus();
     const submit = () => {
       const raw = $("numAns").value;
-      if (raw === "") { $("numErr").textContent = f.nullable ? "Enter a number, or choose I do not know." : "Enter a number to continue."; return; }
+      if (raw === "") { $("numErr").textContent = f.nullable ? t("enterNumberOrUnknown") : t("enterNumberToContinue"); return; }
       answers[f.name] = Number(raw); advance();
     };
     $("nextBtn").onclick = submit;
@@ -399,12 +687,13 @@ function ask() {
 function advance() { step++; if (step >= form.fields.length) review(false); else ask(); }
 
 function review(example) {
-  const rows = form.fields.map((f, i) => `<div class="item"><dt>${esc(f.label)}</dt><dd>${esc(display(f, answers[f.name]))} <button class="link" data-i="${i}" aria-label="Change: ${esc(f.label)}">Change</button></dd></div>`).join("");
-  $("flow").innerHTML = `<button class="link" id="backBtn">&larr; Start again</button>
-    <h2>${example ? "An example person" : "Check your answers"}</h2>
-    <p class="lead">${example ? "These are made-up answers so you can see how a result looks. Change any of them." : "Make sure these are right, then see your result."}</p>
+  rerenderFlow = () => review(example);
+  const rows = form.fields.map((f, i) => `<div class="item"><dt>${esc(f.label)}</dt><dd>${esc(display(f, answers[f.name]))} <button class="link" data-i="${i}" aria-label="${t("changeAriaLabel", { label: esc(f.label) })}">${t("changeWord")}</button></dd></div>`).join("");
+  $("flow").innerHTML = `<button class="link" id="backBtn">&larr; ${t("startAgainLink")}</button>
+    <h2>${example ? t("exampleReviewTitle") : t("checkAnswersTitle")}</h2>
+    <p class="lead">${example ? t("exampleReviewLead") : t("checkAnswersLead")}</p>
     <dl class="summary-list">${rows}</dl>
-    <div class="row"><button class="primary" id="resultBtn">See my result</button></div>`;
+    <div class="row"><button class="primary" id="resultBtn">${t("seeResultBtn")}</button></div>`;
   $("backBtn").onclick = showIntro;
   document.querySelectorAll(".summary-list .link").forEach((b) => (b.onclick = () => { step = Number(b.dataset.i); ask(); }));
   $("resultBtn").onclick = showResult;
@@ -418,47 +707,48 @@ function inputsPayload() {
 }
 
 async function showResult() {
-  $("flow").innerHTML = '<p class="muted" role="status">Checking the rule...</p>';
+  rerenderFlow = showResult;
+  $("flow").innerHTML = `<p class="muted" role="status">${t("checkingRule")}</p>`;
   try {
     const r = await api(`/api/civic/schemes/${form.id}/check`, { inputs: inputsPayload() });
     const reasons = r.reason_labels.length ? "<ul>" + r.reason_labels.map((x) => `<li>${esc(x)}</li>`).join("") + "</ul>" : "";
     const quotes = r.clauses.map((c) => c.quote).filter(Boolean);
-    $("flow").innerHTML = `<button class="link" id="backBtn">&larr; Change my answers</button>
+    $("flow").innerHTML = `<button class="link" id="backBtn">&larr; ${t("changeMyAnswersLink")}</button>
       <div class="result ${r.favourable ? "good" : "bad"}">
         <div class="verdict"><span class="icon" aria-hidden="true">${r.favourable ? "&#10003;" : "&times;"}</span><h3>${esc(r.outcome_label)}</h3></div>
         ${reasons}
-        <h3>The sentence that decided it</h3>
-        ${quotes.map((q) => `<div class="quote"><mark>${esc(q)}</mark></div>`).join("") || empty("No clause quote recorded.")}
+        <h3>${t("sentenceThatDecided")}</h3>
+        ${quotes.map((q) => `<div class="quote"><mark>${esc(q)}</mark></div>`).join("") || empty(t("noClauseQuote"))}
         <p class="muted">${esc(r.disclaimer)}</p>
       </div>
       <div id="change"></div>
       ${publishedRule(quotes)}
-      ${form.assumptions.length ? `<details><summary>Assumptions this check makes</summary><ul>${form.assumptions.map((a) => `<li><b>${esc(a.question)}</b> ${esc(a.resolution)}</li>`).join("")}</ul></details>` : ""}
-      <div class="row"><button class="ghost" id="againBtn">Check someone else</button></div>`;
+      ${form.assumptions.length ? `<details><summary>${t("assumptionsSummary")}</summary><ul>${form.assumptions.map((a) => `<li><b>${esc(a.question)}</b> ${esc(a.resolution)}</li>`).join("")}</ul></details>` : ""}
+      <div class="row"><button class="ghost" id="againBtn">${t("checkSomeoneElseBtn")}</button></div>`;
     $("backBtn").onclick = () => review(false);
     $("againBtn").onclick = showIntro;
     focusHeading();
     if (!r.favourable) showChange();
   } catch (error) {
-    $("flow").innerHTML = `<div class="result bad"><h3>That did not work</h3><p class="err">${esc(error.message)}</p><p class="muted">Your answers were not stored. Go back and try again.</p></div><div class="row"><button class="ghost" id="backBtn">Back</button></div>`;
+    $("flow").innerHTML = `<div class="result bad"><h3>${t("thatDidNotWork")}</h3><p class="err">${esc(error.message)}</p><p class="muted">${t("answersNotStored")}</p></div><div class="row"><button class="ghost" id="backBtn">${t("backWord")}</button></div>`;
     $("backBtn").onclick = () => review(false);
   }
 }
 
 async function showChange() {
-  $("change").innerHTML = '<div class="note" role="status">Looking for the smallest change that would alter this...</div>';
+  $("change").innerHTML = `<div class="note" role="status">${t("lookingForChange")}</div>`;
   try {
     const r = await api(`/api/civic/schemes/${form.id}/change`, { inputs: inputsPayload() });
     const label = (name) => (fieldById(name) || {}).label || name;
     const show = (name, v) => { const f = fieldById(name); return f ? display(f, v) : v; };
     if (!r.alternatives.length) {
-      const fixed = r.blocked_by.length ? `A fixed fact blocks this: ${r.blocked_by.map((n) => esc(label(n))).join("; ")}. It cannot be changed, so no change in your circumstances would make a difference.` : "No change to the things you can influence would alter the answer.";
-      $("change").innerHTML = `<div class="result"><h3 style="margin-top:0">What would change my answer?</h3><p>${fixed}</p></div>`;
+      const fixed = r.blocked_by.length ? t("fixedFactBlocks", { list: r.blocked_by.map((n) => esc(label(n))).join("; ") }) : t("noChangeWouldAlter");
+      $("change").innerHTML = `<div class="result"><h3 style="margin-top:0">${t("whatWouldChange")}</h3><p>${fixed}</p></div>`;
       return;
     }
-    $("change").innerHTML = `<div class="result good"><h3 style="margin-top:0">What would change my answer?</h3>
-      ${r.alternatives.map((a, i) => `<div class="card" style="margin-top:10px"><b>Option ${i + 1}</b><ul>${a.changes.map((c) => `<li>${esc(label(c.field))}: ${esc(show(c.field, c.from))} &rarr; <b>${esc(show(c.field, c.to))}</b></li>`).join("")}</ul><div class="muted">Then the rule gives: ${esc(a.outcome_label)}</div></div>`).join("")}
-      <p class="muted" style="margin-bottom:0">Each option was re-checked against the same rule. It shows what the published rule would say, not a promise of approval.</p></div>`;
+    $("change").innerHTML = `<div class="result good"><h3 style="margin-top:0">${t("whatWouldChange")}</h3>
+      ${r.alternatives.map((a, i) => `<div class="card" style="margin-top:10px"><b>${t("optionLabel", { n: i + 1 })}</b><ul>${a.changes.map((c) => `<li>${esc(label(c.field))}: ${esc(show(c.field, c.from))} &rarr; <b>${esc(show(c.field, c.to))}</b></li>`).join("")}</ul><div class="muted">${t("thenRuleGives")}${esc(a.outcome_label)}</div></div>`).join("")}
+      <p class="muted" style="margin-bottom:0">${t("changeFootnote")}</p></div>`;
   } catch (error) {
     $("change").innerHTML = '<div class="err">' + esc(error.message) + "</div>";
   }
@@ -602,7 +892,7 @@ $("findBtn").onclick = async () => {
   const text = $("problemText").value.trim();
   if (!text) { $("matches").innerHTML = ""; return; }
   const r = await api(`/api/civic/countries/${$("country").value}/problems?text=` + encodeURIComponent(text));
-  $("matches").innerHTML = r.matches.length ? '<div class="grid" style="margin-top:12px">' + r.matches.map(renderProblem).join("") + "</div>" : '<p class="muted">No match. Browse all problems below.</p>';
+  $("matches").innerHTML = r.matches.length ? '<div class="grid" style="margin-top:12px">' + r.matches.map(renderProblem).join("") + "</div>" : `<p class="muted">${t("noMatchNote")}</p>`;
 };
 $("problemText").addEventListener("keydown", (e) => { if (e.key === "Enter") $("findBtn").click(); });
 
@@ -614,24 +904,32 @@ $("mpDetailBack").onclick = () => {
   $("mpSearch").focus();
 };
 
-async function loadCountry(code) { pack = await api("/api/civic/countries/" + code); renderReference(); }
-$("scheme").onchange = openScheme;
-$("country").onchange = () => { loadCountry($("country").value); $("mpResults").innerHTML = ""; $("mpDetail").hidden = true; };
+async function loadCountry(code) { pack = await api("/api/civic/countries/" + code); renderReference(); openScheme(); }
+$("scheme").onchange = () => { fitSelectWidth($("scheme")); openScheme(); };
+$("country").onchange = () => { fitSelectWidth($("country")); loadCountry($("country").value); $("mpResults").innerHTML = ""; $("mpDetail").hidden = true; };
+
+function renderCountryOptions() {
+  const current = $("country").value;
+  $("country").innerHTML = countryList.map((c) => `<option value="${esc(c.code)}">${esc(c.name)}${c.status === "partial" ? t("partialSuffix") : ""}</option>`).join("");
+  if (current) $("country").value = current;
+  fitSelectWidth($("country"));
+}
 
 (async function init() {
-  const countries = await api("/api/civic/countries");
-  $("country").innerHTML = countries.map((c) => `<option value="${esc(c.code)}">${esc(c.name)}${c.status === "partial" ? " (partial)" : ""}</option>`).join("");
+  countryList = await api("/api/civic/countries");
+  renderCountryOptions();
   // pre-select country from landing page storage or default to India
   const preferred = sessionStorage.getItem("pwt_country") || localStorage.getItem("pwt_country") || "in";
-  const found = countries.find((c) => c.code === preferred) || countries.find((c) => c.code === "sg") || countries[0];
+  const found = countryList.find((c) => c.code === preferred) || countryList.find((c) => c.code === "sg") || countryList[0];
   $("country").value = found.code;
+  fitSelectWidth($("country"));
   await loadCountry(found.code);
   // pre-select scheme from URL param
   const urlParams = new URLSearchParams(location.search);
   const schemeParam = urlParams.get("scheme");
   if (schemeParam && pack) {
     const match = pack.schemes.find((s) => s.id === schemeParam);
-    if (match) { $("scheme").value = schemeParam; await openScheme(); }
+    if (match) { $("scheme").value = schemeParam; fitSelectWidth($("scheme")); await openScheme(); }
   }
   // pre-fill tab from landing page question
   const savedQuestion = sessionStorage.getItem("pwt_question");

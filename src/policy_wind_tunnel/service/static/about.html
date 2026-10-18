@@ -87,80 +87,189 @@ a { color: var(--green-dark); }
     <span>Policy Wind Tunnel</span>
   </a>
   <nav class="header-nav" aria-label="Main">
-    <a class="nav-link" href="/citizen">For citizens</a>
-    <a class="nav-link" href="/officials">For officials</a>
-    <a class="nav-link on" href="/about" aria-current="page">How it works</a>
+    <a class="nav-link" href="/citizen" data-i18n="nav1">For citizens</a>
+    <a class="nav-link" href="/officials" data-i18n="nav2">For officials</a>
+    <a class="nav-link on" href="/about" data-i18n="nav3" aria-current="page">How it works</a>
+    <a class="nav-link" href="/login" id="signOutLink">Sign out</a>
   </nav>
 </header>
 
 <main id="main" class="wrap">
   <div class="hero">
-    <p class="eyebrow">How it works</p>
-    <h1>How it works, and what to trust</h1>
-    <p>One contract per rule powers every screen. This page says what that means, what has been checked against official pages, and where the limits are.</p>
+    <p class="eyebrow" data-i18n="nav3">How it works</p>
+    <h1 data-i18n="heroH1">How it works, and what to trust</h1>
+    <p data-i18n="heroLead">One contract per rule powers every screen. This page says what that means, what has been checked against official pages, and where the limits are.</p>
   </div>
 
   <section>
-    <p class="eyebrow">The idea</p>
-    <h2>A rule written in words becomes an exact contract</h2>
-    <p class="lead">A scheme's published rule is turned into a short list of exact conditions. Each condition keeps the sentence it came from. The same contract then does three jobs.</p>
+    <p class="eyebrow" data-i18n="ideaEyebrow">The idea</p>
+    <h2 data-i18n="ideaTitle">A rule written in words becomes an exact contract</h2>
+    <p class="lead" data-i18n="ideaLead">A scheme's published rule is turned into a short list of exact conditions. Each condition keeps the sentence it came from. The same contract then does three jobs.</p>
     <ol class="steps">
-      <li><b>Answers citizens</b><div class="muted">It decides a person's case and shows the sentence that applied. A solver finds the smallest change that would alter the answer.</div></li>
-      <li><b>Simulates a change</b><div class="muted">Officials re-decide thousands of synthetic applicants under a new rule and see who moves.</div></li>
-      <li><b>Tests the software</b><div class="muted">For every condition it builds two nearly identical people on either side of the line and checks the software agrees.</div></li>
+      <li data-i18n="step1"><b>Answers citizens</b><div class="muted">It decides a person's case and shows the sentence that applied. A solver finds the smallest change that would alter the answer.</div></li>
+      <li data-i18n="step2"><b>Simulates a change</b><div class="muted">Officials re-decide thousands of synthetic applicants under a new rule and see who moves.</div></li>
+      <li data-i18n="step3"><b>Tests the software</b><div class="muted">For every condition it builds two nearly identical people on either side of the line and checks the software agrees.</div></li>
     </ol>
-    <div class="note" style="margin-top:16px">A person approves any unclear wording before it counts as a bug. A language model may draft a contract, but it never decides an answer: plain code evaluates the contract.</div>
+    <div class="note" style="margin-top:16px" data-i18n="ideaNote">A person approves any unclear wording before it counts as a bug. A language model may draft a contract, but it never decides an answer: plain code evaluates the contract.</div>
   </section>
 
   <section>
-    <p class="eyebrow">What is verified</p>
-    <h2>Coverage by country</h2>
-    <p class="lead">Content was read from official pages on 13 October 2026. Anything that could not be opened is left out or marked, never filled in from memory.</p>
-    <div class="grid" id="countries"><p class="muted">Loading...</p></div>
+    <p class="eyebrow" data-i18n="verifiedEyebrow">What is verified</p>
+    <h2 data-i18n="coverageTitle">Coverage by country</h2>
+    <p class="lead" data-i18n="coverageLead">Content was read from official pages on 13 October 2026. Anything that could not be opened is left out or marked, never filled in from memory.</p>
+    <div class="grid" id="countries"><p class="muted" data-i18n="loadingText">Loading...</p></div>
   </section>
 
   <section>
-    <p class="eyebrow">Limits</p>
-    <h2>Read these before relying on anything</h2>
+    <p class="eyebrow" data-i18n="limitsEyebrow">Limits</p>
+    <h2 data-i18n="limitsTitle">Read these before relying on anything</h2>
     <ul>
-      <li><b>Not an official decision.</b> Results are indicative. The issuing office decides.</li>
-      <li><b>Bundled people are fictional.</b> The demo cards are invented. When Gemini web search is connected, the &ldquo;My area&rdquo; tab can look up real representatives. Those results are not reviewed by a person: each fact links to the page it came from, and anything without a matching source is left out.</li>
-      <li><b>No ratings.</b> Live lookup shows offices held, committees, bills and terms. It never shows assets, criminal cases, contact details or any opinion, and it refuses questions that ask it to judge a person.</li>
-      <li><b>The population is synthetic.</b> What-if percentages show how the mechanism works. They are not forecasts, and no behaviour is predicted.</li>
-      <li><b>Two simulation modes, different claims.</b> The <em>exact</em> what-if re-decides every synthetic applicant under the changed rule — every number is traceable. The <em>exploratory impact model</em> uses PolicySim&rsquo;s causal engine (MIT declared, vendored with attribution) to propagate rule changes through a causal graph whose edge weights come from our synthetic population. The exploratory numbers are model assumptions, not predictions of real-world effect. They are labelled &ldquo;Exploratory only&rdquo; throughout.</li>
-      <li><b>The benchmark is self-made.</b> The planted bugs, the hand-written suite and the generator were written by the same team, so the numbers show recall on known kinds of bug only.</li>
-      <li><b>Some content is partial.</b> Several countries have few verified entries. The citizen pages say which parts are unverified.</li>
-      <li><b>Nothing you enter is stored.</b> Answers are evaluated on request and not saved.</li>
+      <li data-i18n="limit1"><b>Not an official decision.</b> Results are indicative. The issuing office decides.</li>
+      <li data-i18n="limit2"><b>Bundled people are fictional.</b> The demo cards are invented. When Gemini web search is connected, the &ldquo;My area&rdquo; tab can look up real representatives. Those results are not reviewed by a person: each fact links to the page it came from, and anything without a matching source is left out.</li>
+      <li data-i18n="limit3"><b>No ratings.</b> Live lookup shows offices held, committees, bills and terms. It never shows assets, criminal cases, contact details or any opinion, and it refuses questions that ask it to judge a person.</li>
+      <li data-i18n="limit4"><b>The population is synthetic.</b> What-if percentages show how the mechanism works. They are not forecasts, and no behaviour is predicted.</li>
+      <li data-i18n="limit5"><b>Two simulation modes, different claims.</b> The <em>exact</em> what-if re-decides every synthetic applicant under the changed rule — every number is traceable. The <em>exploratory impact model</em> uses PolicySim&rsquo;s causal engine (MIT declared, vendored with attribution) to propagate rule changes through a causal graph whose edge weights come from our synthetic population. The exploratory numbers are model assumptions, not predictions of real-world effect. They are labelled &ldquo;Exploratory only&rdquo; throughout.</li>
+      <li data-i18n="limit6"><b>The benchmark is self-made.</b> The planted bugs, the hand-written suite and the generator were written by the same team, so the numbers show recall on known kinds of bug only.</li>
+      <li data-i18n="limit7"><b>Some content is partial.</b> Several countries have few verified entries. The citizen pages say which parts are unverified.</li>
+      <li data-i18n="limit8"><b>Nothing you enter is stored.</b> Answers are evaluated on request and not saved.</li>
     </ul>
   </section>
 
   <section>
-    <p class="eyebrow">Built with</p>
-    <h2>Google Cloud and open tools</h2>
-    <p class="lead" id="stack">A Python and FastAPI service, designed to run on Google Cloud Run and not deployed yet. A Z3 solver does the boundary tests and gap checks, Gemini drafts contracts and runs the live area lookup, and PolicySim&rsquo;s causal engine powers the exploratory impact model. Language model status: <span id="llm">checking</span>.</p>
+    <p class="eyebrow" data-i18n="builtWithEyebrow">Built with</p>
+    <h2 data-i18n="builtWithTitle">Google Cloud and open tools</h2>
+    <p class="lead" id="stack" data-i18n="builtWithLead">A Python and FastAPI service, designed to run on Google Cloud Run and not deployed yet. A Z3 solver does the boundary tests and gap checks, Gemini drafts contracts and runs the live area lookup, and PolicySim&rsquo;s causal engine powers the exploratory impact model.</p>
   </section>
 
-  <p class="footer"><a href="/">Home</a><a href="/citizen">For citizens</a><a href="/officials">For officials</a></p>
+  <p class="footer"><a href="/" data-i18n="footerHome">Home</a><a href="/citizen" data-i18n="nav1">For citizens</a><a href="/officials" data-i18n="nav2">For officials</a></p>
 </main>
 
 <script>
 const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+document.getElementById("signOutLink").addEventListener("click", (e) => {
+  e.preventDefault();
+  fetch("/api/logout", { method: "POST" }).finally(() => { window.location.href = "/login"; });
+});
+
+// Language is chosen once on the homepage and carried here via storage — this page
+// only reads it, it has no selector of its own. Chrome (headings, labels, the limits
+// list) is translated. Country names and the per-country notes are backend content.
+const LANG = sessionStorage.getItem("pwt_lang") || localStorage.getItem("pwt_lang") || "English";
+const I18N = {
+  English: {
+    nav1: "For citizens", nav2: "For officials", nav3: "How it works",
+    heroH1: "How it works, and what to trust",
+    heroLead: "One contract per rule powers every screen. This page says what that means, what has been checked against official pages, and where the limits are.",
+    ideaEyebrow: "The idea", ideaTitle: "A rule written in words becomes an exact contract",
+    ideaLead: "A scheme's published rule is turned into a short list of exact conditions. Each condition keeps the sentence it came from. The same contract then does three jobs.",
+    step1: '<b>Answers citizens</b><div class="muted">It decides a person\'s case and shows the sentence that applied. A solver finds the smallest change that would alter the answer.</div>',
+    step2: '<b>Simulates a change</b><div class="muted">Officials re-decide thousands of synthetic applicants under a new rule and see who moves.</div>',
+    step3: '<b>Tests the software</b><div class="muted">For every condition it builds two nearly identical people on either side of the line and checks the software agrees.</div>',
+    ideaNote: "A person approves any unclear wording before it counts as a bug. A language model may draft a contract, but it never decides an answer: plain code evaluates the contract.",
+    verifiedEyebrow: "What is verified", coverageTitle: "Coverage by country",
+    coverageLead: "Content was read from official pages on 13 October 2026. Anything that could not be opened is left out or marked, never filled in from memory.",
+    loadingText: "Loading...", coverageLoadError: "Coverage could not be loaded.",
+    limitsEyebrow: "Limits", limitsTitle: "Read these before relying on anything",
+    limit1: "<b>Not an official decision.</b> Results are indicative. The issuing office decides.",
+    limit2: '<b>Bundled people are fictional.</b> The demo cards are invented. When Gemini web search is connected, the &ldquo;My area&rdquo; tab can look up real representatives. Those results are not reviewed by a person: each fact links to the page it came from, and anything without a matching source is left out.',
+    limit3: "<b>No ratings.</b> Live lookup shows offices held, committees, bills and terms. It never shows assets, criminal cases, contact details or any opinion, and it refuses questions that ask it to judge a person.",
+    limit4: "<b>The population is synthetic.</b> What-if percentages show how the mechanism works. They are not forecasts, and no behaviour is predicted.",
+    limit5: '<b>Two simulation modes, different claims.</b> The <em>exact</em> what-if re-decides every synthetic applicant under the changed rule — every number is traceable. The <em>exploratory impact model</em> uses PolicySim&rsquo;s causal engine (MIT declared, vendored with attribution) to propagate rule changes through a causal graph whose edge weights come from our synthetic population. The exploratory numbers are model assumptions, not predictions of real-world effect. They are labelled &ldquo;Exploratory only&rdquo; throughout.',
+    limit6: "<b>The benchmark is self-made.</b> The planted bugs, the hand-written suite and the generator were written by the same team, so the numbers show recall on known kinds of bug only.",
+    limit7: "<b>Some content is partial.</b> Several countries have few verified entries. The citizen pages say which parts are unverified.",
+    limit8: "<b>Nothing you enter is stored.</b> Answers are evaluated on request and not saved.",
+    builtWithEyebrow: "Built with", builtWithTitle: "Google Cloud and open tools",
+    builtWithLead: "A Python and FastAPI service, designed to run on Google Cloud Run and not deployed yet. A Z3 solver does the boundary tests and gap checks, Gemini drafts contracts and runs the live area lookup, and PolicySim&rsquo;s causal engine powers the exploratory impact model.",
+    footerHome: "Home",
+    schemeCheckableOne: "scheme you can check", schemeCheckableMany: "schemes you can check",
+    problemEntryOne: "problem entry", problemEntryMany: "problem entries", fullyVerifiedSuffix: " fully verified",
+    rightOne: "right", rightMany: "rights", govTierOne: "government tier", govTierMany: "government tiers",
+    notVerifiedLabel: "Not verified:", verifiedStatus: "verified", partialStatus: "partial",
+  },
+  "हिन्दी": {
+    nav1: "नागरिकों के लिए", nav2: "अधिकारियों के लिए", nav3: "कैसे काम करता है",
+    heroH1: "यह कैसे काम करता है, और क्या भरोसा करें",
+    heroLead: "हर नियम के लिए एक अनुबंध हर स्क्रीन को शक्ति देता है। यह पेज बताता है इसका क्या मतलब है, आधिकारिक पेजों के खिलाफ क्या जाँचा गया है, और सीमाएं कहाँ हैं।",
+    ideaEyebrow: "विचार", ideaTitle: "शब्दों में लिखा नियम एक सटीक अनुबंध बनता है",
+    ideaLead: "किसी योजना के प्रकाशित नियम को सटीक शर्तों की एक छोटी सूची में बदला जाता है। हर शर्त वह वाक्य रखती है जहाँ से वह आई। फिर वही अनुबंध तीन काम करता है।",
+    step1: '<b>नागरिकों को जवाब देता है</b><div class="muted">यह व्यक्ति का मामला तय करता है और वह वाक्य दिखाता है जो लागू हुआ। एक सॉल्वर सबसे छोटा बदलाव खोजता है जो जवाब बदल सके।</div>',
+    step2: '<b>एक बदलाव सिम्युलेट करता है</b><div class="muted">अधिकारी नए नियम के तहत हजारों सिंथेटिक आवेदकों का दोबारा फैसला करते हैं और देखते हैं कौन बदलता है।</div>',
+    step3: '<b>सॉफ्टवेयर जाँचता है</b><div class="muted">हर शर्त के लिए यह रेखा के दोनों ओर लगभग एक जैसे दो लोग बनाता है और जाँचता है कि सॉफ्टवेयर सहमत है।</div>',
+    ideaNote: "किसी अस्पष्ट शब्द के बग गिनने से पहले एक व्यक्ति उसे मंजूर करता है। एक भाषा मॉडल अनुबंध का मसौदा बना सकता है, लेकिन यह कभी जवाब तय नहीं करता: सादा कोड अनुबंध का मूल्यांकन करता है।",
+    verifiedEyebrow: "क्या सत्यापित है", coverageTitle: "देश के अनुसार कवरेज",
+    coverageLead: "सामग्री 13 अक्टूबर 2026 को आधिकारिक पेजों से पढ़ी गई। जो भी नहीं खोला जा सका उसे छोड़ दिया गया या चिह्नित किया गया, कभी याददाश्त से नहीं भरा गया।",
+    loadingText: "लोड हो रहा है...", coverageLoadError: "कवरेज लोड नहीं हो सकी।",
+    limitsEyebrow: "सीमाएं", limitsTitle: "किसी भी चीज़ पर भरोसा करने से पहले इन्हें पढ़ें",
+    limit1: "<b>आधिकारिक फैसला नहीं।</b> परिणाम सांकेतिक हैं। जारी करने वाला कार्यालय फैसला करता है।",
+    limit2: '<b>दिए गए लोग काल्पनिक हैं।</b> डेमो कार्ड बनाए गए हैं। जब Gemini वेब खोज जुड़ी होती है, तो "मेरा क्षेत्र" टैब असली प्रतिनिधियों को खोज सकता है। वे परिणाम किसी व्यक्ति द्वारा समीक्षित नहीं हैं: हर तथ्य उस पेज से जुड़ा है जहाँ से वह आया, और बिना मिलान स्रोत वाला कुछ भी छोड़ दिया जाता है।',
+    limit3: "<b>कोई रेटिंग नहीं।</b> लाइव खोज पद, समितियाँ, बिल और कार्यकाल दिखाती है। यह कभी संपत्ति, आपराधिक मामले, संपर्क विवरण या कोई राय नहीं दिखाती, और किसी व्यक्ति का मूल्यांकन करने वाले सवालों से मना कर देती है।",
+    limit4: "<b>जनसंख्या सिंथेटिक है।</b> व्हाट-इफ प्रतिशत दिखाते हैं कि तंत्र कैसे काम करता है। ये अनुमान नहीं हैं, और किसी व्यवहार की भविष्यवाणी नहीं की जाती।",
+    limit5: '<b>दो सिमुलेशन मोड, अलग दावे।</b> <em>सटीक</em> व्हाट-इफ बदले हुए नियम के तहत हर सिंथेटिक आवेदक का दोबारा फैसला करता है — हर संख्या का पता लगाया जा सकता है। <em>खोजपरक प्रभाव मॉडल</em> PolicySim के causal इंजन (MIT घोषित, एट्रिब्यूशन के साथ) का उपयोग करके नियम बदलावों को एक causal ग्राफ के माध्यम से फैलाता है जिसके एज वेट हमारी सिंथेटिक जनसंख्या से आते हैं। खोजपरक संख्याएं मॉडल की मान्यताएं हैं, वास्तविक प्रभाव की भविष्यवाणी नहीं। इन्हें हर जगह "केवल खोजपरक" लेबल किया गया है।',
+    limit6: "<b>बेंचमार्क स्वयं बनाया गया है।</b> डाले गए बग, हाथ से लिखा सूट और जेनरेटर एक ही टीम ने बनाए, इसलिए संख्याएं केवल ज्ञात तरह के बग पर पहचान दिखाती हैं।",
+    limit7: "<b>कुछ सामग्री आंशिक है।</b> कई देशों में बहुत कम सत्यापित प्रविष्टियाँ हैं। नागरिक पेज बताते हैं कि कौन से हिस्से असत्यापित हैं।",
+    limit8: "<b>आपका डाला कुछ भी सेव नहीं होता।</b> जवाब अनुरोध पर मूल्यांकित होते हैं और सेव नहीं किए जाते।",
+    builtWithEyebrow: "इनसे बना", builtWithTitle: "Google Cloud और ओपन टूल्स",
+    builtWithLead: "एक Python और FastAPI सेवा, Google Cloud Run पर चलाने के लिए बनाई गई और अभी डिप्लॉय नहीं हुई। एक Z3 सॉल्वर सीमा टेस्ट और गैप जाँच करता है, Gemini अनुबंध बनाता है और लाइव क्षेत्र खोज चलाता है, और PolicySim का causal इंजन खोजपरक प्रभाव मॉडल चलाता है।",
+    footerHome: "होम",
+    schemeCheckableOne: "योजना जाँच सकते हैं", schemeCheckableMany: "योजनाएं जाँच सकते हैं",
+    problemEntryOne: "समस्या प्रविष्टि", problemEntryMany: "समस्या प्रविष्टियाँ", fullyVerifiedSuffix: " पूरी तरह सत्यापित",
+    rightOne: "अधिकार", rightMany: "अधिकार", govTierOne: "सरकारी स्तर", govTierMany: "सरकारी स्तर",
+    notVerifiedLabel: "असत्यापित:", verifiedStatus: "सत्यापित", partialStatus: "आंशिक",
+  },
+  "मराठी": {
+    nav1: "नागरिकांसाठी", nav2: "अधिकाऱ्यांसाठी", nav3: "कसे कार्य करते",
+    heroH1: "हे कसे कार्य करते, आणि कशावर विश्वास ठेवावा",
+    heroLead: "प्रत्येक नियमासाठी एक करार प्रत्येक स्क्रीनला चालना देतो. हे पान सांगते याचा अर्थ काय, अधिकृत पानांविरुद्ध काय तपासले गेले, आणि मर्यादा कुठे आहेत.",
+    ideaEyebrow: "कल्पना", ideaTitle: "शब्दांत लिहिलेला नियम एक नेमका करार बनतो",
+    ideaLead: "एखाद्या योजनेच्या प्रकाशित नियमाला नेमक्या अटींच्या छोट्या यादीत बदलले जाते. प्रत्येक अट ती कुठून आली ते वाक्य ठेवते. मग तोच करार तीन कामे करतो.",
+    step1: '<b>नागरिकांना उत्तर देतो</b><div class="muted">हा व्यक्तीचे प्रकरण ठरवतो आणि लागू झालेले वाक्य दाखवतो. एक सॉल्व्हर उत्तर बदलू शकणारा सर्वात लहान बदल शोधतो.</div>',
+    step2: '<b>एक बदल सिम्युलेट करतो</b><div class="muted">अधिकारी नव्या नियमाखाली हजारो कृत्रिम अर्जदारांचा पुन्हा निर्णय घेतात आणि कोण बदलते ते पाहतात.</div>',
+    step3: '<b>सॉफ्टवेअर तपासतो</b><div class="muted">प्रत्येक अटीसाठी तो रेषेच्या दोन्ही बाजूला जवळपास सारखी दोन माणसे तयार करतो आणि सॉफ्टवेअर सहमत आहे का ते तपासतो.</div>',
+    ideaNote: "एखादा अस्पष्ट शब्द बग म्हणून मोजण्याआधी एक व्यक्ती तो मंजूर करते. एक भाषा मॉडेल कराराचा मसुदा तयार करू शकते, पण ते कधीही उत्तर ठरवत नाही: साधा कोड कराराचे मूल्यांकन करतो.",
+    verifiedEyebrow: "काय सत्यापित आहे", coverageTitle: "देशानुसार व्याप्ती",
+    coverageLead: "मजकूर 13 ऑक्टोबर 2026 रोजी अधिकृत पानांवरून वाचला गेला. जे उघडता आले नाही ते वगळले किंवा चिन्हांकित केले गेले, आठवणीतून कधीही भरले नाही.",
+    loadingText: "लोड होत आहे...", coverageLoadError: "व्याप्ती लोड होऊ शकली नाही.",
+    limitsEyebrow: "मर्यादा", limitsTitle: "कशावरही विसंबण्यापूर्वी हे वाचा",
+    limit1: "<b>अधिकृत निर्णय नाही.</b> निकाल सूचक आहेत. जारी करणारे कार्यालय निर्णय घेते.",
+    limit2: '<b>दिलेले लोक काल्पनिक आहेत.</b> डेमो कार्ड तयार केले आहेत. जेव्हा Gemini वेब शोध जोडलेला असतो, तेव्हा "माझा परिसर" टॅब खऱ्या प्रतिनिधींना शोधू शकतो. ते निकाल एखाद्या व्यक्तीने तपासलेले नाहीत: प्रत्येक तथ्य ते जिथून आले त्या पानाशी जोडलेले आहे, आणि जुळणारा स्रोत नसलेले काहीही वगळले जाते.',
+    limit3: "<b>कोणतेही रेटिंग नाही.</b> थेट शोध पदे, समित्या, विधेयके आणि कार्यकाळ दाखवतो. तो कधीही मालमत्ता, गुन्हेगारी प्रकरणे, संपर्क तपशील किंवा कोणतेही मत दाखवत नाही, आणि एखाद्या व्यक्तीचा न्याय करायला सांगणाऱ्या प्रश्नांना नकार देतो.",
+    limit4: "<b>लोकसंख्या कृत्रिम आहे.</b> व्हॉट-इफ टक्केवारी यंत्रणा कशी कार्य करते ते दाखवते. हे अंदाज नाहीत, आणि कोणत्याही वर्तनाचे भाकीत केले जात नाही.",
+    limit5: '<b>दोन सिम्युलेशन मोड, वेगळे दावे.</b> <em>नेमका</em> व्हॉट-इफ बदललेल्या नियमाखाली प्रत्येक कृत्रिम अर्जदाराचा पुन्हा निर्णय घेतो — प्रत्येक संख्येचा मागोवा घेता येतो. <em>शोधक परिणाम मॉडेल</em> PolicySim च्या causal इंजिनचा (MIT घोषित, श्रेयासह) वापर करून नियम बदल एका causal आलेखातून पसरवतो ज्याचे एज वेट्स आमच्या कृत्रिम लोकसंख्येतून येतात. शोधक संख्या मॉडेलच्या गृहीतके आहेत, खऱ्या जगातील परिणामाचे भाकीत नाही. त्यांना सर्वत्र "फक्त शोधक" असे लेबल केले आहे.',
+    limit6: "<b>बेंचमार्क स्वतः तयार केलेले आहे.</b> लावलेले बग, हाताने लिहिलेला संच आणि जनरेटर एकाच टीमने बनवले, त्यामुळे संख्या फक्त ज्ञात प्रकारच्या बगवरील ओळख दाखवतात.",
+    limit7: "<b>काही मजकूर अंशतः आहे.</b> अनेक देशांत फार कमी सत्यापित नोंदी आहेत. नागरिक पाने कोणते भाग असत्यापित आहेत ते सांगतात.",
+    limit8: "<b>तुम्ही टाकलेले काहीही साठवले जात नाही.</b> उत्तरे विनंतीनुसार मूल्यांकित केली जातात आणि साठवली जात नाहीत.",
+    builtWithEyebrow: "यापासून बनवलेले", builtWithTitle: "Google Cloud आणि ओपन टूल्स",
+    builtWithLead: "एक Python आणि FastAPI सेवा, Google Cloud Run वर चालवण्यासाठी तयार केलेली आणि अजून तैनात न केलेली. एक Z3 सॉल्व्हर सीमा चाचण्या आणि त्रुटी तपासण्या करतो, Gemini करार तयार करते आणि थेट क्षेत्र शोध चालवते, आणि PolicySim चे causal इंजिन शोधक परिणाम मॉडेल चालवते.",
+    footerHome: "मुख्यपृष्ठ",
+    schemeCheckableOne: "योजना तपासू शकता", schemeCheckableMany: "योजना तपासू शकता",
+    problemEntryOne: "समस्या नोंद", problemEntryMany: "समस्या नोंदी", fullyVerifiedSuffix: " पूर्णपणे सत्यापित",
+    rightOne: "हक्क", rightMany: "हक्क", govTierOne: "सरकारी स्तर", govTierMany: "सरकारी स्तर",
+    notVerifiedLabel: "असत्यापित:", verifiedStatus: "सत्यापित", partialStatus: "अंशतः",
+  },
+};
+function t(key, vars) {
+  const dict = I18N[LANG] || I18N.English;
+  let s = dict[key] !== undefined ? dict[key] : I18N.English[key] !== undefined ? I18N.English[key] : key;
+  if (vars) Object.entries(vars).forEach(([k, v]) => { s = s.split("{" + k + "}").join(v); });
+  return s;
+}
+document.querySelectorAll("[data-i18n]").forEach((el) => { el.innerHTML = t(el.dataset.i18n); });
+
 const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 (async function () {
   try {
-    const health = await (await fetch("/api/health")).json();
-    document.getElementById("llm").textContent = health.llm ? "Gemini connected" : "not connected in this session, so bundled hand-written contracts are used";
     const countries = await (await fetch("/api/civic/countries")).json();
     const packs = await Promise.all(countries.map((c) => fetch("/api/civic/countries/" + c.code).then((r) => r.json())));
     document.getElementById("countries").innerHTML = packs.map((p) => {
       const checkable = p.schemes.filter((s) => s.self_check).length;
       const verified = p.problems.filter((x) => x.verified).length;
-      return `<div class="card"><h3>${esc(p.name)} <span class="pill ${p.status === "verified" ? "good" : "warn"}">${esc(p.status)}</span></h3>
-        <ul><li>${plural(checkable, "scheme you can check", "schemes you can check")}</li><li>${plural(p.problems.length, "problem entry", "problem entries")}, ${verified} fully verified</li><li>${plural(p.rights.length, "right", "rights")}, ${plural(p.tiers.length, "government tier", "government tiers")}</li></ul>
-        <div class="muted"><b>Not verified:</b><ul>${p.notes.map((n) => `<li>${esc(n)}</li>`).join("")}</ul></div></div>`;
+      const statusLabel = p.status === "verified" ? t("verifiedStatus") : t("partialStatus");
+      return `<div class="card"><h3>${esc(p.name)} <span class="pill ${p.status === "verified" ? "good" : "warn"}">${esc(statusLabel)}</span></h3>
+        <ul><li>${plural(checkable, t("schemeCheckableOne"), t("schemeCheckableMany"))}</li><li>${plural(p.problems.length, t("problemEntryOne"), t("problemEntryMany"))}, ${verified}${t("fullyVerifiedSuffix")}</li><li>${plural(p.rights.length, t("rightOne"), t("rightMany"))}, ${plural(p.tiers.length, t("govTierOne"), t("govTierMany"))}</li></ul>
+        <div class="muted"><b>${t("notVerifiedLabel")}</b><ul>${p.notes.map((n) => `<li>${esc(n)}</li>`).join("")}</ul></div></div>`;
     }).join("");
   } catch (e) {
-    document.getElementById("countries").innerHTML = '<p class="muted">Coverage could not be loaded.</p>';
+    document.getElementById("countries").innerHTML = `<p class="muted">${t("coverageLoadError")}</p>`;
   }
 })();
 </script>

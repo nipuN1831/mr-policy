@@ -30,9 +30,6 @@ a { color: var(--teal-dark); text-underline-offset: 3px; }
 .topbar nav a.on { background: var(--teal-soft); color: var(--teal-dark); }
 
 .wrap { max-width: 1160px; margin: 0 auto; padding: 28px 24px 80px; }
-.hero { padding: 6px 0 18px; }
-.hero h1 { margin: 0 0 8px; font: 700 clamp(30px, 4.6vw, 46px)/1.08 var(--display); letter-spacing: -.02em; }
-.hero p { margin: 0; color: var(--muted); font-size: 19px; max-width: 720px; }
 
 mark, .mark { background: linear-gradient(transparent 12%, var(--amber) 12%, var(--amber) 92%, transparent 92%); color: var(--ink); padding: 0 .12em; border-radius: 2px; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
 

@@ -1,7 +1,10 @@
 import contextlib
 import datetime
+import hmac
 import logging
+import secrets
 import threading
+import time
 from pathlib import Path
 from typing import Any
 
@@ -16,8 +19,8 @@ _HOTSHOT_LEADERS = [
     ("India", "Arvind Kejriwal"),
 ]
 
-from fastapi import FastAPI, HTTPException
-from fastapi.responses import HTMLResponse, Response
+from fastapi import Depends, FastAPI, HTTPException, Request
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, ValidationError
 
@@ -53,6 +56,16 @@ FAVICON_SVG = (
     '<rect x="7" y="9" width="18" height="3" rx="1.5" fill="#fff"/><rect x="7" y="15" width="18" height="3" rx="1.5" fill="#fff"/>'
     '<rect x="7" y="21" width="18" height="3" rx="1.5" fill="#ffd84d"/></svg>'
 )
+LOGIN_FAILURE_MESSAGE = "That email or password is incorrect."
+GATE_BLOCKED_MESSAGE = "Sign in required."
+RATE_LIMIT_MESSAGE = "Too many attempts. Try again in a minute."
+LOGIN_RATE_LIMIT_MAX_ATTEMPTS = 5
+LOGIN_RATE_LIMIT_WINDOW_SECONDS = 60
+_EXEMPT_PATHS = {"/login", "/favicon.ico", "/api/login", "/api/logout"}
+
+
+class _AuthRequired(Exception):
+    """Raised by require_session when no valid session cookie is present."""
 
 
 class ExtractRequest(BaseModel):
@@ -99,6 +112,7 @@ class ChangeRequest(BaseModel):
 class ChatRequest(BaseModel):
     question: str = Field(min_length=1, max_length=2000)
     country: str = "in"
+    language: str = "English"
 
 
 class LeaderLookupRequest(BaseModel):
@@ -116,6 +130,11 @@ class ApproveRequest(BaseModel):
     ambiguity_id: str
     status: str
     resolution: str | None = None
+
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str
 
 
 def llm_from_environment() -> LLM | None:
@@ -137,7 +156,7 @@ def live_leaders_enabled() -> bool:
     return settings.live_leaders_enabled()
 
 
-def create_app(llm: Any = _UNSET, searcher: Any = _UNSET) -> FastAPI:
+def create_app(llm: Any = _UNSET, searcher: Any = _UNSET, *, enable_login_gate: bool = False) -> FastAPI:
     model = llm_from_environment() if llm is _UNSET else llm
     if searcher is _UNSET:
         searcher = GeminiSearcher(settings.model_name()) if model is not None else None
@@ -148,8 +167,6 @@ def create_app(llm: Any = _UNSET, searcher: Any = _UNSET) -> FastAPI:
         if searcher is not None:
             threading.Thread(target=_warm_hotshots_fn, daemon=True, name="hotshot-warmup").start()
         yield
-
-    app = FastAPI(title="Policy Wind Tunnel", lifespan=_lifespan)
 
     def _warm_hotshots_fn() -> None:
         as_of = datetime.date.today().isoformat()
@@ -162,6 +179,48 @@ def create_app(llm: Any = _UNSET, searcher: Any = _UNSET) -> FastAPI:
                 _log.info("pre-cached %s", name)
             except Exception as exc:  # noqa: BLE001
                 _log.warning("warm-up failed for %s: %s", name, exc)
+
+    _valid_sessions: set[str] = set()
+    _login_attempts: dict[str, list[float]] = {}
+
+    def _is_authenticated(request: Request) -> bool:
+        return request.cookies.get("pwt_session", "") in _valid_sessions
+
+    def _recent_failures(ip: str) -> list[float]:
+        now = time.time()
+        return [t for t in _login_attempts.get(ip, []) if now - t < LOGIN_RATE_LIMIT_WINDOW_SECONDS]
+
+    def _is_rate_limited(ip: str) -> bool:
+        recent = _recent_failures(ip)
+        _login_attempts[ip] = recent
+        return len(recent) >= LOGIN_RATE_LIMIT_MAX_ATTEMPTS
+
+    def _record_failed_attempt(ip: str) -> None:
+        recent = _recent_failures(ip)
+        recent.append(time.time())
+        _login_attempts[ip] = recent
+
+    def _clear_failed_attempts(ip: str) -> None:
+        _login_attempts.pop(ip, None)
+
+    def require_session(request: Request) -> None:
+        path = request.url.path
+        if path in _EXEMPT_PATHS or path.startswith("/static/"):
+            return
+        if not _is_authenticated(request):
+            raise _AuthRequired()
+
+    app = FastAPI(
+        title="Policy Wind Tunnel",
+        lifespan=_lifespan,
+        dependencies=[Depends(require_session)] if enable_login_gate else [],
+    )
+
+    @app.exception_handler(_AuthRequired)
+    async def _handle_auth_required(request: Request, exc: _AuthRequired):
+        if request.url.path.startswith("/api/"):
+            return JSONResponse({"detail": GATE_BLOCKED_MESSAGE}, status_code=401)
+        return RedirectResponse("/login", status_code=302)
 
     _CHAT_SYSTEM = (
         "You are Policy Wind Tunnel, a civic information assistant for India and Singapore. "
@@ -181,7 +240,8 @@ def create_app(llm: Any = _UNSET, searcher: Any = _UNSET) -> FastAPI:
         "people hold about this policy or topic. Each string is one plain sentence, 'read between the lines' style: "
         "surface what is NOT obvious, what official announcements downplay, or where public understanding diverges from the "
         "actual rule. Do NOT use leading labels like 'Myth:' or numbers. Do NOT include if no genuine misconception exists "
-        "(return empty array). Never make up statistics or invent sources."
+        "(return empty array). Never make up statistics or invent sources. "
+        "Write the 'answer' field in the language given by 'Respond in:' (English, हिन्दी, or मराठी) — everything else in the JSON stays as specified."
     )
     _CHAT_KEYWORDS = {
         "caa": ("in_caa_2019", "/citizen", "The CAA 2019 fast-tracks citizenship for six religious minorities from Afghanistan, Bangladesh or Pakistan who entered India by 31 Dec 2014, after 5 years of residency. It does not apply to Muslims, Inner Line Permit states, or Sixth Schedule areas. Check your exact eligibility on the next page."),
@@ -239,7 +299,10 @@ def create_app(llm: Any = _UNSET, searcher: Any = _UNSET) -> FastAPI:
         if model is not None:
             try:
                 import json as _json
-                raw = model.generate_json(_CHAT_SYSTEM, f"Country: {request.country}\nQuestion: {request.question}")
+                raw = model.generate_json(
+                    _CHAT_SYSTEM,
+                    f"Country: {request.country}\nRespond in: {request.language}\nQuestion: {request.question}",
+                )
                 start = raw.rfind("{")
                 end = raw.rfind("}") + 1
                 if start >= 0 and end > start:
@@ -487,6 +550,35 @@ def create_app(llm: Any = _UNSET, searcher: Any = _UNSET) -> FastAPI:
 
         return _scheme_call(scheme_id, run)
 
+    @app.post("/api/login")
+    def login(payload: LoginRequest, request: Request, response: Response):
+        client_ip = request.client.host if request.client else "unknown"
+        if _is_rate_limited(client_ip):
+            raise HTTPException(429, detail=RATE_LIMIT_MESSAGE)
+        email = payload.email.strip().lower()
+        expected_password = settings.login_password()
+        password_matches = bool(expected_password) and hmac.compare_digest(payload.password, expected_password)
+        if email not in settings.login_emails() or not password_matches:
+            _record_failed_attempt(client_ip)
+            raise HTTPException(401, detail=LOGIN_FAILURE_MESSAGE)
+        _clear_failed_attempts(client_ip)
+        token = secrets.token_urlsafe(32)
+        _valid_sessions.add(token)
+        response.set_cookie(
+            "pwt_session",
+            token,
+            httponly=True,
+            samesite="lax",
+            secure=request.url.scheme == "https",
+        )
+        return {"ok": True}
+
+    @app.post("/api/logout")
+    def logout(request: Request, response: Response):
+        _valid_sessions.discard(request.cookies.get("pwt_session", ""))
+        response.delete_cookie("pwt_session")
+        return {"ok": True}
+
     @app.get("/favicon.ico", include_in_schema=False)
     def favicon():
         return Response(FAVICON_SVG, media_type="image/svg+xml", headers={"Cache-Control": "public, max-age=86400"})
@@ -513,8 +605,12 @@ def create_app(llm: Any = _UNSET, searcher: Any = _UNSET) -> FastAPI:
     def leaders_hotshots():
         return {"leaders": [{"country": c, "name": n} for c, n in _HOTSHOT_LEADERS]}
 
+    @app.get("/login", response_class=HTMLResponse)
+    def login_page():
+        return (STATIC_DIR / "login.html").read_text()
+
     return app
 
 
 settings.load_env()
-app = create_app()
+app = create_app(enable_login_gate=True)

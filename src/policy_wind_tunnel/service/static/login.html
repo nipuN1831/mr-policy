@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign in | Policy Wind Tunnel</title>
+<meta name="description" content="Sign in to Policy Wind Tunnel.">
+<link rel="icon" href="/favicon.ico" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/app.css">
+<style>
+:root {
+  --ink: #10251f; --text: #34433d; --muted: #65736d;
+  --green: #15533f; --green-dark: #0b3e2e;
+  --line: #e4e8e3; --page: #fafbf8; --fail: #b3261e;
+  --shadow: 0 14px 38px rgba(24,48,37,.07); --radius: 20px;
+  font-synthesis: none; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--page); color: var(--ink); font-family: "DM Sans", system-ui, sans-serif; font-size: 16px; line-height: 1.6; }
+button, input { font: inherit; }
+button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid #4e8c70; outline-offset: 3px; }
+.skip { position: absolute; top: -60px; left: 16px; z-index: 100; padding: 10px 14px; background: var(--green-dark); color: white; border-radius: 10px; text-decoration: none; }
+.skip:focus { top: 12px; }
+
+.site-header { height: 72px; padding: 0 clamp(20px, 5.5vw, 88px); display: flex; align-items: center; background: rgba(255,254,250,.95); border-bottom: 1px solid rgba(21,83,63,.08); position: sticky; top: 0; z-index: 10; backdrop-filter: blur(8px); }
+.brand { display: inline-flex; align-items: center; gap: 13px; text-decoration: none; color: var(--ink); font-family: Manrope, sans-serif; font-size: clamp(17px, 1.8vw, 22px); font-weight: 800; letter-spacing: -.6px; white-space: nowrap; }
+.brand-mark { width: 40px; height: 40px; color: var(--green); flex: none; }
+
+.login-wrap { min-height: calc(100vh - 72px); display: flex; align-items: center; justify-content: center; padding: 40px 20px; }
+.login-card { width: 100%; max-width: 380px; background: #fff; border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 32px 30px; }
+.login-eyebrow { margin: 0 0 8px; font: 700 10px/1 "DM Sans", sans-serif; letter-spacing: 1.6px; text-transform: uppercase; color: #6c8475; }
+.login-title { margin: 0 0 22px; font: 700 26px/1.2 Manrope, sans-serif; letter-spacing: -.02em; color: var(--ink); }
+.field { margin-bottom: 16px; }
+.field label { display: block; margin-bottom: 6px; font-size: 13px; font-weight: 700; color: var(--text); }
+.field input { width: 100%; background: #fff; color: var(--ink); border: 1.5px solid #6b8190; border-radius: 10px; padding: 10px 14px; min-height: 48px; font-size: 16px; }
+.login-btn { width: 100%; margin-top: 6px; display: inline-flex; align-items: center; justify-content: center; background: var(--green-dark); color: #fff; border: 0; border-radius: 11px; padding: 11px 22px; font: 650 16px "DM Sans", sans-serif; cursor: pointer; min-height: 48px; transition: background .15s; }
+.login-btn:hover { background: var(--green); }
+.login-btn:disabled { opacity: .5; cursor: not-allowed; }
+.login-error { min-height: 20px; margin: 14px 0 0; color: var(--fail); font-size: 14px; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: .01ms !important; } }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header">
+  <a class="brand" href="/" aria-label="Policy Wind Tunnel home">
+    <svg class="brand-mark" viewBox="0 0 48 48" role="img" aria-hidden="true">
+      <path d="M5 40V24C5 13.5 13.5 5 24 5s19 8.5 19 19v16" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/>
+      <path d="M12 40V24c0-6.6 5.4-12 12-12s12 5.4 12 12v16" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/>
+      <path d="M19 40V27a5 5 0 0 1 10 0v13" fill="currentColor" opacity=".72"/>
+    </svg>
+    <span>Policy Wind Tunnel</span>
+  </a>
+</header>
+<main id="main" class="login-wrap">
+  <form class="login-card" id="loginForm" autocomplete="off" novalidate>
+    <p class="login-eyebrow">SIGN IN</p>
+    <h1 class="login-title">Welcome back</h1>
+    <div class="field">
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" autocomplete="username" required>
+    </div>
+    <div class="field">
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" autocomplete="current-password" required>
+    </div>
+    <button type="submit" class="login-btn" id="signInBtn">Sign in</button>
+    <p class="login-error" id="loginError" role="alert"></p>
+  </form>
+</main>
+<script>
+const form = document.getElementById("loginForm");
+const errorEl = document.getElementById("loginError");
+const btn = document.getElementById("signInBtn");
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  errorEl.textContent = "";
+  btn.disabled = true;
+  try {
+    const res = await fetch("/api/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: document.getElementById("email").value,
+        password: document.getElementById("password").value,
+      }),
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      errorEl.textContent = typeof data.detail === "string" ? data.detail : "That email or password is incorrect.";
+      btn.disabled = false;
+      return;
+    }
+    window.location.href = "/";
+  } catch (_) {
+    errorEl.textContent = "Something went wrong. Try again.";
+    btn.disabled = false;
+  }
+});
+</script>
+</body>
+</html>

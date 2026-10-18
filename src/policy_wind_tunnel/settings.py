@@ -29,5 +29,14 @@ def live_leaders_enabled() -> bool:
     return os.environ.get("PWT_LIVE_LEADERS", "1").strip() != "0"
 
 
+def login_emails() -> set[str]:
+    raw = os.environ.get("PWT_LOGIN_EMAILS", "")
+    return {email.strip().lower() for email in raw.split(",") if email.strip()}
+
+
+def login_password() -> str:
+    return os.environ.get("PWT_LOGIN_PASSWORD", "")
+
+
 def describe() -> dict[str, object]:
     return {"model": model_name(), "credentials": credential_mode(), "live_leaders": live_leaders_enabled()}

@@ -155,8 +155,31 @@ def test_about_page_states_limits_and_coverage(client):
     assert "/api/civic/countries" in page.text
 
 
-def test_every_page_has_a_skip_link_viewport_and_shared_stylesheet(client):
+def test_login_page_is_served_and_matches_shared_page_conventions(client):
+    page = client.get("/login")
+    assert page.status_code == 200
+    assert 'class="skip"' in page.text
+    assert 'name="viewport"' in page.text
+    assert "/static/app.css" in page.text
+    assert 'lang="en"' in page.text
+    assert "Welcome back" in page.text
+    assert 'type="email"' in page.text and 'type="password"' in page.text
+    assert 'id="loginError"' in page.text
+    assert "/api/login" in page.text
+    # no forgot-password / sign-up links, per spec
+    assert "forgot" not in page.text.lower()
+    assert "sign up" not in page.text.lower() and "sign-up" not in page.text.lower()
+
+
+def test_every_gated_page_offers_a_sign_out_link(client):
     for path in ("/", "/citizen", "/officials", "/about"):
+        text = client.get(path).text
+        assert 'id="signOutLink"' in text, path
+        assert "/api/logout" in text, path
+
+
+def test_every_page_has_a_skip_link_viewport_and_shared_stylesheet(client):
+    for path in ("/", "/citizen", "/officials", "/about", "/login"):
         page = client.get(path)
         assert page.status_code == 200, path
         assert 'class="skip"' in page.text, path
@@ -181,7 +204,7 @@ def test_a_favicon_is_served_so_the_console_stays_clean(client):
 
 
 def test_every_page_declares_its_icon(client):
-    for path in ("/", "/citizen", "/officials", "/about"):
+    for path in ("/", "/citizen", "/officials", "/about", "/login"):
         assert 'rel="icon"' in client.get(path).text, path
 
 

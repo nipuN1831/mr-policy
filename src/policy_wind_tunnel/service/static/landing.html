@@ -58,11 +58,12 @@ button:focus-visible, a:focus-visible, select:focus-visible, textarea:focus-visi
 .hero { overflow: hidden; position: relative; padding: 52px 24px 42px; background: #0e2318 url('/static/img/hero-bg.jpg') center top / cover no-repeat; }
 .hero::before { content: ""; position: absolute; inset: 0; background: rgba(8,22,14,.52); z-index: 0; pointer-events: none; }
 .hero-inner { width: min(100%, 1050px); margin: 0 auto; text-align: center; position: relative; z-index: 1; }
-.country-control { display: inline-flex; align-items: center; gap: 10px; padding: 5px 6px 5px 14px; background: rgba(255,255,255,.78); border: 1px solid #e2e9e2; border-radius: 999px; color: var(--muted); font-size: 13px; margin-bottom: 28px; }
-.country-select-shell { display: inline-flex; align-items: center; gap: 8px; min-height: 34px; padding: 0 10px; border-radius: 999px; color: var(--ink); background: #fff; border: 1px solid #e7ebe5; }
+.country-control { display: inline-flex; align-items: center; gap: 10px; padding: 7px 7px 7px 16px; background: #fff; border: 1px solid #cfe0d4; border-radius: 999px; color: var(--muted); font-size: 13px; font-weight: 600; box-shadow: 0 3px 10px rgba(15,40,28,.1); margin-bottom: 34px; }
+.country-select-shell { display: inline-flex; align-items: center; gap: 8px; min-height: 36px; padding: 0 12px; border-radius: 999px; color: var(--ink); background: var(--green-soft); border: 1px solid #cfe0d4; }
 .country-select-shell select { appearance: none; -webkit-appearance: none; background: transparent; border: 0; outline: 0; color: inherit; cursor: pointer; max-width: 150px; font-size: 14px; font-weight: 700; }
-.country-flag { font-size: 18px; line-height: 1; }
-.eyebrow { margin: 0 0 13px; color: #6fcf97; font-size: 11px; font-weight: 700; letter-spacing: 1.9px; display: inline-flex; align-items: center; gap: 8px; }
+select option { font: inherit; background: #fff; color: var(--ink); }
+.country-flag { font-size: 18px; line-height: 1; display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; overflow: hidden; flex: none; }
+.eyebrow { margin: 0 0 13px; color: #6fcf97; font-size: 11px; font-weight: 700; letter-spacing: 1.9px; display: flex; justify-content: center; align-items: center; gap: 8px; }
 .eyebrow-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #68a586; box-shadow: 0 0 0 4px #e3f0e7; }
 h1, h2, p { margin-top: 0; }
 h1, h2, .topic-title { font-family: Manrope, "DM Sans", sans-serif; }
@@ -123,7 +124,7 @@ h1 span { color: #6fcf97; }
 .topic-arrow svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
 
 /* Trust strip */
-.trust-strip { width: min(calc(100% - 48px), 900px); margin: 4px auto 24px; display: flex; align-items: center; justify-content: center; gap: 19px; color: #5d6b63; }
+.trust-strip { width: min(calc(100% - 48px), 900px); margin: 36px auto 24px; display: flex; align-items: center; justify-content: center; gap: 19px; color: #5d6b63; }
 .trust-strip p { margin: 0; font-size: 14px; text-align: center; }
 .trust-strip p strong { color: #344e40; font-weight: 700; }
 .trust-icon { display: inline-flex; color: var(--green); }
@@ -284,10 +285,10 @@ h1 span { color: #6fcf97; }
     </a>
     <div class="header-right">
       <nav class="header-nav" aria-label="Main">
-        <a class="nav-link" href="/citizen" data-i18n="nav1">For citizens</a>
+        <a class="nav-link primary" href="/citizen" data-i18n="nav1">For citizens</a>
         <a class="nav-link" href="/officials" data-i18n="nav2">For officials</a>
         <a class="nav-link" href="/about" data-i18n="nav3">How it works</a>
-        <a class="nav-link primary" href="/citizen" data-i18n="nav4">Check a policy</a>
+        <a class="nav-link" href="/login" id="signOutLink">Sign out</a>
       </nav>
       <div class="select-wrap" aria-label="Choose language">
         <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/></svg>
@@ -570,6 +571,27 @@ h1 span { color: #6fcf97; }
 
 <script>
 const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+document.getElementById("signOutLink").addEventListener("click", (e) => {
+  e.preventDefault();
+  fetch("/api/logout", { method: "POST" }).finally(() => { window.location.href = "/login"; });
+});
+
+// A <select> left at width:auto sizes itself to fit its widest option, not the one
+// currently shown, which leaves a gap between the visible text and our chevron icon.
+// This measures just the selected option's text and sets the box to fit that instead.
+function fitSelectWidth(select) {
+  const opt = select.options[select.selectedIndex];
+  if (!opt) return;
+  const cs = getComputedStyle(select);
+  const span = document.createElement("span");
+  span.style.cssText = "position:absolute;visibility:hidden;white-space:nowrap;font:" + cs.font + ";letter-spacing:" + cs.letterSpacing;
+  span.textContent = opt.text;
+  document.body.appendChild(span);
+  const textWidth = span.getBoundingClientRect().width;
+  document.body.removeChild(span);
+  const extra = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight) + parseFloat(cs.borderLeftWidth) + parseFloat(cs.borderRightWidth);
+  select.style.width = Math.ceil(textWidth + extra) + 6 + "px"; // small buffer: span measurement can slightly undercount the select's own text rendering
+}
 
 // Country flag
 const countrySelect = document.getElementById("countrySelect");
@@ -583,11 +605,13 @@ const countryFlag = document.getElementById("countryFlag");
     countryFlag.textContent = opt.dataset.flag || "🌐";
   }
 })();
+fitSelectWidth(countrySelect);
 countrySelect.addEventListener("change", () => {
   const opt = countrySelect.selectedOptions[0];
   countryFlag.textContent = opt.dataset.flag || "🌐";
   localStorage.setItem("pwt_country", countrySelect.value);
   sessionStorage.setItem("pwt_country", countrySelect.value);
+  fitSelectWidth(countrySelect);
 });
 
 // Language / voice
@@ -657,8 +681,17 @@ const TRANSLATIONS = {
     nav1: 'नागरिकों के लिए',
     nav2: 'अधिकारियों के लिए',
     nav3: 'कैसे काम करता है',
-    nav4: 'नीति जाँचें',
     footerNote: 'प्रकाशित नियमों और काल्पनिक लोगों के साथ प्रदर्शन। कानूनी सलाह नहीं।',
+    listeningLabel: 'सुन रहे हैं…', listeningStatus: 'सुन रहे हैं। अपना सवाल बोलें, फिर रुकें।',
+    micBlocked: 'माइक्रोफ़ोन की अनुमति नहीं मिली। कृपया अपना सवाल टाइप करें।',
+    voiceStopped: 'आवाज़ बंद हुई। कृपया अपना सवाल टाइप करें।',
+    voiceNotSupported: 'यहाँ आवाज़ से सवाल पूछना समर्थित नहीं है। Chrome आज़माएं।',
+    exampleLoadedStatus: 'उदाहरण लोड हुआ — अपनी स्थिति के अनुसार बदलें, फिर भेजें दबाएं।',
+    typeOrPick: 'सवाल टाइप करें या शुरू करने के लिए कोई विषय चुनें।',
+    thinkingStatus: 'सोचा जा रहा है…', askSomethingElse: 'कुछ और पूछें',
+    chatAnswerLabel: 'Policy Wind Tunnel का जवाब',
+    redirectCitizen: 'मेरी पात्रता जाँचें', redirectDecides: 'सही कार्यालय खोजें', redirectRights: 'मेरे अधिकार देखें',
+    redirectLeaders: 'मेरे क्षेत्र के प्रतिनिधि', redirectOfficials: 'नीति में बदलाव जाँचें', redirectDefault: 'जाँचकर्ता पर जाएं',
   },
   "मराठी": {
     heroTitle: 'सरकारी धोरणे,<br class="desktop-break" /> केली <span>सोपी।</span>',
@@ -718,8 +751,17 @@ const TRANSLATIONS = {
     nav1: 'नागरिकांसाठी',
     nav2: 'अधिकाऱ्यांसाठी',
     nav3: 'कसे कार्य करते',
-    nav4: 'धोरण तपासा',
     footerNote: 'प्रकाशित नियम आणि काल्पनिक लोकांसह प्रात्यक्षिक. कायदेशीर सल्ला नाही.',
+    listeningLabel: 'ऐकत आहे…', listeningStatus: 'ऐकत आहे. तुमचा प्रश्न बोला, मग थांबा.',
+    micBlocked: 'मायक्रोफोनची परवानगी मिळाली नाही. कृपया तुमचा प्रश्न टाइप करा.',
+    voiceStopped: 'आवाज बंद झाला. कृपया तुमचा प्रश्न टाइप करा.',
+    voiceNotSupported: 'इथे आवाजाने प्रश्न विचारणे समर्थित नाही. Chrome वापरून पाहा.',
+    exampleLoadedStatus: 'उदाहरण लोड झाले — तुमच्या परिस्थितीनुसार बदला, मग पाठवा दाबा.',
+    typeOrPick: 'प्रश्न टाइप करा किंवा सुरुवात करण्यासाठी एखादा विषय निवडा.',
+    thinkingStatus: 'विचार केला जात आहे…', askSomethingElse: 'आणखी काही विचारा',
+    chatAnswerLabel: 'Policy Wind Tunnel चे उत्तर',
+    redirectCitizen: 'माझी पात्रता तपासा', redirectDecides: 'योग्य कार्यालय शोधा', redirectRights: 'माझे हक्क पाहा',
+    redirectLeaders: 'माझ्या परिसरातील प्रतिनिधी', redirectOfficials: 'धोरणातील बदल तपासा', redirectDefault: 'तपासणीकडे जा',
   },
 };
 
@@ -744,9 +786,32 @@ function applyLang(newLang) {
   const inp = document.getElementById("questionInput");
   if (inp) inp.placeholder = t.askPlaceholder || DOM_ORIGINALS.askPlaceholder || inp.placeholder;
 }
+// For strings generated in JS (status messages, chat chrome) rather than tagged in the DOM.
+// "Powered by Gemini" / the keyword-match note are deliberately left untranslated.
+function tr(key) {
+  const dict = TRANSLATIONS[currentLang] || {};
+  return dict[key] !== undefined ? dict[key] : (TRANSLATIONS.English[key] || key);
+}
 
-document.addEventListener("DOMContentLoaded", captureI18nOriginals);
-languageSelect.addEventListener("change", () => applyLang(languageSelect.value));
+// Capture the true English originals now, before any saved language is applied below.
+// (This script runs after the whole page has parsed, so every tagged element already
+// exists — waiting for DOMContentLoaded would fire AFTER applyLang() below had already
+// overwritten the DOM with the saved language, corrupting "original" with translated text.)
+captureI18nOriginals();
+fitSelectWidth(languageSelect);
+const LANG_KEY = "pwt_lang";
+const savedLang = sessionStorage.getItem(LANG_KEY) || localStorage.getItem(LANG_KEY);
+if (savedLang && TRANSLATIONS[savedLang]) {
+  languageSelect.value = savedLang;
+  applyLang(savedLang);
+  fitSelectWidth(languageSelect);
+}
+languageSelect.addEventListener("change", () => {
+  applyLang(languageSelect.value);
+  fitSelectWidth(languageSelect);
+  localStorage.setItem(LANG_KEY, languageSelect.value);
+  sessionStorage.setItem(LANG_KEY, languageSelect.value);
+});
 
 let recognition = null, isListening = false;
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -754,13 +819,13 @@ if (SR) {
   recognition = new SR();
   recognition.interimResults = true;
   recognition.continuous = false;
-  recognition.onstart = () => { isListening = true; document.getElementById("voiceLabel").textContent = "Listening…"; voiceButton.setAttribute("aria-pressed","true"); statusLine.textContent = "Listening. Speak your question, then pause."; };
+  recognition.onstart = () => { isListening = true; document.getElementById("voiceLabel").textContent = tr("listeningLabel"); voiceButton.setAttribute("aria-pressed","true"); statusLine.textContent = tr("listeningStatus"); };
   recognition.onresult = (e) => { let t = ""; for (let i = e.resultIndex; i < e.results.length; i++) t += e.results[i][0].transcript; questionInput.value = t; };
-  recognition.onerror = (e) => { statusLine.textContent = e.error === "not-allowed" ? "Microphone access blocked. Type your question instead." : "Voice stopped. Type your question instead."; };
+  recognition.onerror = (e) => { statusLine.textContent = e.error === "not-allowed" ? tr("micBlocked") : tr("voiceStopped"); };
   recognition.onend = () => { isListening = false; document.getElementById("voiceLabel").textContent = DOM_ORIGINALS.voiceLabel || "Speak your question"; voiceButton.setAttribute("aria-pressed","false"); questionInput.focus(); };
 }
 voiceButton.addEventListener("click", () => {
-  if (!recognition) { statusLine.textContent = "Voice input not supported here. Try Chrome."; return; }
+  if (!recognition) { statusLine.textContent = tr("voiceNotSupported"); return; }
   if (isListening) recognition.stop();
   else { recognition.lang = localeMap[languageSelect.value] || "en-IN"; try { recognition.start(); } catch(_) {} }
 });
@@ -776,22 +841,23 @@ document.getElementById("exampleBtn").addEventListener("click", () => {
   questionInput.value = list[exampleIdx % list.length];
   exampleIdx++;
   questionInput.focus();
-  statusLine.textContent = "Example loaded — edit it to fit your situation, then press the arrow.";
+  statusLine.textContent = tr("exampleLoadedStatus");
 });
 
 // Chat: submit → call /api/chat, show inline answer, offer redirect
 const chatAnswer = document.getElementById("chatAnswer");
-const REDIRECT_LABELS = {
-  "/citizen": "Check my eligibility",
-  "/citizen#decides": "Find the right office",
-  "/citizen#rights": "See my rights",
-  "/citizen#leaders": "My area representatives",
-  "/officials": "Test a policy change",
+const REDIRECT_KEYS = {
+  "/citizen": "redirectCitizen",
+  "/citizen#decides": "redirectDecides",
+  "/citizen#rights": "redirectRights",
+  "/citizen#leaders": "redirectLeaders",
+  "/officials": "redirectOfficials",
 };
 
 function renderChat(data) {
   const redirectPath = data.redirect_path || "/citizen";
-  const redirectLabel = REDIRECT_LABELS[redirectPath] || "Go to checker";
+  const redirectLabel = tr(REDIRECT_KEYS[redirectPath] || "redirectDefault");
+  // "Powered by Gemini" / the keyword-match note are deliberately left untranslated.
   const poweredNote = data.powered_by === "gemini" ? "Powered by Gemini" : "Keyword match — connect Gemini for full answers";
   const href = esc(redirectPath) + (data.scheme_id ? '?scheme=' + esc(data.scheme_id) : '');
   const misc = Array.isArray(data.misconceptions) ? data.misconceptions.filter(Boolean) : [];
@@ -802,12 +868,12 @@ function renderChat(data) {
     </details>` : "";
   chatAnswer.hidden = false;
   chatAnswer.innerHTML = `<div class="chat-bubble">
-    <p class="cb-label"><span class="cb-dot"></span> Policy Wind Tunnel answer</p>
+    <p class="cb-label"><span class="cb-dot"></span> ${esc(tr("chatAnswerLabel"))}</p>
     <p>${esc(data.answer)}</p>
     ${miscHtml}
     <div class="cb-actions">
       <a class="cb-redirect" id="cbRedirect" href="${href}">${esc(redirectLabel)} &rarr;</a>
-      <button class="cb-dismiss" id="chatDismiss">Ask something else</button>
+      <button class="cb-dismiss" id="chatDismiss">${esc(tr("askSomethingElse"))}</button>
     </div>
     <p class="cb-powered">${esc(poweredNote)}</p>
   </div>`;
@@ -821,16 +887,16 @@ function renderChat(data) {
 document.getElementById("askForm").addEventListener("submit", async (e) => {
   e.preventDefault();
   const q = questionInput.value.trim();
-  if (!q) { statusLine.textContent = "Type a question or pick a topic to get started."; questionInput.focus(); return; }
+  if (!q) { statusLine.textContent = tr("typeOrPick"); questionInput.focus(); return; }
   chatAnswer.hidden = false;
-  chatAnswer.innerHTML = '<p class="chat-loading"><span class="spinner" aria-hidden="true"></span>Thinking…</p>';
+  chatAnswer.innerHTML = `<p class="chat-loading"><span class="spinner" aria-hidden="true"></span>${esc(tr("thinkingStatus"))}</p>`;
   const submitBtn = document.querySelector(".submit-button");
   submitBtn.disabled = true;
   try {
     const res = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ question: q, country: countrySelect.value }),
+      body: JSON.stringify({ question: q, country: countrySelect.value, language: currentLang }),
     });
     if (!res.ok) throw new Error("Request failed");
     const data = await res.json();
