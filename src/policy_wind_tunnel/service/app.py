@@ -30,6 +30,7 @@ from policy_wind_tunnel.agents.extractor import ExtractionError
 from policy_wind_tunnel.agents.llm import LLM, GeminiLLM
 from policy_wind_tunnel.civic import eligibility as civic_eligibility
 from policy_wind_tunnel.civic.counterfactual import nearest_changes
+from policy_wind_tunnel.civic.firestore_cache import get_cache
 from policy_wind_tunnel.civic.lookup import find_problems, find_representatives
 from policy_wind_tunnel.civic.packs import available_countries, load_pack
 from policy_wind_tunnel.civic.research import (
@@ -161,6 +162,7 @@ def create_app(llm: Any = _UNSET, searcher: Any = _UNSET, *, enable_login_gate: 
     if searcher is _UNSET:
         searcher = GeminiSearcher(settings.model_name()) if model is not None else None
     lookup_cache: dict[tuple[str, str], dict[str, Any]] = {}
+    fs_cache = get_cache()
 
     @contextlib.asynccontextmanager
     async def _lifespan(_app: FastAPI):
@@ -174,9 +176,16 @@ def create_app(llm: Any = _UNSET, searcher: Any = _UNSET, *, enable_login_gate: 
             key = (country.lower()[:2], "person", name.lower())
             if key in lookup_cache:
                 continue
+            cached = fs_cache.get(key)
+            if cached is not None:
+                lookup_cache[key] = cached
+                _log.info("pre-cached %s (from Firestore)", name)
+                continue
             try:
-                lookup_cache[key] = lookup_person_detail(searcher, country, name, as_of)
-                _log.info("pre-cached %s", name)
+                detail = lookup_person_detail(searcher, country, name, as_of)
+                lookup_cache[key] = detail
+                fs_cache.put(key, detail)
+                _log.info("pre-cached %s (from Gemini)", name)
             except Exception as exc:  # noqa: BLE001
                 _log.warning("warm-up failed for %s: %s", name, exc)
 
@@ -479,25 +488,30 @@ def create_app(llm: Any = _UNSET, searcher: Any = _UNSET, *, enable_login_gate: 
             raise HTTPException(422, detail=str(error)) from error
         key = (pack.code, place.lower())
         if key not in lookup_cache:
-            as_of = datetime.date.today().isoformat()
-            try:
-                people = lookup_representatives(searcher, pack.name, place, as_of)
-                bodies = lookup_government(searcher, pack.name, place, as_of)
-            except Exception as error:  # noqa: BLE001 - network and model failures must not become a 500
-                raise HTTPException(502, detail=f"The web search did not complete: {type(error).__name__}") from error
-            found = {
-                "country": pack.code,
-                "place": place,
-                "representatives": people["representatives"],
-                "bodies": bodies["bodies"],
-                "dropped": people["dropped"] + bodies["dropped"],
-                "left_out": people.get("left_out", []),
-                "notice": people["notice"],
-                "as_of": as_of,
-            }
-            if not found["representatives"] and not found["bodies"]:
-                return found
-            lookup_cache[key] = found
+            cached = fs_cache.get(key)
+            if cached is not None:
+                lookup_cache[key] = cached
+            else:
+                as_of = datetime.date.today().isoformat()
+                try:
+                    people = lookup_representatives(searcher, pack.name, place, as_of)
+                    bodies = lookup_government(searcher, pack.name, place, as_of)
+                except Exception as error:  # noqa: BLE001 - network and model failures must not become a 500
+                    raise HTTPException(502, detail=f"The web search did not complete: {type(error).__name__}") from error
+                found = {
+                    "country": pack.code,
+                    "place": place,
+                    "representatives": people["representatives"],
+                    "bodies": bodies["bodies"],
+                    "dropped": people["dropped"] + bodies["dropped"],
+                    "left_out": people.get("left_out", []),
+                    "notice": people["notice"],
+                    "as_of": as_of,
+                }
+                if not found["representatives"] and not found["bodies"]:
+                    return found
+                lookup_cache[key] = found
+                fs_cache.put(key, found)
         return lookup_cache[key]
 
     @app.post("/api/civic/leaders/person")
@@ -514,12 +528,17 @@ def create_app(llm: Any = _UNSET, searcher: Any = _UNSET, *, enable_login_gate: 
             raise HTTPException(422, detail=str(error)) from error
         key = (pack.code, "person", name.lower())
         if key not in lookup_cache:
-            as_of = datetime.date.today().isoformat()
-            try:
-                detail = lookup_person_detail(searcher, pack.name, name, as_of)
-            except Exception as error:  # noqa: BLE001
-                raise HTTPException(502, detail=f"The web search did not complete: {type(error).__name__}") from error
-            lookup_cache[key] = detail
+            cached = fs_cache.get(key)
+            if cached is not None:
+                lookup_cache[key] = cached
+            else:
+                as_of = datetime.date.today().isoformat()
+                try:
+                    detail = lookup_person_detail(searcher, pack.name, name, as_of)
+                except Exception as error:  # noqa: BLE001
+                    raise HTTPException(502, detail=f"The web search did not complete: {type(error).__name__}") from error
+                lookup_cache[key] = detail
+                fs_cache.put(key, detail)
         return lookup_cache[key]
 
     @app.get("/api/civic/countries/{code}/policies/upcoming")
