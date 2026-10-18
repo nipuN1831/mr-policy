@@ -1,3 +1,4 @@
+import hashlib
 from dataclasses import asdict
 from pathlib import Path
 from typing import Any
@@ -9,6 +10,7 @@ from policy_wind_tunnel.agents.llm import LLM
 from policy_wind_tunnel.benchmark.adapter import wrap_engine
 from policy_wind_tunnel.benchmark.engine import decide
 from policy_wind_tunnel.benchmark.mutants import MUTANTS, build_mutant
+from policy_wind_tunnel.civic.firestore_cache import get_cache
 from policy_wind_tunnel.contract.gold import LENDING_CONTRACT
 from policy_wind_tunnel.contract.evaluator import ContractError
 from policy_wind_tunnel.contract.models import Contract
@@ -63,14 +65,37 @@ def implementation_for(target: str):
     raise UnknownTarget(target)
 
 
+def _policy_hash(policy_text: str) -> str:
+    return hashlib.sha256(policy_text.strip().encode()).hexdigest()[:32]
+
+
 def extraction_payload(policy_text: str, llm: LLM | None, use_gold: bool) -> dict[str, Any]:
     if use_gold or llm is None:
         contract, source, attempts, errors = LENDING_CONTRACT, "gold", 0, []
-    else:
-        result = extract_contract(policy_text, llm)
-        contract, source, attempts, errors = result.contract, "llm", result.attempts, result.errors
-    report = critique(policy_text, contract, llm=llm if source == "llm" else None)
-    return {
+        report = critique(policy_text, contract, llm=None)
+        return {
+            "source": source,
+            "attempts": attempts,
+            "repair_errors": errors,
+            "contract": contract.model_dump(),
+            "critique": {
+                "uncited_clauses": report.uncited_clauses,
+                "unreachable_rules": report.unreachable_rules,
+                "uncovered_input": report.uncovered_input,
+                "proposed": [a.model_dump() for a in report.proposed],
+            },
+        }
+
+    cache = get_cache()
+    cache_key = ("extract", _policy_hash(policy_text))
+    cached = cache.get(cache_key)
+    if cached is not None:
+        return cached
+
+    result = extract_contract(policy_text, llm)
+    contract, source, attempts, errors = result.contract, "llm", result.attempts, result.errors
+    report = critique(policy_text, contract, llm=llm)
+    payload = {
         "source": source,
         "attempts": attempts,
         "repair_errors": errors,
@@ -82,6 +107,8 @@ def extraction_payload(policy_text: str, llm: LLM | None, use_gold: bool) -> dic
             "proposed": [a.model_dump() for a in report.proposed],
         },
     }
+    cache.put(cache_key, payload)
+    return payload
 
 
 def _cluster_payload(cluster) -> dict[str, Any]:
@@ -132,17 +159,26 @@ def benchmark_payload(contract: Contract) -> dict[str, Any]:
     return evaluate_contract(contract)
 
 
+def _is_lending_contract(contract: Contract) -> bool:
+    expected = {f.name for f in LENDING_CONTRACT.fields}
+    return {f.name for f in contract.fields} == expected
+
+
 def whatif_payload(
     contract: Contract, changes: list[dict[str, Any]], population: int, scenario: Scenario | None
 ) -> dict[str, Any]:
-    check_contract_fits_software(contract)
     changed = whatif.apply_changes(contract, changes)
-    people = whatif.generate_population(population)
+    if _is_lending_contract(contract):
+        people = whatif.generate_population(population)
+        code_impact: dict[str, Any] | None = whatif.impact_on_code(changed, REFERENCE)
+    else:
+        people = whatif.generate_population_from_contract(contract, population)
+        code_impact = None
     result = whatif.simulate(contract, changed, people)
     return {
         "scenario": {"id": scenario.id, "title": scenario.title} if scenario else {"id": "custom", "title": "Custom change"},
         "changes": changes,
         "simulation": {**asdict(result), "flip_rate": result.flip_rate, "changed": result.changed},
-        "code_impact": whatif.impact_on_code(changed, REFERENCE),
+        "code_impact": code_impact,
         "health": whatif.contract_health(changed),
     }

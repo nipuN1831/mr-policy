@@ -1,4 +1,5 @@
 import random
+import re
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -102,6 +103,57 @@ def _person(rng: random.Random) -> dict[str, Any]:
 def generate_population(size: int, seed: int = 20261012) -> list[dict[str, Any]]:
     rng = random.Random(seed)
     return [_person(rng) for _ in range(size)]
+
+
+def _field_thresholds(contract) -> dict[str, int]:
+    """Return max integer constant per field name found in rule when-expressions."""
+    thresholds: dict[str, int] = {}
+    field_names = {f.name for f in contract.fields}
+    all_rules = [rule for stage in contract.stages for rule in stage.rules]
+    for rule in all_rules:
+        when = rule.when
+        for name in field_names:
+            # find "<name> op <number>" or "<number> op <name>" patterns
+            for m in re.finditer(
+                rf"\b{re.escape(name)}\b\s*(?:[<>!=]=?|==)\s*(\d+)|(\d+)\s*(?:[<>!=]=?|==)\s*\b{re.escape(name)}\b",
+                when,
+            ):
+                val = int(m.group(1) or m.group(2))
+                if val > thresholds.get(name, 0):
+                    thresholds[name] = val
+    return thresholds
+
+
+def _person_from_contract(rng: random.Random, contract, thresholds: dict[str, int]) -> dict[str, Any]:
+    person: dict[str, Any] = {}
+    for field in contract.fields:
+        if field.kind == "int":
+            lo = field.min if field.min is not None else 0
+            if field.max is not None:
+                hi = field.max
+            else:
+                # use threshold * 2 so synthetic values span the decision boundary
+                hint = thresholds.get(field.name, 0)
+                hi = max(hint * 2, lo + 200)
+            if hi <= lo:
+                hi = lo + 200
+            person[field.name] = rng.randint(lo, hi)
+        elif field.kind == "bool":
+            person[field.name] = rng.random() < 0.5
+        elif field.kind in ("str", "enum") and field.values:
+            person[field.name] = rng.choice(field.values)
+        elif field.kind == "set" and field.values:
+            k = rng.randint(0, len(field.values))
+            person[field.name] = rng.sample(field.values, k)
+        else:
+            person[field.name] = None
+    return person
+
+
+def generate_population_from_contract(contract, size: int, seed: int = 20261012) -> list[dict[str, Any]]:
+    rng = random.Random(seed)
+    thresholds = _field_thresholds(contract)
+    return [_person_from_contract(rng, contract, thresholds) for _ in range(size)]
 
 
 def _tally(items: list[str]) -> dict[str, int]:

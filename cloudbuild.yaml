@@ -31,7 +31,7 @@ steps:
       - --set-env-vars=GOOGLE_GENAI_USE_VERTEXAI=true
       - --set-env-vars=GOOGLE_CLOUD_PROJECT=$PROJECT_ID
       - --set-env-vars=GOOGLE_CLOUD_LOCATION=global
-      - --set-env-vars=PWT_MODEL=gemini-3.5-flash
+      - --set-env-vars=PWT_MODEL=gemini-2.5-flash
       - --set-env-vars=PWT_LIVE_LEADERS=1
       - --service-account=policy-wind-tunnel-sa@$PROJECT_ID.iam.gserviceaccount.com
 

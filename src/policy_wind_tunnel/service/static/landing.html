@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#f8faf7" />
   <meta name="description" content="Check whether you qualify for a public scheme and see the exact published rule behind the answer. Officials can test a rule change before it reaches people." />
-  <title>Policy Wind Tunnel — Government policies, made simple</title>
+  <title>Mr. Policy — Government policies, made simple</title>
   <link rel="icon" href="/favicon.ico" type="image/svg+xml" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -55,8 +55,8 @@ button:focus-visible, a:focus-visible, select:focus-visible, textarea:focus-visi
 .chevron { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
 
 /* Hero */
-.hero { overflow: hidden; position: relative; padding: 52px 24px 42px; background: #0e2318 url('/static/img/hero-bg.jpg') center top / cover no-repeat; }
-.hero::before { content: ""; position: absolute; inset: 0; background: rgba(8,22,14,.52); z-index: 0; pointer-events: none; }
+.hero { overflow: hidden; position: relative; padding: 52px 24px 42px; min-height: 520px; background: #0e2318 url('/static/img/hero-bg.jpg') center 50% / cover no-repeat; }
+.hero::before { content: ""; position: absolute; inset: 0; background: rgba(8,22,14,.28); z-index: 0; pointer-events: none; }
 .hero-inner { width: min(100%, 1050px); margin: 0 auto; text-align: center; position: relative; z-index: 1; }
 .country-control { display: inline-flex; align-items: center; gap: 10px; padding: 7px 7px 7px 16px; background: #fff; border: 1px solid #cfe0d4; border-radius: 999px; color: var(--muted); font-size: 13px; font-weight: 600; box-shadow: 0 3px 10px rgba(15,40,28,.1); margin-bottom: 34px; }
 .country-select-shell { display: inline-flex; align-items: center; gap: 8px; min-height: 36px; padding: 0 12px; border-radius: 999px; color: var(--ink); background: var(--green-soft); border: 1px solid #cfe0d4; }
@@ -72,10 +72,10 @@ h1 span { color: #6fcf97; }
 .hero-subtitle { max-width: 700px; margin: 18px auto 31px; color: rgba(240,247,243,.78); font-size: clamp(16px, 2vw, 21px); line-height: 1.55; }
 
 /* Ask box */
-.ask-box { background: rgba(255,255,255,.96); border: 1.5px solid #9bbba8; border-radius: 20px; box-shadow: 0 15px 42px rgba(30,67,47,.075); padding: 20px 20px 16px 25px; text-align: left; transition: border-color .2s ease, box-shadow .2s ease; }
-.ask-box:focus-within { border-color: #36765a; box-shadow: 0 0 0 4px rgba(54,118,90,.10), 0 15px 42px rgba(30,67,47,.075); }
+.ask-box { background: rgba(255,255,255,.62); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1.5px solid rgba(155,187,168,.7); border-radius: 20px; box-shadow: 0 15px 42px rgba(30,67,47,.075); padding: 20px 20px 16px 25px; text-align: left; transition: border-color .2s ease, box-shadow .2s ease; }
+.ask-box:focus-within { border-color: #36765a; box-shadow: 0 0 0 4px rgba(54,118,90,.10), 0 15px 42px rgba(30,67,47,.075); background: rgba(255,255,255,.72); }
 .ask-box textarea { display: block; width: 100%; height: auto; min-height: 57px; max-height: 190px; resize: none; padding: 4px 4px 12px; border: 0; outline: none; background: transparent; color: var(--ink); font-size: 18px; line-height: 1.5; font-family: inherit; border-radius: 0; }
-.ask-box textarea::placeholder { color: #77827c; opacity: 1; }
+.ask-box textarea::placeholder { color: #4a5550; opacity: 1; }
 .ask-toolbar, .ask-tools { display: flex; align-items: center; }
 .ask-toolbar { justify-content: space-between; gap: 16px; }
 .ask-tools { flex-wrap: wrap; gap: 16px; }
@@ -212,7 +212,7 @@ h1 span { color: #6fcf97; }
   .select-wrap { height: 38px; padding: 0 9px; gap: 5px; }
   .select-wrap > .icon { width: 16px; height: 16px; }
   .select-wrap select { max-width: 76px; font-size: 12px; }
-  .hero { padding: 33px 17px 27px; }
+  .hero { padding: 33px 17px 27px; background-position: center 55%; }
   .country-control { margin-bottom: 24px; font-size: 12px; }
   .country-select-shell { min-height: 31px; padding: 0 8px; }
   .country-select-shell select { max-width: 112px; font-size: 13px; }
@@ -275,15 +275,26 @@ h1 span { color: #6fcf97; }
   <a class="skip" href="#main">Skip to main content</a>
 
   <header class="site-header">
-    <a class="brand" href="/" aria-label="Policy Wind Tunnel home" aria-current="page">
+    <a class="brand" href="/" aria-label="Mr. Policy home" aria-current="page">
       <svg class="brand-mark" viewBox="0 0 48 48" role="img" aria-hidden="true">
         <path d="M5 40V24C5 13.5 13.5 5 24 5s19 8.5 19 19v16" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/>
         <path d="M12 40V24c0-6.6 5.4-12 12-12s12 5.4 12 12v16" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/>
         <path d="M19 40V27a5 5 0 0 1 10 0v13" fill="currentColor" opacity=".72"/>
       </svg>
-      <span>Policy Wind Tunnel</span>
+      <span>Mr. Policy</span>
     </a>
     <div class="header-right">
+      <div class="country-control" style="margin-bottom:0;box-shadow:none;border-color:#cfe0d4">
+        <label for="countrySelect" style="white-space:nowrap">Explore policies for</label>
+        <div class="country-select-shell">
+          <span class="country-flag" id="countryFlag" aria-hidden="true">🇮🇳</span>
+          <select id="countrySelect" aria-label="Country">
+            <option value="in" data-flag="🇮🇳" selected>India</option>
+            <option value="sg" data-flag="🇸🇬">Singapore</option>
+          </select>
+          <svg class="chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+        </div>
+      </div>
       <nav class="header-nav" aria-label="Main">
         <a class="nav-link primary" href="/citizen" data-i18n="nav1">For citizens</a>
         <a class="nav-link" href="/officials" data-i18n="nav2">For officials</a>
@@ -305,17 +316,6 @@ h1 span { color: #6fcf97; }
   <main id="main">
     <section class="hero" id="top" aria-labelledby="heroTitle">
       <div class="hero-inner">
-        <div class="country-control">
-          <label for="countrySelect">Explore policies for</label>
-          <div class="country-select-shell">
-            <span class="country-flag" id="countryFlag" aria-hidden="true">🇮🇳</span>
-            <select id="countrySelect" aria-label="Country">
-              <option value="in" data-flag="🇮🇳" selected>India</option>
-              <option value="sg" data-flag="🇸🇬">Singapore</option>
-            </select>
-            <svg class="chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
-          </div>
-        </div>
         <p class="eyebrow"><span class="eyebrow-dot"></span> YOUR GUIDE TO PUBLIC POLICY</p>
         <h1 id="heroTitle" data-i18n="heroTitle">Government policies,<br class="desktop-break" /> made <span>simple.</span></h1>
         <p class="hero-subtitle" data-i18n="heroSubtitle">Find out what you qualify for, understand your rights, and see the exact rule behind every answer.</p>
@@ -335,7 +335,7 @@ h1 span { color: #6fcf97; }
                 <span id="exampleLabel" data-i18n="exampleLabel">Try an example</span>
               </button>
             </div>
-            <button class="submit-button" type="submit" aria-label="Ask Policy Wind Tunnel" title="Go">
+            <button class="submit-button" type="submit" aria-label="Ask Mr. Policy" title="Go">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4.8 21 12 4 19.2l2.2-6.1L15 12l-8.8-1.1L4 4.8Z" fill="currentColor" stroke="currentColor" stroke-linejoin="round"/></svg>
             </button>
           </div>
@@ -622,7 +622,15 @@ const voiceButton = document.getElementById("voiceButton");
 const localeMap = {"हिन्दी":"hi-IN","বাংলা":"bn-IN","தமிழ்":"ta-IN","తెలుగు":"te-IN","मराठी":"mr-IN","English":"en-IN"};
 
 const TRANSLATIONS = {
-  "English": {},
+  "English": {
+    listeningLabel: 'Listening…',
+    listeningStatus: 'Listening. Speak your question, then pause.',
+    voiceLabel: 'Speak your question',
+    micBlocked: 'Microphone access denied. Please type your question.',
+    voiceStopped: 'Voice stopped. Please type your question.',
+    voiceNotSupported: 'Voice input is not supported here. Try Chrome.',
+    chatAnswerLabel: 'Mr. Policy\'s answer',
+  },
   "हिन्दी": {
     heroTitle: 'सरकारी नीतियाँ,<br class="desktop-break" /> बनाई <span>आसान।</span>',
     heroSubtitle: 'जानें आप किस योजना के पात्र हैं, अपने अधिकार समझें, और हर जवाब के पीछे का नियम देखें।',
@@ -689,7 +697,7 @@ const TRANSLATIONS = {
     exampleLoadedStatus: 'उदाहरण लोड हुआ — अपनी स्थिति के अनुसार बदलें, फिर भेजें दबाएं।',
     typeOrPick: 'सवाल टाइप करें या शुरू करने के लिए कोई विषय चुनें।',
     thinkingStatus: 'सोचा जा रहा है…', askSomethingElse: 'कुछ और पूछें',
-    chatAnswerLabel: 'Policy Wind Tunnel का जवाब',
+    chatAnswerLabel: 'Mr. Policy का जवाब',
     commonMisconceptions: 'इस विषय पर आम भ्रांतियाँ',
     redirectCitizen: 'मेरी पात्रता जाँचें', redirectDecides: 'सही कार्यालय खोजें', redirectRights: 'मेरे अधिकार देखें',
     redirectLeaders: 'मेरे क्षेत्र के प्रतिनिधि', redirectOfficials: 'नीति में बदलाव जाँचें', redirectDefault: 'जाँचकर्ता पर जाएं',
@@ -760,7 +768,7 @@ const TRANSLATIONS = {
     exampleLoadedStatus: 'उदाहरण लोड झाले — तुमच्या परिस्थितीनुसार बदला, मग पाठवा दाबा.',
     typeOrPick: 'प्रश्न टाइप करा किंवा सुरुवात करण्यासाठी एखादा विषय निवडा.',
     thinkingStatus: 'विचार केला जात आहे…', askSomethingElse: 'आणखी काही विचारा',
-    chatAnswerLabel: 'Policy Wind Tunnel चे उत्तर',
+    chatAnswerLabel: 'Mr. Policy चे उत्तर',
     commonMisconceptions: 'या विषयावरील सामान्य गैरसमज',
     redirectCitizen: 'माझी पात्रता तपासा', redirectDecides: 'योग्य कार्यालय शोधा', redirectRights: 'माझे हक्क पाहा',
     redirectLeaders: 'माझ्या परिसरातील प्रतिनिधी', redirectOfficials: 'धोरणातील बदल तपासा', redirectDefault: 'तपासणीकडे जा',

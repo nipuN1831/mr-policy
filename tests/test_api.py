@@ -130,7 +130,7 @@ def test_benchmark_reports_the_headline_numbers(client):
 
 def test_landing_page_offers_both_paths(client):
     page = client.get("/")
-    assert page.status_code == 200 and "Policy Wind Tunnel" in page.text
+    assert page.status_code == 200 and "Mr. Policy" in page.text
     assert 'href="/citizen"' in page.text and 'href="/officials"' in page.text
 
 
@@ -251,7 +251,7 @@ def test_the_officials_whatif_tab_has_an_exploratory_impact_section(client):
 def test_the_about_page_explains_both_simulation_modes(client):
     text = client.get("/about").text
     assert "exploratory" in text.lower()
-    assert "policysim" in text.lower()
+    assert "causal engine" in text.lower()
     assert "model assumption" in text.lower() or "model assumptions" in text.lower()
 
 

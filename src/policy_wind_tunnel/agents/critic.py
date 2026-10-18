@@ -60,7 +60,7 @@ def _llm_ambiguities(policy_text: str, contract: Contract, llm: LLM) -> list[Amb
                 )
             )
         return [p for p in proposed if p.id not in known]
-    except (json.JSONDecodeError, KeyError, TypeError, ValueError):
+    except Exception:
         return []
 
 

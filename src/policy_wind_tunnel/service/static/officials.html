@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Officials: test a rule before you ship it | Policy Wind Tunnel</title>
+<title>Officials: test a rule before you ship it | Mr. Policy</title>
 <link rel="icon" href="/favicon.ico" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -131,13 +131,13 @@ th { color: var(--muted); font-weight: 700; font-size: 12px; text-transform: upp
 <body>
 <a class="skip" href="#main">Skip to content</a>
 <header class="site-header">
-  <a class="brand" href="/" aria-label="Policy Wind Tunnel home">
+  <a class="brand" href="/" aria-label="Mr. Policy home">
     <svg class="brand-mark" viewBox="0 0 48 48" role="img" aria-hidden="true">
       <path d="M5 40V24C5 13.5 13.5 5 24 5s19 8.5 19 19v16" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/>
       <path d="M12 40V24c0-6.6 5.4-12 12-12s12 5.4 12 12v16" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/>
       <path d="M19 40V27a5 5 0 0 1 10 0v13" fill="currentColor" opacity=".72"/>
     </svg>
-    <span>Policy Wind Tunnel</span>
+    <span>Mr. Policy</span>
   </a>
   <nav class="header-nav" aria-label="Main">
     <a class="nav-link" href="/citizen" data-i18n="nav1">For citizens</a>
@@ -149,11 +149,11 @@ th { color: var(--muted); font-weight: 700; font-size: 12px; text-transform: upp
 <main id="main" class="wrap">
   <div class="hero">
     <p class="eyebrow" data-i18n="heroEyebrow">Officials</p>
-    <h1 data-i18n="heroH1">Test a rule before you ship it</h1>
+    <h1 data-i18n="heroH1" id="heroH1">Test a rule before you ship it</h1>
     <p data-i18n="heroLead">Load a policy, try a change on a synthetic population, and check that the software still follows the rule.</p>
     <p class="muted" id="status"></p>
   </div>
-  <div class="banner" data-i18n="banner">The lending policy and every applicant here are fictional and synthetic. Percentages show how the mechanism works, not real-world forecasts.</div>
+  <div class="banner" id="banner-text" data-i18n="banner">The lending policy and every applicant here are fictional and synthetic. Percentages show how the mechanism works, not real-world forecasts.</div>
 
   <div class="tabs" id="tabs">
     <button data-tab="policy" class="on"><span class="num">1</span><span data-i18n="tab1">Policy</span></button>
@@ -166,10 +166,16 @@ th { color: var(--muted); font-weight: 700; font-size: 12px; text-transform: upp
     <section>
       <h2 data-i18n="policySectionTitle">The policy and its contract</h2>
       <p class="lead" data-i18n="policySectionLead">The policy is plain text. The contract turns each sentence into an exact, checkable rule. Anything unclear is listed below for a person to decide.</p>
+      <div class="row" style="margin-bottom:10px;align-items:center;gap:10px">
+        <label style="font-size:.85rem;color:#556b5e;white-space:nowrap">Load example:</label>
+        <span class="select-shell"><select id="policyPreset" aria-label="Policy preset">
+          <option value="lending">Lending policy (demo)</option>
+          <option value="ayushman">Ayushman Bharat PM-JAY</option>
+        </select><svg class="chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></span>
+      </div>
       <textarea id="policy" spellcheck="false" aria-label="Policy text"></textarea>
       <div class="row">
         <button id="extract" data-i18n="buildContractBtn">Build the contract</button>
-        <label class="muted"><input type="checkbox" id="useGold"> <span data-i18n="useGoldLabel">use the bundled hand-written contract</span></label>
       </div>
       <div id="extractNote" class="muted"></div>
     </section>
@@ -202,7 +208,7 @@ th { color: var(--muted); font-weight: 700; font-size: 12px; text-transform: upp
     </section>
     <section style="border:2px solid var(--amber);border-radius:12px;padding:20px 22px;margin-top:18px">
       <h2><span data-i18n="exploratoryTitle">Exploratory impact model</span> <span class="pill warn" data-i18n="illustrativeOnlyPill">Illustrative only</span></h2>
-      <p class="lead" data-i18n="exploratoryLead">Powered by PolicySim's causal engine (MIT declared). Edge weights come from our synthetic population, not real data. Numbers are model assumptions — not predictions.</p>
+      <p class="lead" data-i18n="exploratoryLead">Causal model (MIT declared). Edge weights come from our synthetic population, not real data. Numbers are model assumptions — not predictions.</p>
       <div class="row">
         <span class="select-shell"><select id="exploratoryRule" aria-label="Rule to change"></select><svg class="chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></span>
         <label><span data-i18n="changeFactorLabel">Change factor: </span><input type="number" id="exploratoryFactor" value="1.5" min="0" max="5" step="0.1" style="width:5rem"></label>
@@ -213,7 +219,10 @@ th { color: var(--muted); font-weight: 700; font-size: 12px; text-transform: upp
   </div>
 
   <div class="pane" id="tab-test" hidden>
-    <section>
+    <div id="testLendingNotice" class="banner" style="background:var(--amber-10,#fffbeb);border:1px solid var(--amber);display:none">
+      These tests run against the built-in lending reference engine. Load the demo lending policy on the Policy tab to use this feature.
+    </div>
+    <section id="testSection">
       <h2 data-i18n="testTitle">Does the software follow the policy?</h2>
       <p class="lead" data-i18n="testLead">Tests are built from the rule's own boundaries: for each condition, two nearly identical people on either side of the line. One implementation is correct, and ten each hide one realistic bug.</p>
       <div class="row">
@@ -233,7 +242,10 @@ th { color: var(--muted); font-weight: 700; font-size: 12px; text-transform: upp
   </div>
 
   <div class="pane" id="tab-bench" hidden>
-    <section>
+    <div id="benchLendingNotice" class="banner" style="background:var(--amber-10,#fffbeb);border:1px solid var(--amber);display:none">
+      This benchmark runs against the built-in lending reference engine. Load the demo lending policy on the Policy tab to use this feature.
+    </div>
+    <section id="benchSection">
       <h2 data-i18n="benchTitle">Generated tests against hand-written tests</h2>
       <p class="lead" data-i18n="benchLead">Ten bugs were planted in copies of the lending engine. A hand-written suite and the generated suite each try to catch them.</p>
       <div class="row"><button id="bench" data-i18n="runComparisonBtn">Run the comparison</button></div>
@@ -250,6 +262,45 @@ document.getElementById("signOutLink").addEventListener("click", (e) => {
 });
 let contract = null;
 let scenarios = [];
+let isLendingContract = false;
+
+const LENDING_FIELDS = new Set(["age","employment","monthly_income","business_vintage_months","credit_score","existing_obligations","proposed_emi","loan_amount","documents","relationship_months","has_delinquency"]);
+
+function detectLending(c) {
+  if (!c) return false;
+  const names = new Set(c.fields.map(f => f.name));
+  return LENDING_FIELDS.size === names.size && [...LENDING_FIELDS].every(n => names.has(n));
+}
+
+function buildScenariosFromContract(c) {
+  const result = [];
+  const allRules = c.stages.flatMap(s => s.rules);
+  for (const rule of allRules) {
+    const nums = [...new Set([...rule.when.matchAll(/\b(\d+)\b/g)].map(m => parseInt(m[1])).filter(n => n >= 2))];
+    if (!nums.length) continue;
+    for (const n of nums) {
+      // small thresholds (age, count, score < 200): flat ±5 step; large values: ±15%
+      const step = n < 200 ? 5 : Math.round(n * 0.15);
+      const lower = n - step;
+      const higher = n + step;
+      if (lower < 0 || lower === n || higher === n) continue;
+      const label = rule.id.replace(/_/g, " ");
+      result.push({
+        id: `${rule.id}_tighten_${n}`,
+        title: `Tighten: ${label} (${n} → ${lower})`,
+        description: `${rule.id}: threshold ${n} → ${lower}.`,
+        changes: [{ target: rule.id, expr: rule.when.replaceAll(String(n), String(lower)), note: `Threshold ${n} → ${lower}` }],
+      });
+      result.push({
+        id: `${rule.id}_relax_${n}`,
+        title: `Relax: ${label} (${n} → ${higher})`,
+        description: `${rule.id}: threshold ${n} → ${higher}.`,
+        changes: [{ target: rule.id, expr: rule.when.replaceAll(String(n), String(higher)), note: `Threshold ${n} → ${higher}` }],
+      });
+    }
+  }
+  return result.slice(0, 20);
+}
 
 // A <select> left at width:auto sizes itself to fit its widest option, not the one
 // currently shown, which leaves a gap between the visible text and our chevron icon.
@@ -290,7 +341,7 @@ const I18N = {
     leversTitle: "Which rules read each input?",
     leversLead: "Before changing a rule, see which inputs it touches and which outcomes they can cause. This lists what the contract reads. It does not predict real-world effects.",
     loadingText: "Loading...", exploratoryTitle: "Exploratory impact model", illustrativeOnlyPill: "Illustrative only",
-    exploratoryLead: "Powered by PolicySim's causal engine (MIT declared). Edge weights come from our synthetic population, not real data. Numbers are model assumptions — not predictions.",
+    exploratoryLead: "Causal model (MIT declared). Edge weights come from our synthetic population, not real data. Numbers are model assumptions — not predictions.",
     changeFactorLabel: "Change factor: ", simulateWord: "Simulate",
     testTitle: "Does the software follow the policy?",
     testLead: "Tests are built from the rule's own boundaries: for each condition, two nearly identical people on either side of the line. One implementation is correct, and ten each hide one realistic bug.",
@@ -350,7 +401,7 @@ const I18N = {
     leversTitle: "कौन से नियम हर इनपुट को पढ़ते हैं?",
     leversLead: "नियम बदलने से पहले, देखें कि यह किन इनपुट को छूता है और कौन से परिणाम ला सकता है। यह दिखाता है कि अनुबंध क्या पढ़ता है। यह वास्तविक दुनिया के प्रभावों का अनुमान नहीं लगाता।",
     loadingText: "लोड हो रहा है...", exploratoryTitle: "खोजपरक प्रभाव मॉडल", illustrativeOnlyPill: "केवल उदाहरणात्मक",
-    exploratoryLead: "PolicySim के causal इंजन (MIT घोषित) द्वारा संचालित। एज वेट हमारी सिंथेटिक जनसंख्या से आते हैं, असली डेटा से नहीं। संख्याएं मॉडल की मान्यताएं हैं — भविष्यवाणी नहीं।",
+    exploratoryLead: "Causal मॉडल (MIT घोषित)। एज वेट हमारी सिंथेटिक जनसंख्या से आते हैं, असली डेटा से नहीं। संख्याएं मॉडल की मान्यताएं हैं — भविष्यवाणी नहीं।",
     changeFactorLabel: "बदलाव कारक: ", simulateWord: "सिम्युलेट करें",
     testTitle: "क्या सॉफ्टवेयर नीति का पालन करता है?",
     testLead: "टेस्ट नियम की अपनी सीमाओं से बनाए जाते हैं: हर शर्त के लिए, रेखा के दोनों ओर लगभग एक जैसे दो लोग। एक इम्प्लीमेंटेशन सही है, और दस में से हर एक में एक असली बग छुपा है।",
@@ -410,7 +461,7 @@ const I18N = {
     leversTitle: "कोणते नियम प्रत्येक इनपुट वाचतात?",
     leversLead: "नियम बदलण्यापूर्वी, तो कोणत्या इनपुटला स्पर्श करतो आणि कोणते परिणाम घडवू शकतो ते पाहा. हे करार काय वाचतो ते दाखवते. हे खऱ्या जगातील परिणामांचा अंदाज लावत नाही.",
     loadingText: "लोड होत आहे...", exploratoryTitle: "शोधक परिणाम मॉडेल", illustrativeOnlyPill: "फक्त उदाहरणादाखल",
-    exploratoryLead: "PolicySim च्या causal इंजिनद्वारे (MIT घोषित) चालवले जाते. एज वेट्स आमच्या कृत्रिम लोकसंख्येतून येतात, खऱ्या डेटातून नाही. संख्या मॉडेलच्या गृहीतके आहेत — भाकीत नाहीत.",
+    exploratoryLead: "Causal मॉडेल (MIT घोषित). एज वेट्स आमच्या कृत्रिम लोकसंख्येतून येतात, खऱ्या डेटातून नाही. संख्या मॉडेलच्या गृहीतके आहेत — भाकीत नाहीत.",
     changeFactorLabel: "बदल घटक: ", simulateWord: "सिम्युलेट करा",
     testTitle: "सॉफ्टवेअर धोरण पाळते का?",
     testLead: "चाचण्या नियमाच्या स्वतःच्या सीमांमधून तयार केल्या जातात: प्रत्येक अटीसाठी, रेषेच्या दोन्ही बाजूला जवळपास सारखी दोन माणसे. एक अंमलबजावणी बरोबर आहे, आणि दहापैकी प्रत्येकात एक खरा बग लपलेला आहे.",
@@ -480,13 +531,13 @@ function showTab(name) {
 
 async function loadLevers() {
   try {
-    const b = await api("/api/levers", { contract: contract || undefined, use_gold: !contract });
+    const b = await api("/api/levers", { contract: contract || undefined, use_gold: !contract && isLendingContract });
     $("levers").innerHTML = `<table><tr><th>${t("inputHeader")}</th><th>${t("rulesReadHeader")}</th><th>${t("canCauseHeader")}</th></tr>` + b.levers.map((i) =>
       `<tr><td><b>${esc(i.field)}</b><div class="muted">${esc(i.description)}</div></td>
-      <td>${i.rules.length ? i.rules.map((r) => `${esc(r.id)} <span class="muted">(clause ${esc(r.clause)})</span>`).join(", ") : `<span class="muted">${t("noneWord")}</span>`}</td>
+      <td>${i.rules.length ? i.rules.map((r) => `${esc(r.id)} <span class="muted">(${r.clause.length > 55 ? esc(r.clause.slice(0,53)) + "\u2026" : esc(r.clause)})</span>`).join(", ") : `<span class="muted">${t("noneWord")}</span>`}</td>
       <td>${i.outcomes.length ? i.outcomes.map(esc).join(", ") + (i.reasons.length ? ' <span class="muted">' + i.reasons.map(esc).join(", ") + "</span>" : "") : `<span class="muted">${t("noneWord")}</span>`}</td></tr>`).join("") + "</table><p class=\"muted\">" + esc(b.note) + "</p>";
     const allRules = b.levers.flatMap((i) => i.rules).filter((r, idx, arr) => arr.findIndex((x) => x.id === r.id) === idx);
-    $("exploratoryRule").innerHTML = allRules.map((r) => `<option value="${esc(r.id)}">${esc(r.id)} (clause ${esc(r.clause)})</option>`).join("");
+    $("exploratoryRule").innerHTML = allRules.map((r) => { const label = r.clause.length > 40 ? r.clause.slice(0, 38) + "…" : r.clause; return `<option value="${esc(r.id)}">${esc(r.id)} — ${esc(label)}</option>`; }).join("");
     fitSelectWidth($("exploratoryRule"));
   } catch (error) {
     $("levers").innerHTML = '<span class="err">' + esc(error.message) + "</span>";
@@ -500,7 +551,7 @@ $("runExploratory").onclick = async () => {
   $("runExploratory").disabled = true;
   $("exploratoryOut").textContent = t("simulatingStatus");
   try {
-    const b = await api("/api/exploratory", { rule_id: ruleId, change_factor: factor, contract: contract || undefined, use_gold: !contract });
+    const b = await api("/api/exploratory", { rule_id: ruleId, change_factor: factor, contract: contract || undefined, use_gold: !contract && isLendingContract });
     $("exploratoryOut").innerHTML =
       `<div class="pill warn" style="margin:0.6rem 0;display:inline-block">${esc(b.note)}</div>` +
       `<table><tr><th>${t("fieldHeader")}</th><th>${t("baselineHeader")}</th><th>${t("simulatedHeader")}</th><th>Δ%</th><th>95% CI</th><th>${t("causalPathHeader")}</th></tr>` +
@@ -520,20 +571,69 @@ $("scenario").addEventListener("change", () => fitSelectWidth($("scenario")));
 $("target").addEventListener("change", () => fitSelectWidth($("target")));
 $("popSize").addEventListener("change", () => fitSelectWidth($("popSize")));
 
+function populateScenarios(contractForScenarios) {
+  if (isLendingContract) {
+    $("scenario").innerHTML = scenarios.map((s) => `<option value="${esc(s.id)}">${esc(s.title)}</option>`).join("");
+    $("scenarioDesc").textContent = scenarios[0]?.description || "";
+  } else {
+    const generated = buildScenariosFromContract(contractForScenarios);
+    scenarios = generated;
+    $("scenario").innerHTML = generated.length
+      ? generated.map((s) => `<option value="${esc(s.id)}">${esc(s.title)}</option>`).join("")
+      : `<option value="">No numeric thresholds found</option>`;
+    $("scenarioDesc").textContent = generated[0]?.description || "";
+  }
+  fitSelectWidth($("scenario"));
+}
+
+function updateLendingGating() {
+  const notice = !isLendingContract;
+  $("testLendingNotice").style.display = notice ? "" : "none";
+  $("testSection").style.display = notice ? "none" : "";
+  $("benchLendingNotice").style.display = notice ? "" : "none";
+  $("benchSection").style.display = notice ? "none" : "";
+}
+
+const AYUSHMAN_POLICY_TEXT = `Ayushman Bharat Pradhan Mantri Jan Arogya Yojana (PM-JAY).
+
+## L1
+Rural households are eligible if at least one SECC 2011 deprivation criterion applies: household has no adult member aged 16–59, female-headed household with no adult male member, no able-bodied adult member, SC/ST household, landless household deriving major income from manual casual labour, or household lives in a single room with kucha walls and roof. Additionally: no motorized vehicle, no refrigerator, no government employee member, no income-tax-paying member, annual household income below ₹3,00,000, family size 5 or fewer.
+
+## L2
+Urban households are eligible if they belong to one of 11 occupational categories: ragpickers, beggars, domestic workers, street vendors, construction workers, plumbers, painters, sanitation workers, home-based workers, artisans, transport workers.
+
+## L3
+Senior citizens aged 70 years and above are eligible regardless of income or existing coverage. This 2024 expansion applies to all citizens aged 70 and above. Benefit: additional ₹5 lakh per year for the senior citizen, over and above the family entitlement.
+
+Benefit: ₹5 lakh per family per year for secondary and tertiary hospitalisation. Cashless at any empanelled hospital. Eligibility at beneficiary.nha.gov.in. Refusals: call 14555.`;
+
 async function init() {
   const [health, demo] = await Promise.all([api("/api/health"), api("/api/demo")]);
-  if (!health.llm) $("useGold").checked = true;
   $("policy").value = demo.policy_text;
   scenarios = demo.scenarios;
-  $("scenario").innerHTML = scenarios.map((s) => `<option value="${esc(s.id)}">${esc(s.title)}</option>`).join("");
-  $("scenarioDesc").textContent = scenarios[0].description;
-  fitSelectWidth($("scenario"));
+  $("policyPreset").onchange = () => {
+    if ($("policyPreset").value === "ayushman") {
+      $("policy").value = AYUSHMAN_POLICY_TEXT;
+    } else {
+      $("policy").value = demo.policy_text;
+    }
+    // reset contract state when text changes
+    contract = null; isLendingContract = false;
+    $("contractSection").hidden = true;
+    $("extractNote").textContent = "";
+    populateScenarios(null);
+    updateLendingGating();
+  };
   $("target").innerHTML = demo.targets
     .map((tg) => `<option value="${esc(tg.id)}">${tg.id === "reference" ? t("correctImplementation") : esc(tg.id.replace(/^M\d+_/, "").replace(/_/g, " ")) + " (" + esc(tg.clause) + ")"}</option>`)
     .join("");
   $("target").title = "";
   fitSelectWidth($("target"));
   fitSelectWidth($("popSize"));
+  // lending policy is loaded by default — populate lending scenarios
+  isLendingContract = true;
+  populateScenarios(null);
+  updateLendingGating();
 }
 
 function renderAmbiguities() {
@@ -559,8 +659,17 @@ $("extract").onclick = async () => {
   $("extract").disabled = true;
   $("extractNote").textContent = t("workingStatus");
   try {
-    const result = await api("/api/extract", { policy_text: $("policy").value, use_gold: $("useGold").checked });
+    const result = await api("/api/extract", { policy_text: $("policy").value, use_gold: false });
     contract = result.contract;
+    isLendingContract = detectLending(contract);
+    populateScenarios(contract);
+    updateLendingGating();
+    if (contract.name) {
+      $("heroH1").textContent = contract.name;
+      const policyTab = document.querySelector('[data-tab="policy"] [data-i18n="tab1"]');
+      if (policyTab) policyTab.textContent = contract.name.length > 30 ? contract.name.slice(0, 28) + "…" : contract.name;
+      $("banner-text").textContent = `${contract.name} — applicants are synthetic. Percentages show how the mechanism works, not real-world forecasts.`;
+    }
     const c = result.critique;
     $("extractNote").innerHTML = result.source === "gold"
       ? `<span class="ok">${t("bundledLoadedNote")}</span>${t("notExtractedNote")}`
@@ -663,7 +772,7 @@ const countsTable = (counts) => {
 };
 const exampleRow = (example) => {
   const p = example.inputs;
-  const brief = `age ${p.age}, ${p.employment.replace("_", "-")}, income ${p.monthly_income.toLocaleString()}, score ${p.credit_score ?? "none"}`;
+  const brief = Object.entries(p).slice(0, 4).map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join("+") : v ?? "—"}`).join(", ");
   return `<tr><td>${esc(brief)}</td><td>${esc(example.before.outcome)} ${esc(example.before.reasons.join(", "))}</td>
     <td class="err">${esc(example.after.outcome)} ${esc(example.after.reasons.join(", "))}</td></tr>`;
 };
@@ -677,7 +786,14 @@ $("simulate").onclick = async () => {
   $("simulate").disabled = true;
   $("whatifOut").textContent = t("simulatingStatus");
   try {
-    const b = await api("/api/whatif", { scenario: $("scenario").value, population: Number($("popSize").value), contract: contract || undefined, use_gold: !contract });
+    const chosen = scenarios.find((s) => s.id === $("scenario").value);
+    const payload = { population: Number($("popSize").value), contract: contract || undefined, use_gold: !contract && isLendingContract };
+    if (isLendingContract) {
+      payload.scenario = $("scenario").value;
+    } else {
+      payload.changes = chosen ? chosen.changes : [];
+    }
+    const b = await api("/api/whatif", payload);
     const s = b.simulation, code = b.code_impact;
     const rate = (s.flip_rate * 100).toFixed(1);
     const health = b.health.uncovered_input || b.health.unreachable_rules.length
@@ -687,19 +803,25 @@ $("simulate").onclick = async () => {
       const share = (v / s.population) * 100;
       return `<div class="muted">${esc(k)}: ${v.toLocaleString()} (${share.toFixed(1)}%)</div><div class="bar"><span style="width:${share}%"></span></div>`;
     }).join("");
+    const codeTile = code
+      ? `<div class="tile ${code.failing_cases ? "bad" : "good"}"><div class="big">${code.failing_cases}</div><div class="label">${t("softwareTestsFail", { n: code.cases })}</div></div>`
+      : "";
+    const codeNote = code
+      ? `<p>${code.failing_cases === 0
+          ? `<span class="ok">${t("softwareSatisfiesLabel")}</span>`
+          : `<b>${t("softwareNeedsChangeLabel")}</b>${t("forClauseNote", { clauses: esc(code.clauses.join(", ")), n: code.regression_tests })}`}</p>`
+      : "";
     $("whatifOut").innerHTML = `
       <div class="tiles">
         <div class="tile bad"><div class="big">${s.flipped.toLocaleString()}</div><div class="label">${t("applicantsDifferentDecision", { pop: s.population.toLocaleString(), rate })}</div></div>
         <div class="tile"><div class="big">${s.reason_only_changes.toLocaleString()}</div><div class="label">${t("keepDecisionChangeReason")}</div></div>
-        <div class="tile ${code.failing_cases ? "bad" : "good"}"><div class="big">${code.failing_cases}</div><div class="label">${t("softwareTestsFail", { n: code.cases })}</div></div>
+        ${codeTile}
       </div>
       <div class="row" style="align-items:flex-start"><div style="flex:1;min-width:260px"><b>${t("beforeWord")}</b>${bars(s.before)}</div><div style="flex:1;min-width:260px"><b>${t("afterWord")}</b>${bars(s.after)}</div></div>
       <p><b>${t("whoMovesLabel")}</b>${countsTable(s.transitions)}</p>
       <table><tr><th>${t("exampleApplicantHeader")}</th><th>${t("beforeWord")}</th><th>${t("afterWord")}</th></tr>${s.examples.map(exampleRow).join("")}</table>
       <p>${health}</p>
-      <p>${code.failing_cases === 0
-        ? `<span class="ok">${t("softwareSatisfiesLabel")}</span>`
-        : `<b>${t("softwareNeedsChangeLabel")}</b>${t("forClauseNote", { clauses: esc(code.clauses.join(", ")), n: code.regression_tests })}`}</p>`;
+      ${codeNote}`;
   } catch (error) {
     $("whatifOut").innerHTML = '<span class="err">' + esc(error.message) + "</span>";
   } finally {

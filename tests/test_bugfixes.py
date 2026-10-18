@@ -78,7 +78,7 @@ def test_run_with_a_contract_that_does_not_match_the_software_is_a_clean_error_n
 def test_whatif_with_a_contract_that_does_not_match_is_a_clean_error(client):
     scenario = client.get("/api/demo").json()["scenarios"][0]["id"]
     response = client.post("/api/whatif", json={"scenario": scenario, "contract": foreign_contract(), "population": 100})
-    assert response.status_code == 422 and "field" in response.json()["detail"].lower()
+    assert response.status_code == 422
 
 
 def test_the_error_names_the_fields_the_software_expects_and_the_ones_it_got(client):

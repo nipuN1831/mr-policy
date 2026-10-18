@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>How it works, and what is verified | Policy Wind Tunnel</title>
-<meta name="description" content="How Policy Wind Tunnel turns a published rule into an answer you can check, what has been verified from official pages, and what has not.">
+<title>How it works, and what is verified | Mr. Policy</title>
+<meta name="description" content="How Mr. Policy turns a published rule into an answer you can check, what has been verified from official pages, and what has not.">
 <link rel="icon" href="/favicon.ico" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -78,13 +78,13 @@ a { color: var(--green-dark); }
 <body>
 <a class="skip" href="#main">Skip to content</a>
 <header class="site-header">
-  <a class="brand" href="/" aria-label="Policy Wind Tunnel home">
+  <a class="brand" href="/" aria-label="Mr. Policy home">
     <svg class="brand-mark" viewBox="0 0 48 48" role="img" aria-hidden="true">
       <path d="M5 40V24C5 13.5 13.5 5 24 5s19 8.5 19 19v16" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/>
       <path d="M12 40V24c0-6.6 5.4-12 12-12s12 5.4 12 12v16" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/>
       <path d="M19 40V27a5 5 0 0 1 10 0v13" fill="currentColor" opacity=".72"/>
     </svg>
-    <span>Policy Wind Tunnel</span>
+    <span>Mr. Policy</span>
   </a>
   <nav class="header-nav" aria-label="Main">
     <a class="nav-link" href="/citizen" data-i18n="nav1">For citizens</a>
@@ -128,7 +128,7 @@ a { color: var(--green-dark); }
       <li data-i18n="limit2"><b>Bundled people are fictional.</b> The demo cards are invented. When Gemini web search is connected, the &ldquo;My area&rdquo; tab can look up real representatives. Those results are not reviewed by a person: each fact links to the page it came from, and anything without a matching source is left out.</li>
       <li data-i18n="limit3"><b>No ratings.</b> Live lookup shows offices held, committees, bills and terms. It never shows assets, criminal cases, contact details or any opinion, and it refuses questions that ask it to judge a person.</li>
       <li data-i18n="limit4"><b>The population is synthetic.</b> What-if percentages show how the mechanism works. They are not forecasts, and no behaviour is predicted.</li>
-      <li data-i18n="limit5"><b>Two simulation modes, different claims.</b> The <em>exact</em> what-if re-decides every synthetic applicant under the changed rule — every number is traceable. The <em>exploratory impact model</em> uses PolicySim&rsquo;s causal engine (MIT declared, vendored with attribution) to propagate rule changes through a causal graph whose edge weights come from our synthetic population. The exploratory numbers are model assumptions, not predictions of real-world effect. They are labelled &ldquo;Exploratory only&rdquo; throughout.</li>
+      <li data-i18n="limit5"><b>Two simulation modes, different claims.</b> The <em>exact</em> what-if re-decides every synthetic applicant under the changed rule — every number is traceable. The <em>exploratory impact model</em> uses a causal engine (MIT declared, vendored with attribution) to propagate rule changes through a causal graph whose edge weights come from our synthetic population. The exploratory numbers are model assumptions, not predictions of real-world effect. They are labelled &ldquo;Exploratory only&rdquo; throughout.</li>
       <li data-i18n="limit6"><b>The benchmark is self-made.</b> The planted bugs, the hand-written suite and the generator were written by the same team, so the numbers show recall on known kinds of bug only.</li>
       <li data-i18n="limit7"><b>Some content is partial.</b> Several countries have few verified entries. The citizen pages say which parts are unverified.</li>
       <li data-i18n="limit8"><b>Nothing you enter is stored.</b> Answers are evaluated on request and not saved.</li>
@@ -138,7 +138,7 @@ a { color: var(--green-dark); }
   <section>
     <p class="eyebrow" data-i18n="builtWithEyebrow">Built with</p>
     <h2 data-i18n="builtWithTitle">Google Cloud and open tools</h2>
-    <p class="lead" id="stack" data-i18n="builtWithLead">A Python and FastAPI service, designed to run on Google Cloud Run and not deployed yet. A Z3 solver does the boundary tests and gap checks, Gemini drafts contracts and runs the live area lookup, and PolicySim&rsquo;s causal engine powers the exploratory impact model.</p>
+    <p class="lead" id="stack" data-i18n="builtWithLead">A Python and FastAPI service, designed to run on Google Cloud Run and not deployed yet. A Z3 solver does the boundary tests and gap checks, Gemini drafts contracts and runs the live area lookup, and a causal engine (MIT declared) powers the exploratory impact model.</p>
   </section>
 
   <p class="footer"><a href="/" data-i18n="footerHome">Home</a><a href="/citizen" data-i18n="nav1">For citizens</a><a href="/officials" data-i18n="nav2">For officials</a></p>
@@ -174,12 +174,12 @@ const I18N = {
     limit2: '<b>Bundled people are fictional.</b> The demo cards are invented. When Gemini web search is connected, the &ldquo;My area&rdquo; tab can look up real representatives. Those results are not reviewed by a person: each fact links to the page it came from, and anything without a matching source is left out.',
     limit3: "<b>No ratings.</b> Live lookup shows offices held, committees, bills and terms. It never shows assets, criminal cases, contact details or any opinion, and it refuses questions that ask it to judge a person.",
     limit4: "<b>The population is synthetic.</b> What-if percentages show how the mechanism works. They are not forecasts, and no behaviour is predicted.",
-    limit5: '<b>Two simulation modes, different claims.</b> The <em>exact</em> what-if re-decides every synthetic applicant under the changed rule — every number is traceable. The <em>exploratory impact model</em> uses PolicySim&rsquo;s causal engine (MIT declared, vendored with attribution) to propagate rule changes through a causal graph whose edge weights come from our synthetic population. The exploratory numbers are model assumptions, not predictions of real-world effect. They are labelled &ldquo;Exploratory only&rdquo; throughout.',
+    limit5: '<b>Two simulation modes, different claims.</b> The <em>exact</em> what-if re-decides every synthetic applicant under the changed rule — every number is traceable. The <em>exploratory impact model</em> uses a causal engine (MIT declared, vendored with attribution) to propagate rule changes through a causal graph whose edge weights come from our synthetic population. The exploratory numbers are model assumptions, not predictions of real-world effect. They are labelled &ldquo;Exploratory only&rdquo; throughout.',
     limit6: "<b>The benchmark is self-made.</b> The planted bugs, the hand-written suite and the generator were written by the same team, so the numbers show recall on known kinds of bug only.",
     limit7: "<b>Some content is partial.</b> Several countries have few verified entries. The citizen pages say which parts are unverified.",
     limit8: "<b>Nothing you enter is stored.</b> Answers are evaluated on request and not saved.",
     builtWithEyebrow: "Built with", builtWithTitle: "Google Cloud and open tools",
-    builtWithLead: "A Python and FastAPI service, designed to run on Google Cloud Run and not deployed yet. A Z3 solver does the boundary tests and gap checks, Gemini drafts contracts and runs the live area lookup, and PolicySim&rsquo;s causal engine powers the exploratory impact model.",
+    builtWithLead: "A Python and FastAPI service, designed to run on Google Cloud Run and not deployed yet. A Z3 solver does the boundary tests and gap checks, Gemini drafts contracts and runs the live area lookup, and a causal engine (MIT declared) powers the exploratory impact model.",
     footerHome: "Home",
     schemeCheckableOne: "scheme you can check", schemeCheckableMany: "schemes you can check",
     problemEntryOne: "problem entry", problemEntryMany: "problem entries", fullyVerifiedSuffix: " fully verified",
@@ -204,12 +204,12 @@ const I18N = {
     limit2: '<b>दिए गए लोग काल्पनिक हैं।</b> डेमो कार्ड बनाए गए हैं। जब Gemini वेब खोज जुड़ी होती है, तो "मेरा क्षेत्र" टैब असली प्रतिनिधियों को खोज सकता है। वे परिणाम किसी व्यक्ति द्वारा समीक्षित नहीं हैं: हर तथ्य उस पेज से जुड़ा है जहाँ से वह आया, और बिना मिलान स्रोत वाला कुछ भी छोड़ दिया जाता है।',
     limit3: "<b>कोई रेटिंग नहीं।</b> लाइव खोज पद, समितियाँ, बिल और कार्यकाल दिखाती है। यह कभी संपत्ति, आपराधिक मामले, संपर्क विवरण या कोई राय नहीं दिखाती, और किसी व्यक्ति का मूल्यांकन करने वाले सवालों से मना कर देती है।",
     limit4: "<b>जनसंख्या सिंथेटिक है।</b> व्हाट-इफ प्रतिशत दिखाते हैं कि तंत्र कैसे काम करता है। ये अनुमान नहीं हैं, और किसी व्यवहार की भविष्यवाणी नहीं की जाती।",
-    limit5: '<b>दो सिमुलेशन मोड, अलग दावे।</b> <em>सटीक</em> व्हाट-इफ बदले हुए नियम के तहत हर सिंथेटिक आवेदक का दोबारा फैसला करता है — हर संख्या का पता लगाया जा सकता है। <em>खोजपरक प्रभाव मॉडल</em> PolicySim के causal इंजन (MIT घोषित, एट्रिब्यूशन के साथ) का उपयोग करके नियम बदलावों को एक causal ग्राफ के माध्यम से फैलाता है जिसके एज वेट हमारी सिंथेटिक जनसंख्या से आते हैं। खोजपरक संख्याएं मॉडल की मान्यताएं हैं, वास्तविक प्रभाव की भविष्यवाणी नहीं। इन्हें हर जगह "केवल खोजपरक" लेबल किया गया है।',
+    limit5: '<b>दो सिमुलेशन मोड, अलग दावे।</b> <em>सटीक</em> व्हाट-इफ बदले हुए नियम के तहत हर सिंथेटिक आवेदक का दोबारा फैसला करता है — हर संख्या का पता लगाया जा सकता है। <em>खोजपरक प्रभाव मॉडल</em> एक causal इंजन (MIT घोषित, एट्रिब्यूशन के साथ) का उपयोग करके नियम बदलावों को एक causal ग्राफ के माध्यम से फैलाता है जिसके एज वेट हमारी सिंथेटिक जनसंख्या से आते हैं। खोजपरक संख्याएं मॉडल की मान्यताएं हैं, वास्तविक प्रभाव की भविष्यवाणी नहीं। इन्हें हर जगह "केवल खोजपरक" लेबल किया गया है।',
     limit6: "<b>बेंचमार्क स्वयं बनाया गया है।</b> डाले गए बग, हाथ से लिखा सूट और जेनरेटर एक ही टीम ने बनाए, इसलिए संख्याएं केवल ज्ञात तरह के बग पर पहचान दिखाती हैं।",
     limit7: "<b>कुछ सामग्री आंशिक है।</b> कई देशों में बहुत कम सत्यापित प्रविष्टियाँ हैं। नागरिक पेज बताते हैं कि कौन से हिस्से असत्यापित हैं।",
     limit8: "<b>आपका डाला कुछ भी सेव नहीं होता।</b> जवाब अनुरोध पर मूल्यांकित होते हैं और सेव नहीं किए जाते।",
     builtWithEyebrow: "इनसे बना", builtWithTitle: "Google Cloud और ओपन टूल्स",
-    builtWithLead: "एक Python और FastAPI सेवा, Google Cloud Run पर चलाने के लिए बनाई गई और अभी डिप्लॉय नहीं हुई। एक Z3 सॉल्वर सीमा टेस्ट और गैप जाँच करता है, Gemini अनुबंध बनाता है और लाइव क्षेत्र खोज चलाता है, और PolicySim का causal इंजन खोजपरक प्रभाव मॉडल चलाता है।",
+    builtWithLead: "एक Python और FastAPI सेवा, Google Cloud Run पर चलाने के लिए बनाई गई और अभी डिप्लॉय नहीं हुई। एक Z3 सॉल्वर सीमा टेस्ट और गैप जाँच करता है, Gemini अनुबंध बनाता है और लाइव क्षेत्र खोज चलाता है, और एक causal इंजन (MIT घोषित) खोजपरक प्रभाव मॉडल चलाता है।",
     footerHome: "होम",
     schemeCheckableOne: "योजना जाँच सकते हैं", schemeCheckableMany: "योजनाएं जाँच सकते हैं",
     problemEntryOne: "समस्या प्रविष्टि", problemEntryMany: "समस्या प्रविष्टियाँ", fullyVerifiedSuffix: " पूरी तरह सत्यापित",
@@ -234,12 +234,12 @@ const I18N = {
     limit2: '<b>दिलेले लोक काल्पनिक आहेत.</b> डेमो कार्ड तयार केले आहेत. जेव्हा Gemini वेब शोध जोडलेला असतो, तेव्हा "माझा परिसर" टॅब खऱ्या प्रतिनिधींना शोधू शकतो. ते निकाल एखाद्या व्यक्तीने तपासलेले नाहीत: प्रत्येक तथ्य ते जिथून आले त्या पानाशी जोडलेले आहे, आणि जुळणारा स्रोत नसलेले काहीही वगळले जाते.',
     limit3: "<b>कोणतेही रेटिंग नाही.</b> थेट शोध पदे, समित्या, विधेयके आणि कार्यकाळ दाखवतो. तो कधीही मालमत्ता, गुन्हेगारी प्रकरणे, संपर्क तपशील किंवा कोणतेही मत दाखवत नाही, आणि एखाद्या व्यक्तीचा न्याय करायला सांगणाऱ्या प्रश्नांना नकार देतो.",
     limit4: "<b>लोकसंख्या कृत्रिम आहे.</b> व्हॉट-इफ टक्केवारी यंत्रणा कशी कार्य करते ते दाखवते. हे अंदाज नाहीत, आणि कोणत्याही वर्तनाचे भाकीत केले जात नाही.",
-    limit5: '<b>दोन सिम्युलेशन मोड, वेगळे दावे.</b> <em>नेमका</em> व्हॉट-इफ बदललेल्या नियमाखाली प्रत्येक कृत्रिम अर्जदाराचा पुन्हा निर्णय घेतो — प्रत्येक संख्येचा मागोवा घेता येतो. <em>शोधक परिणाम मॉडेल</em> PolicySim च्या causal इंजिनचा (MIT घोषित, श्रेयासह) वापर करून नियम बदल एका causal आलेखातून पसरवतो ज्याचे एज वेट्स आमच्या कृत्रिम लोकसंख्येतून येतात. शोधक संख्या मॉडेलच्या गृहीतके आहेत, खऱ्या जगातील परिणामाचे भाकीत नाही. त्यांना सर्वत्र "फक्त शोधक" असे लेबल केले आहे.',
+    limit5: '<b>दोन सिम्युलेशन मोड, वेगळे दावे.</b> <em>नेमका</em> व्हॉट-इफ बदललेल्या नियमाखाली प्रत्येक कृत्रिम अर्जदाराचा पुन्हा निर्णय घेतो — प्रत्येक संख्येचा मागोवा घेता येतो. <em>शोधक परिणाम मॉडेल</em> एका causal इंजिनचा (MIT घोषित, श्रेयासह) वापर करून नियम बदल एका causal आलेखातून पसरवतो ज्याचे एज वेट्स आमच्या कृत्रिम लोकसंख्येतून येतात. शोधक संख्या मॉडेलच्या गृहीतके आहेत, खऱ्या जगातील परिणामाचे भाकीत नाही. त्यांना सर्वत्र "फक्त शोधक" असे लेबल केले आहे.',
     limit6: "<b>बेंचमार्क स्वतः तयार केलेले आहे.</b> लावलेले बग, हाताने लिहिलेला संच आणि जनरेटर एकाच टीमने बनवले, त्यामुळे संख्या फक्त ज्ञात प्रकारच्या बगवरील ओळख दाखवतात.",
     limit7: "<b>काही मजकूर अंशतः आहे.</b> अनेक देशांत फार कमी सत्यापित नोंदी आहेत. नागरिक पाने कोणते भाग असत्यापित आहेत ते सांगतात.",
     limit8: "<b>तुम्ही टाकलेले काहीही साठवले जात नाही.</b> उत्तरे विनंतीनुसार मूल्यांकित केली जातात आणि साठवली जात नाहीत.",
     builtWithEyebrow: "यापासून बनवलेले", builtWithTitle: "Google Cloud आणि ओपन टूल्स",
-    builtWithLead: "एक Python आणि FastAPI सेवा, Google Cloud Run वर चालवण्यासाठी तयार केलेली आणि अजून तैनात न केलेली. एक Z3 सॉल्व्हर सीमा चाचण्या आणि त्रुटी तपासण्या करतो, Gemini करार तयार करते आणि थेट क्षेत्र शोध चालवते, आणि PolicySim चे causal इंजिन शोधक परिणाम मॉडेल चालवते.",
+    builtWithLead: "एक Python आणि FastAPI सेवा, Google Cloud Run वर चालवण्यासाठी तयार केलेली आणि अजून तैनात न केलेली. एक Z3 सॉल्व्हर सीमा चाचण्या आणि त्रुटी तपासण्या करतो, Gemini करार तयार करते आणि थेट क्षेत्र शोध चालवते, आणि एक causal इंजिन (MIT घोषित) शोधक परिणाम मॉडेल चालवते.",
     footerHome: "मुख्यपृष्ठ",
     schemeCheckableOne: "योजना तपासू शकता", schemeCheckableMany: "योजना तपासू शकता",
     problemEntryOne: "समस्या नोंद", problemEntryMany: "समस्या नोंदी", fullyVerifiedSuffix: " पूर्णपणे सत्यापित",
