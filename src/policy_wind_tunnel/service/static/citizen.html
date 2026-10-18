@@ -68,12 +68,12 @@ button:focus-visible, a:focus-visible, select:focus-visible, textarea:focus-visi
 .tabs button.on { background: #fff; color: var(--green-dark); box-shadow: var(--shadow); }
 
 /* Buttons */
-button.primary, button#extract, button#run, button#simulate, button#checkBtn, button#findBtn, button#placeBtn, button#runExploratory, button#bench {
+button.primary, button#extract, button#run, button#simulate, button#checkBtn, button#findBtn, button#runExploratory, button#bench {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   background: var(--green-dark); color: #fff; border: 0; border-radius: 11px;
   padding: 11px 22px; font: 650 16px "DM Sans", sans-serif; cursor: pointer; min-height: 46px; transition: background .15s;
 }
-button.primary:hover, button#extract:hover, button#run:hover, button#simulate:hover, button#checkBtn:hover, button#findBtn:hover, button#placeBtn:hover, button#runExploratory:hover, button#bench:hover { background: var(--green); }
+button.primary:hover, button#extract:hover, button#run:hover, button#simulate:hover, button#checkBtn:hover, button#findBtn:hover, button#runExploratory:hover, button#bench:hover { background: var(--green); }
 button.secondary, button.ghost, button#bench, button#changeBtn, button#toggleJson, button#againBtn, button#backBtn, button#startBtn, button#exampleBtn, button#resultBtn {
   background: #fff; color: var(--ink); border: 1.5px solid #9bbba8; border-radius: 11px;
   padding: 10px 18px; font: 600 15px "DM Sans", sans-serif; cursor: pointer; min-height: 44px;
@@ -174,6 +174,9 @@ section, .panel { background: #fff; border: 1px solid var(--line); border-radius
   .row > select, .row > input[type=text] { flex: 1 1 100%; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; } }
+.live-loading { display: flex; align-items: flex-start; gap: 14px; padding: 16px; background: #f2f8f5; border: 1.5px solid #c5ddd1; border-radius: 12px; margin-top: 8px; }
+.live-spinner { flex: none; width: 22px; height: 22px; border: 3px solid #c5ddd1; border-top-color: var(--green); border-radius: 50%; animation: live-spin 0.85s linear infinite; margin-top: 2px; }
+@keyframes live-spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
@@ -200,7 +203,7 @@ section, .panel { background: #fff; border: 1px solid var(--line); border-radius
     <h1>Know what you are entitled to</h1>
     <p>Check whether you qualify for a scheme, see the exact rule that decided it, and find who handles your problem.</p>
   </div>
-  <div class="banner">Information only. Not legal advice and not an official decision. Nothing you enter is stored. Bundled people are fictional demo data. Live area results come from a web search and are not reviewed by a person.</div>
+  <div class="banner">Information only. Not legal advice and not an official decision. Nothing you enter is stored. India MP data from ECI 2024 + sansad.in; other countries may show representative placeholders. Live area results come from a web search and are not reviewed by a person.</div>
 
   <div class="row">
     <label for="country"><b>Country</b></label>
@@ -242,13 +245,19 @@ section, .panel { background: #fff; border: 1px solid var(--line); border-radius
   </section>
 
   <section id="tab-leaders" hidden>
-    <h2>My area: who represents me, and who decides</h2>
-    <p class="lead">Type your constituency, town or district. Live results come from a web search. Each entry lists the pages that support it, so you can open them and check.</p>
-    <div id="liveBox"></div>
-    <div id="liveOut" aria-live="polite"></div>
-    <h3>Demo layout <span class="pill warn">fictional people</span></h3>
-    <p class="muted">These people are invented to show the layout. They are always available, even when live search is off.</p>
-    <div class="grid" id="leaders"></div>
+    <h2>My area: who represents me</h2>
+    <p class="lead">Search by constituency name or MP name. India has all 543 Lok Sabha MPs from the 2024 general election.</p>
+    <div class="row" style="margin-top:0">
+      <input type="text" id="mpSearch" size="46" aria-label="Constituency or MP name" placeholder="For example: Varanasi, Rahul Gandhi, Kannauj">
+      <button id="mpSearchBtn" class="primary">Search</button>
+    </div>
+    <div id="mpResults" aria-live="polite"></div>
+    <div id="mpDetail" hidden style="margin-top:20px;border-top:2px solid var(--line);padding-top:20px">
+      <button id="mpDetailBack" class="ghost" style="margin-bottom:16px">&larr; Back to results</button>
+      <h2 id="mpDetailName" style="margin:0 0 8px"></h2>
+      <div id="mpDetailBundled"></div>
+      <div id="mpDetailLive" aria-live="polite" style="margin-top:20px;border-top:1px solid var(--line);padding-top:16px"></div>
+    </div>
   </section>
 
   <p class="footer"><a href="/about">How it works and what is verified</a><a href="/">Home</a><a href="/officials">For officials</a></p>
@@ -308,13 +317,7 @@ function renderReference() {
   $("matches").innerHTML = "";
   $("rights").innerHTML = pack.rights.length ? pack.rights.map((r) => `<div class="card"><h3>${esc(r.title)}</h3><p>${esc(r.summary)}</p><p class="muted">How to use it: ${esc(r.how_to_use)}</p>${r.law ? `<p class="muted">Law: ${esc(r.law)}</p>` : ""}${sourceChip(r.source)}</div>`).join("") : empty("No rights are verified for this country yet.");
   $("bodies").innerHTML = pack.tiers.length ? pack.tiers.map((t) => `<div class="card"><h3>${esc(t.name)}</h3><ul>${t.controls.map((c) => `<li>${esc(c)}</li>`).join("")}</ul>${t.note ? `<p class="muted">${esc(t.note)}</p>` : ""}${sourceChip(t.source)}</div>`).join("") : empty("Government structure is not verified for this country yet.");
-  $("leaders").innerHTML = pack.representatives.map((r) => `<div class="card"><h3>${esc(r.name)}</h3><div><span class="pill warn">demo data</span></div>
-    <div>${esc(r.role)}, ${esc(r.body)}</div><div class="muted">${esc(r.constituency)} &middot; ${esc(r.region)} ${r.party ? "&middot; " + esc(r.party) : ""}</div>
-    ${r.terms != null ? `<div class="muted">Terms: ${r.terms}</div>` : ""}
-    ${Object.entries(r.handles).map(([k, v]) => `<div class="muted">${esc(k)}: @${esc(v)} (link only)</div>`).join("")}
-    ${Object.entries(r.links).map(([k, v]) => `<div class="muted">${esc(k)}: ${esc(v)}</div>`).join("")}
-    <p class="muted">Shown for layout only. A real card would give each fact a source link and date.</p></div>`).join("");
-  $("scheme").innerHTML = pack.schemes.map((s) => `<option value="${esc(s.id)}">${esc(s.name)}${s.self_check ? "" : " (information only)"}</option>`).join("");
+$("scheme").innerHTML = pack.schemes.map((s) => `<option value="${esc(s.id)}">${esc(s.name)}${s.self_check ? "" : " (information only)"}</option>`).join("");
   $("scheme").disabled = pack.schemes.length === 0;
   openScheme();
 }
@@ -461,53 +464,139 @@ async function showChange() {
   }
 }
 
-async function initLive() {
-  let live = false;
-  try { live = (await api("/api/civic/leaders/status")).live; } catch (e) { live = false; }
-  $("liveBox").innerHTML = live
-    ? `<div class="row"><input type="text" id="placeText" size="40" aria-label="Your constituency, town or district" placeholder="For example: Marine Parade GRC"><button id="placeBtn">Look up</button></div>
-       <p class="muted">The search describes the place and its officials. It never rates, ranks or comments on anyone, and it will refuse if asked to.</p>`
-    : `<div class="note">Live lookup is off. It needs Gemini web search, which is not connected in this session, so only the fictional demo layout below is shown.</div>`;
-  if (!live) return;
-  const run = async () => {
-    const place = $("placeText").value.trim();
-    if (!place) { $("liveOut").innerHTML = '<p class="err" role="alert">Enter a place first.</p>'; return; }
-    $("placeBtn").disabled = true;
-    $("liveOut").innerHTML = '<p class="muted" role="status">Searching the web. This can take up to a minute...</p>';
-    try {
-      const r = await api("/api/civic/leaders/lookup", { country: $("country").value, place });
-      renderLive(r);
-    } catch (error) {
-      $("liveOut").innerHTML = `<div class="result bad"><h3 style="margin-top:0">No result</h3><p class="err">${esc(error.message)}</p></div>`;
-    } finally { $("placeBtn").disabled = false; }
-  };
-  $("placeBtn").onclick = run;
-  $("placeText").addEventListener("keydown", (e) => { if (e.key === "Enter") run(); });
+function renderMpCard(r, idx) {
+  const badge = r.fictional
+    ? '<span class="pill warn">demo</span>'
+    : '<span class="pill good">ECI 2024</span>';
+  return `<div class="card" style="cursor:pointer" data-mp="${idx}" role="button" tabindex="0" aria-label="View details for ${esc(r.name)}">
+    <h3 style="margin-bottom:6px">${esc(r.name)}</h3>
+    ${badge}
+    <div style="margin-top:8px">${esc(r.role)}</div>
+    <div class="muted">${esc(r.constituency)} &middot; ${esc(r.region)}</div>
+    ${r.party ? `<div class="muted">Party: <b>${esc(r.party)}</b></div>` : ""}
+    ${r.terms != null ? `<div class="muted">Terms: ${r.terms}</div>` : ""}
+    <p style="margin:10px 0 0;font-size:13px;color:var(--green-dark)">Click for full details &rarr;</p>
+  </div>`;
 }
 
-function renderLive(r) {
-  const people = r.representatives.map((p) => `<div class="card"><h3>${esc(p.name)}</h3>
-    <span class="pill good">found by search</span>
-    <div>${esc(p.role)}${p.body ? ", " + esc(p.body) : ""}</div>
-    <div class="muted">${esc(p.constituency)}${p.party ? " &middot; " + esc(p.party) : ""}${p.terms != null ? " &middot; terms: " + p.terms : ""}</div>
-    <ul>${p.record.map((f) => `<li><b>${esc(f.label)}:</b> ${esc(f.value)}</li>`).join("")}</ul>
-    <div class="muted">Pages that support this entry: ${[...new Map(p.record.flatMap((f) => [f.source, ...(f.also || [])]).map((s) => [s.title, s])).values()].map((s) => esc(s.title)).join(", ")}</div>
-    ${Object.entries(p.handles).map(([k, v]) => `<div class="muted">${esc(k)}: @${esc(v)} (link only)</div>`).join("")}
-    <div class="muted">As of ${esc(r.as_of)}</div></div>`).join("");
-  const bodies = r.bodies.map((b) => `<div class="card"><h3>${esc(b.name)}</h3><span class="pill good">${esc(b.level)}</span>
-    ${b.summary ? `<p>${esc(b.summary)}</p>` : ""}
-    <p class="muted" style="margin:6px 0">Responsible for:</p><ul>${b.handles.map((h) => `<li>${esc(h)}</li>`).join("")}</ul>
-    ${b.contact && b.contact.phone ? `<p><strong>Phone:</strong> ${esc(b.contact.phone)}</p>` : ""}
-    ${b.contact && b.contact.hours ? `<p><strong>Hours:</strong> ${esc(b.contact.hours)}</p>` : ""}
-    ${b.contact && b.contact.website ? `<p class="muted">Source: ${esc(b.contact.website)}</p>` : ""}
-    <div style="margin-top:8px">${sourceChip(b.source)}</div></div>`).join("");
-  $("liveOut").innerHTML = `<div class="note">${esc(r.notice)}</div>
-    <h3>Representatives for ${esc(r.place)}</h3>${people ? '<div class="grid">' + people + "</div>" : empty("No representative could be confirmed from a source for this place.")}
-    <h3>Bodies that decide everyday matters</h3>${bodies ? '<div class="grid">' + bodies + "</div>" : empty("No body could be confirmed from a source for this place.")}
-    ${r.left_out && r.left_out.length ? `<p class="muted"><b>Left out for lack of a trustworthy source:</b> ${r.left_out.map(esc).join(", ")}. They may still hold office, so check the official pages.</p>` : ""}
-    ${r.dropped ? `<p class="muted">${r.dropped} item(s) were left out because they had no matching source.</p>` : ""}
-    <p class="muted">Results can differ each time the search runs. Facts on this page are tied to the person's entry, not to single sentences.</p>`;
+let _liveEnabled = false;
+
+function openMpDetail(r) {
+  $("mpDetailName").textContent = r.name;
+  const badge = r.fictional
+    ? '<span class="pill warn">demo data</span>'
+    : '<span class="pill good">ECI 2024</span>';
+  const _HEADER_LABELS = new Set(["constituency", "state", "region", "party", "house", "lok sabha", "rajya sabha"]);
+  const facts = r.record
+    .filter((f) => !_HEADER_LABELS.has(f.label.toLowerCase()))
+    .map((f) =>
+    `<tr><td style="padding:6px 12px 6px 0;font-weight:600;white-space:nowrap">${esc(f.label)}</td>
+     <td style="padding:6px 0">${esc(f.value)}
+       <div class="muted" style="font-size:12px">Source: ${esc(f.source.title)} &middot; ${esc(f.source.url)} &middot; ${esc(f.source.as_of)}</div>
+     </td></tr>`
+  ).join("");
+  const links = Object.entries(r.links || {}).map(([k, v]) =>
+    `<li><b>${esc(k)}:</b> ${esc(v)}</li>`
+  ).join("");
+  $("mpDetailBundled").innerHTML = `
+    <div style="margin-bottom:12px">${badge}
+      <span class="muted" style="margin-left:8px">${esc(r.role)} &middot; ${esc(r.constituency)} &middot; ${esc(r.region)}</span>
+      ${r.party ? `<span class="muted" style="margin-left:8px">Party: <b>${esc(r.party)}</b></span>` : ""}
+    </div>
+    <table style="width:100%;border-collapse:collapse;margin-bottom:16px">${facts}</table>
+    ${links ? `<h3 style="margin:0 0 8px">Official pages</h3><ul style="margin:0;padding:0 0 0 18px">${links}</ul>` : ""}
+    <p class="muted" style="margin-top:16px;font-size:13px">Data from ECI 2024 and sansad.in. Not an official page.</p>`;
+  $("mpDetail").hidden = false;
+  $("mpDetail").removeAttribute("hidden");
+  $("mpResults").hidden = true;
+  $("mpDetailBack").focus();
+  if (_liveEnabled) {
+    $("mpDetailLive").innerHTML = `
+      <div class="live-loading" role="status" aria-live="polite">
+        <span class="live-spinner" aria-hidden="true"></span>
+        <div>
+          <p style="margin:0 0 4px;font-weight:600;color:var(--green-dark)">Loading live details from Gemini&hellip;</p>
+          <p style="margin:0;font-size:13px;color:var(--muted)">Searching career timeline, elections, parliament work, policies &amp; social handles. Takes 15–45 seconds.</p>
+        </div>
+      </div>`;
+    api("/api/civic/leaders/person", { country: $("country").value, name: r.name })
+      .then((d) => renderMpLiveEnrichment(d))
+      .catch((err) => {
+        $("mpDetailLive").innerHTML = `<p class="muted">Live enrichment unavailable: ${esc(err.message)}</p>`;
+      });
+  } else {
+    $("mpDetailLive").innerHTML = `<p class="muted" style="font-size:13px">Connect Gemini for live details including career timeline, election history, parliament work, policies, and social media.</p>`;
+  }
 }
+
+function _detailSection(title, items) {
+  if (!items || !items.length) return "";
+  const rows = items.map((item) =>
+    `<tr>
+       <td style="padding:5px 12px 5px 0;font-weight:600;white-space:nowrap;vertical-align:top">${esc(item.label)}</td>
+       <td style="padding:5px 0">${esc(item.value)}</td>
+     </tr>`
+  ).join("");
+  return `<h4 style="margin:16px 0 6px">${title}</h4>
+    <table style="width:100%;border-collapse:collapse">${rows}</table>`;
+}
+
+function renderMpLiveEnrichment(d) {
+  const hasContent = (d.career && d.career.length) || (d.elections && d.elections.length) ||
+    (d.parliament_work && d.parliament_work.length) || (d.policies && d.policies.length) ||
+    d.photo_page || (d.handles && Object.keys(d.handles).length);
+  if (!hasContent) {
+    $("mpDetailLive").innerHTML = `<p class="muted">No additional live data found for this person.</p>`;
+    return;
+  }
+  const photoHtml = d.photo_page
+    ? `<p style="margin:0 0 12px;font-size:13px" class="muted">Photo page: ${esc(d.photo_page)}</p>`
+    : "";
+  const handles = d.handles && Object.keys(d.handles).length
+    ? `<h4 style="margin:16px 0 6px">Social media</h4><ul style="margin:0;padding:0 0 0 18px">${Object.entries(d.handles).map(([k, v]) => `<li>${esc(k)}: @${esc(v)}</li>`).join("")}</ul>`
+    : "";
+  $("mpDetailLive").innerHTML = `
+    <h3 style="margin:0 0 12px">Live details <span class="pill warn">Gemini web search &middot; not reviewed</span></h3>
+    ${photoHtml}
+    ${_detailSection("Career timeline", d.career)}
+    ${_detailSection("Elections", d.elections)}
+    ${_detailSection("Parliament work", d.parliament_work)}
+    ${_detailSection("Policies &amp; schemes", d.policies)}
+    ${handles}
+    <p class="muted" style="margin-top:16px;font-size:12px">As of ${esc(d.as_of)}. Live search &mdash; results vary. Facts link to the source domain, not each sentence.</p>`;
+}
+
+let _mpResults = [];
+
+async function runMpSearch() {
+  const q = $("mpSearch").value.trim();
+  if (!q) { $("mpResults").innerHTML = '<p class="err" role="alert">Enter a constituency or name.</p>'; return; }
+  $("mpSearchBtn").disabled = true;
+  $("mpDetail").hidden = true;
+  $("mpResults").hidden = false;
+  $("mpResults").innerHTML = '<p class="muted" role="status">Searching…</p>';
+  try {
+    const r = await api(`/api/civic/countries/${$("country").value}/representatives?constituency=` + encodeURIComponent(q));
+    _mpResults = r.representatives || [];
+    if (!_mpResults.length) {
+      $("mpResults").innerHTML = `<p class="muted">No match for <b>${esc(q)}</b>. Try the full constituency name (e.g. "Varanasi") or the MP's name (e.g. "Rahul Gandhi").</p>`;
+    } else {
+      $("mpResults").innerHTML = `<div class="note">${esc(r.notice)}</div><div class="grid" style="margin-top:12px">${_mpResults.map((rep, i) => renderMpCard(rep, i)).join("")}</div>`;
+      $("mpResults").querySelectorAll("[data-mp]").forEach((el) => {
+        const open = () => openMpDetail(_mpResults[+el.dataset.mp]);
+        el.onclick = open;
+        el.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } });
+      });
+    }
+  } catch (e) {
+    $("mpResults").innerHTML = `<p class="err">${esc(e.message)}</p>`;
+  } finally { $("mpSearchBtn").disabled = false; }
+}
+
+async function initLive() {
+  try { _liveEnabled = (await api("/api/civic/leaders/status")).live; } catch (e) { _liveEnabled = false; }
+}
+
 
 $("findBtn").onclick = async () => {
   const text = $("problemText").value.trim();
@@ -517,9 +606,17 @@ $("findBtn").onclick = async () => {
 };
 $("problemText").addEventListener("keydown", (e) => { if (e.key === "Enter") $("findBtn").click(); });
 
+$("mpSearchBtn").onclick = runMpSearch;
+$("mpSearch").addEventListener("keydown", (e) => { if (e.key === "Enter") runMpSearch(); });
+$("mpDetailBack").onclick = () => {
+  $("mpDetail").hidden = true;
+  $("mpResults").hidden = false;
+  $("mpSearch").focus();
+};
+
 async function loadCountry(code) { pack = await api("/api/civic/countries/" + code); renderReference(); }
 $("scheme").onchange = openScheme;
-$("country").onchange = () => { loadCountry($("country").value); if ($("liveOut")) $("liveOut").innerHTML = ""; };
+$("country").onchange = () => { loadCountry($("country").value); $("mpResults").innerHTML = ""; $("mpDetail").hidden = true; };
 
 (async function init() {
   const countries = await api("/api/civic/countries");
@@ -536,19 +633,28 @@ $("country").onchange = () => { loadCountry($("country").value); if ($("liveOut"
     const match = pack.schemes.find((s) => s.id === schemeParam);
     if (match) { $("scheme").value = schemeParam; await openScheme(); }
   }
-  // pre-fill "decides" tab from landing page question
+  // pre-fill tab from landing page question
   const savedQuestion = sessionStorage.getItem("pwt_question");
   if (savedQuestion) {
     sessionStorage.removeItem("pwt_question");
     const hash = location.hash.replace("#", "");
-    // if redirected to #decides or no scheme param was matched, auto-search
     const schemeMatched = schemeParam && pack && pack.schemes.find((s) => s.id === schemeParam);
-    if (!schemeMatched) {
+    if (schemeMatched) {
+      applyTab(hash || "qualify");
+    } else if (hash === "leaders") {
+      applyTab("leaders");
+      // auto-search MP if question looks like a constituency/name query
+      const mpKeywords = ["who is my mp", "my mp", "mp", "lok sabha", "member of parliament", "representative", "mla"];
+      const lq = savedQuestion.toLowerCase();
+      const isGenericMpQuery = mpKeywords.some((k) => lq.includes(k)) && lq.length < 40;
+      if (!isGenericMpQuery) {
+        $("mpSearch").value = savedQuestion;
+        runMpSearch();
+      }
+    } else {
       applyTab("decides");
       $("problemText").value = savedQuestion;
       $("findBtn").click();
-    } else {
-      applyTab(hash || "qualify");
     }
   } else {
     applyTab(location.hash.replace("#", ""));

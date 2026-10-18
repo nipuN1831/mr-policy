@@ -60,12 +60,90 @@ flowchart LR
 
 | Piece | Where | Why |
 |---|---|---|
-| Gemini (`gemini-2.5-flash`) | `agents/llm.py`, `agents/extractor.py`, `agents/critic.py` | Drafts a contract from policy text, with a repair loop that feeds validation errors back. Every rule must quote the policy verbatim or it is rejected. |
-| Gemini with Google Search grounding | `civic/research.py` | Live lookup of representatives and local bodies in two steps: a grounded free-text search, then a structuring call that may cite only sites the search returned. Each person gets only the pages the search tied to their own entry. Social media and aggregator sites are never cited. |
-| Cloud Run | not deployed yet | Planned host for the FastAPI service. `TODO: add a Dockerfile and deploy notes, then update this row.` |
+| Gemini (`gemini-3.5-flash`) | `agents/llm.py`, `agents/extractor.py`, `agents/critic.py` | Drafts a contract from policy text, with a repair loop that feeds validation errors back. Every rule must quote the policy verbatim or it is rejected. |
+| Gemini with Google Search grounding (single-call) | `civic/research.py → search_structured()` | Live lookup of representative detail, career, elections, parliament work, policies and social handles in **one** grounded call — Gemini searches and returns JSON together, eliminating the domain-mismatch problem of a two-step approach. |
+| Gemini for policy Q&A + misconceptions | `service/app.py → /api/chat` | Answers citizen questions in 2–4 sentences + returns a `misconceptions[]` array of 2–3 "read between the lines" items — common misunderstandings about the policy that official announcements downplay. |
+| Cloud Run | not deployed yet | Planned host for the FastAPI service. |
+| Vertex AI (`GOOGLE_CLOUD_LOCATION=global`) | `.env` | `global` region gives access to all preview Gemini models; `us-east5` was restricted to older versions. |
 | Z3 | `adversary/symbolic.py`, `adversary/mcdc.py` | Gap and dead-rule checks, boundary-pair test generation, and the minimal-change search. |
 
-`TODO: Agent Development Kit is a dependency but the extractor, critic and triager are not yet wired as ADK agents.`
+## Feature implementation details
+
+### Know your leader — `POST /api/civic/leaders/person`
+
+**Flow:**
+```
+User clicks MP card
+  → openMpDetail() renders static ECI data immediately (no wait)
+  → background: POST /api/civic/leaders/person {country, name}
+      → lookup_person_detail(searcher, country, name, as_of)
+          → search_structured(PERSON_DETAIL_SEARCH prompt)
+              single Gemini call with Google Search grounding
+              Gemini searches AND returns JSON in one request
+          → _clean_detail_section() filters each array:
+              - max 12 items, max 400 chars/value
+              - drops sensitive labels (income, caste, religion, assets, home)
+              - drops judgemental values (corrupt, criminal, best, worst)
+              - drops aspirational/praise sentences
+          → _clean_handles() — Twitter/X, Facebook, Instagram only
+          → result cached by (country_code, "person", name.lower())
+  → renderMpLiveEnrichment(d) renders:
+      photo_page | career timeline | elections | parliament work
+      policies & schemes | social media handles
+```
+
+**Why single-call:** A two-step approach (search → structure separately) fails because Gemini's grounding domains from step 1 don't match URLs generated in step 2's structuring call. Single `search_structured()` fixes this — one grounded response, one JSON parse.
+
+**Pre-warmed leaders** (loads instantly in demo):
+- Narendra Modi, Rahul Gandhi, Amit Shah, Smriti Irani, Arvind Kejriwal
+- Warmed in a background thread at startup via `_warm_hotshots()`
+- Exposed at `GET /api/civic/leaders/hotshots` for the demo UI
+
+**Smart search** (`civic/lookup.py → find_representatives()`):
+- Strips natural-language prefixes before matching: "tell me about rahul gandhi" → "rahul gandhi"
+- Prefixes handled: "tell me about", "who is", "show me", "find", "look up", "info on", "details about", "mp for", "my mp", "representative in", etc.
+- Stop words extended: tell, show, find, search, about, info, details, representative, mp, mla, leader
+
+**Deduplication:** Static card already shows Constituency/State/Party/House → these labels are filtered from the facts table to avoid repetition.
+
+---
+
+### Citizen Q&A — `POST /api/chat`
+
+**Flow:**
+```
+User types question on landing page
+  → keyword fallback check (30+ hardcoded policy topics, instant)
+  → if Gemini live: generate_json(_CHAT_SYSTEM, question)
+      returns { answer, intent, scheme_id, redirect_path, misconceptions[] }
+      misconceptions: 2–3 "read between the lines" sentences:
+        - what official announcements downplay
+        - where public understanding diverges from the actual rule
+        - non-obvious exclusions or thresholds
+  → renderChat(data) renders:
+      answer paragraph
+      <details> "Common misconceptions about this topic" (if Gemini returned any)
+      redirect button → /citizen#decides | /citizen#rights | /citizen#leaders
+      "Powered by Gemini" note
+```
+
+**Intent routing:**
+| Intent | Redirect |
+|---|---|
+| `scheme_check` | `/citizen?scheme=<id>` |
+| `problem` | `/citizen#decides` |
+| `rights` | `/citizen#rights` |
+| `representatives` | `/citizen#leaders` |
+| `officials_whatif` | `/officials` |
+| `general` | `/citizen` |
+
+---
+
+### Loading UX
+
+- MP detail: spinner + "Loading live details from Gemini… (15–45 seconds)" while waiting
+- Spinner uses CSS `@keyframes live-spin` — no JS timer, degrades gracefully under `prefers-reduced-motion`
+- Live section appears only after data arrives (replaces spinner in-place)
 
 ## Evidence
 
@@ -78,7 +156,7 @@ Measured by the benchmark in `evaluation/harness.py`, and shown live on the land
 | False alarms on the correct software | 0 | n/a |
 | Regression tests valid (fail on bug, pass on fix) | 100% | n/a |
 
-Other checks: **430+ automated tests**. The contract evaluator agrees with the reference engine on 30,000 random inputs. The "smallest change" search is compared against a brute-force scan.
+Other checks: **462 automated tests**. The contract evaluator agrees with the reference engine on 30,000 random inputs. The "smallest change" search is compared against a brute-force scan.
 
 **Read this honestly.** The ten planted bugs, the hand-written suite and the generator were all written by the same team, so this shows recall on known kinds of bug, not on unknown ones. The generator has not been run against third-party software yet.
 
@@ -90,7 +168,7 @@ Requires Python 3.12 and [uv](https://docs.astral.sh/uv/).
 git clone <this repo> && cd policy-wind-tunnel
 uv sync
 uv run policy-wind-tunnel            # http://127.0.0.1:8000
-uv run pytest                        # 400+ tests
+uv run pytest                        # 462 tests
 ```
 
 It runs without any key. Gemini features are off until you add credentials.
@@ -145,7 +223,7 @@ Content was read from official pages on 13 October 2026. Anything that could not
 
 | Criterion | Where to look |
 |---|---|
-| **Technical merit and Gen AI implementation (40%)** | Extractor with repair loop and verbatim-quote grounding (`agents/`), Z3 gap checks and boundary generation (`adversary/`), grounded web search with source filtering (`civic/research.py`), benchmark (`evaluation/`), 430+ tests |
+| **Technical merit and Gen AI implementation (40%)** | Extractor with repair loop and verbatim-quote grounding (`agents/`), Z3 gap checks and boundary generation (`adversary/`), grounded web search with source filtering (`civic/research.py`), benchmark (`evaluation/`), 462 tests |
 | **Problem alignment and impact (25%)** | Citizen result pages with the deciding sentence and "what would change my answer"; officials' what-if showing who a change moves |
 | **Innovation and creativity (25%)** | One contract powering three jobs; solver-verified smallest-change search; regression tests proven to fail on the bug and pass on the fix |
 | **UX and solution design (10%)** | One question per screen, plain-language results, skip links, visible focus, contrast checked to WCAG AA, phone layout |
@@ -191,8 +269,8 @@ All code in this repository was written during the hackathon window, and the com
 
 ## Prior art we evaluated
 
-- **PolicySim** (`opencausality/PolicySim`): a public repository with no licence file, so default copyright applies. We did not copy, vendor or depend on any of its code. Its useful idea, showing which levers feed which outcomes, is re-implemented from scratch in `simulation/levers.py` over our own contract. That view reports which rules read each field. It is not a causal model.
+- **PolicySim** (`opencausality/PolicySim`, MIT declared, commit `3d3d3d4`): vendored into `src/policy_wind_tunnel/third_party/policysim/` with attribution (`NOTICE.md`). Core files only — CLI, Ollama adapter and pyvis visualiser excluded. Its causal engine powers the **exploratory impact model** in `simulation/exploratory.py`. Edge weights come from our synthetic population flip rates, not LLM-guessed magnitudes. Exploratory results are labelled "model assumptions, not predictions" throughout and never mixed with exact what-if numbers.
 - **policysim.policy.cafe**: an unrelated web game. Not used.
-- Our what-if simulator is our own: a deterministic contract evaluator, Z3 and a synthetic population.
+- Our exact what-if simulator is our own: a deterministic contract evaluator, Z3 boundary tests, and a synthetic population of 10,000 applicants.
 
 `TODO: choose a licence before the repository is made public.`

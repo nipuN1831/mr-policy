@@ -212,9 +212,9 @@ def test_the_citizen_page_tucks_country_caveats_into_a_disclosure(client):
     assert '<details id="notesBox"' in text and "What is not verified for this country" in text
 
 
-def test_the_area_lookup_shows_contact_details_inside_the_app(client):
+def test_the_area_lookup_shows_live_enrichment_inside_the_app(client):
     text = client.get("/citizen").text
-    assert "b.contact.phone" in text and "b.contact.hours" in text and "b.summary" in text
+    assert "renderMpLiveEnrichment" in text and "mpDetailLive" in text and "Gemini web search" in text
 
 
 def test_the_officials_page_shows_which_rules_read_each_input(client):
@@ -240,3 +240,64 @@ def test_citizen_page_has_no_outbound_anchor_tags_in_content_js(client):
     text = client.get("/citizen").text
     # nav/skip/footer links are fine; content JS must not emit target=_blank links
     assert 'target="_blank"' not in text
+
+
+def test_person_lookup_returns_503_when_live_leaders_disabled(offline_client, monkeypatch):
+    monkeypatch.setenv("PWT_LIVE_LEADERS", "0")
+    r = offline_client.post("/api/civic/leaders/person", json={"country": "in", "name": "Test Person"})
+    assert r.status_code == 503
+
+
+def test_person_lookup_rejects_blank_name(client, monkeypatch):
+    monkeypatch.setenv("PWT_LIVE_LEADERS", "0")
+    r = client.post("/api/civic/leaders/person", json={"country": "in", "name": "   "})
+    assert r.status_code in (422, 503)
+
+
+def test_person_lookup_rejects_judgement_question(client, monkeypatch):
+    monkeypatch.setenv("PWT_LIVE_LEADERS", "1")
+    monkeypatch.setenv("GOOGLE_API_KEY", "fake")
+    r = client.post("/api/civic/leaders/person", json={"country": "in", "name": "Is Modi corrupt?"})
+    assert r.status_code == 422
+
+
+def test_citizen_page_calls_person_endpoint_not_lookup(client):
+    text = client.get("/citizen").text
+    assert "/api/civic/leaders/person" in text
+    assert "_detailSection" in text
+
+
+def test_person_detail_renders_all_sections_in_enrichment(client):
+    text = client.get("/citizen").text
+    for marker in ("Career timeline", "Elections", "Parliament work", "Policies", "Social media", "photo_page"):
+        assert marker in text or marker.lower() in text.lower()
+
+
+def test_chat_returns_misconceptions_field_from_gemini(client, monkeypatch):
+    import json as _json
+
+    class MiscLLM:
+        def generate_json(self, system, prompt, schema=None):
+            return _json.dumps({
+                "answer": "Delimitation happens after the 2026 census.",
+                "intent": "general",
+                "scheme_id": None,
+                "redirect_path": "/citizen",
+                "misconceptions": ["Many assume delimitation will increase total Lok Sabha seats, but the Constitution caps seats until 2026.", "Southern states fear seat reduction despite higher literacy, but seats are frozen not reduced until after the census."],
+            })
+
+    from policy_wind_tunnel.service.app import create_app
+    from fastapi.testclient import TestClient
+    misc_client = TestClient(create_app(llm=MiscLLM()))
+    r = misc_client.post("/api/chat", json={"question": "delimitation bill 2026", "country": "in"})
+    assert r.status_code == 200
+    body = r.json()
+    assert body["powered_by"] == "gemini"
+    assert isinstance(body.get("misconceptions"), list)
+    assert len(body["misconceptions"]) == 2
+
+
+def test_chat_misconceptions_rendered_in_landing_page(client):
+    text = client.get("/").text
+    assert "cb-misc" in text
+    assert "Common misconceptions" in text
