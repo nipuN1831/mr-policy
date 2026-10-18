@@ -9,13 +9,16 @@ authors = [
 requires-python = ">=3.12"
 dependencies = [
     "allpairspy>=2.5.1",
-    "google-adk>=2.11.0",
+    "fastapi>=0.143.5",
     "google-cloud-firestore>=2.19.0",
     "google-genai>=2.29.0",
+    "httpx>=0.28.1",
     "hypothesis>=6.169.0",
     "networkx>=3.7",
     "numpy>=2.5.4",
     "pydantic>=2.14.0",
+    "python-dotenv>=1.2.4",
+    "uvicorn>=0.54.0",
     "z3-solver>=5.1.0.0",
 ]
 
