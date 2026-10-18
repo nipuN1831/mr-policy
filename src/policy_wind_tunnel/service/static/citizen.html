@@ -229,8 +229,6 @@ section, .panel { background: #fff; border: 1px solid var(--line); border-radius
     <span class="select-shell"><select id="country"></select><svg class="chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></span>
     <span id="status"></span>
   </div>
-  <details id="notesBox" hidden><summary data-i18n="notesSummary">What is not verified for this country</summary><div class="muted" id="notes"></div></details>
-
   <div class="feature-nav">
     <p class="feature-nav-label" id="featureNavLabel" data-i18n="featureNavLabel">What would you like to do?</p>
     <div class="feature-grid" role="group" aria-labelledby="featureNavLabel">
@@ -339,7 +337,7 @@ const I18N = {
     heroEyebrow: "Citizens", heroH1: "Know what you are entitled to",
     heroLead: "Check whether you qualify for a scheme, see the exact rule that decided it, and find who handles your problem.",
     banner: "Information only. Not legal advice and not an official decision. Nothing you enter is stored. India MP data from ECI 2024 + sansad.in; other countries may show representative placeholders. Live area results come from a web search and are not reviewed by a person.",
-    countryLabel: "Country", notesSummary: "What is not verified for this country",
+    countryLabel: "Country",
     featureNavLabel: "What would you like to do?",
     qualifyTitle: "Do I qualify?", qualifyDesc: "Check against a published scheme, step by step",
     decidesTitle: "Who handles my problem?", decidesDesc: "Find the right office and escalation path",
@@ -397,13 +395,20 @@ const I18N = {
     notKnown: "Not known", demoDataPill: "demo data",
     layoutOnlyNote: "Shown for layout only. A real card would give each fact a source link and date.",
     termsLabel: "Terms: ", sourceAsOfMiddle: " · as of ", changeAriaLabel: "Change: {label}",
+    partyLabel: "Party: ", officialPagesHeading: "Official pages", mpDataAttribution: "Data from ECI 2024 and sansad.in. Not an official page.",
+    loadingLiveDetails: "Loading live details from Gemini…", loadingLiveDetailsSub: "Searching career timeline, elections, parliament work, policies & social handles. Takes 15–45 seconds.",
+    liveEnrichmentUnavailable: "Live enrichment unavailable: {msg}", connectGeminiForLiveDetails: "Connect Gemini for live details including career timeline, election history, parliament work, policies, and social media.",
+    noAdditionalLiveData: "No additional live data found for this person.", photoPageLabel: "Photo page: ", socialMediaHeading: "Social media",
+    liveDetailsHeading: "Live details", geminiNotReviewedPill: "Gemini web search · not reviewed",
+    careerTimelineHeading: "Career timeline", electionsHeading: "Elections", parliamentWorkHeading: "Parliament work", policiesSchemesHeading: "Policies & schemes",
+    liveResultsFooterNote: "As of {asOf}. Live search — results vary. Facts link to the source domain, not each sentence.",
   },
   "हिन्दी": {
     nav1: "नागरिकों के लिए", nav2: "अधिकारियों के लिए", nav3: "कैसे काम करता है",
     heroEyebrow: "नागरिक", heroH1: "जानें आप किसके हकदार हैं",
     heroLead: "जाँचें कि आप किसी योजना के लिए पात्र हैं या नहीं, वह सटीक नियम देखें जिसने फ़ैसला किया, और जानें कि आपकी समस्या कौन सुलझाएगा।",
     banner: "केवल जानकारी के लिए। यह कानूनी सलाह या आधिकारिक फैसला नहीं है। आपका डेटा सेव नहीं होता। भारत के सांसदों का डेटा ECI 2024 और sansad.in से लिया गया है; अन्य देशों में प्रतिनिधि डेटा काल्पनिक हो सकता है। लाइव क्षेत्र परिणाम वेब खोज से आते हैं और किसी व्यक्ति द्वारा समीक्षित नहीं हैं।",
-    countryLabel: "देश", notesSummary: "इस देश के लिए क्या सत्यापित नहीं है",
+    countryLabel: "देश",
     featureNavLabel: "आप क्या करना चाहेंगे?",
     qualifyTitle: "क्या मैं पात्र हूँ?", qualifyDesc: "किसी प्रकाशित योजना के विरुद्ध चरण दर चरण जाँचें",
     decidesTitle: "मेरी समस्या कौन सुलझाएगा?", decidesDesc: "सही कार्यालय और आगे की शिकायत प्रक्रिया खोजें",
@@ -461,13 +466,20 @@ const I18N = {
     notKnown: "पता नहीं", demoDataPill: "डेमो डेटा",
     layoutOnlyNote: "केवल लेआउट के लिए दिखाया गया है। असली कार्ड में हर तथ्य का एक स्रोत लिंक और तारीख होगी।",
     termsLabel: "कार्यकाल: ", sourceAsOfMiddle: " · जैसा कि ", changeAriaLabel: "बदलें: {label}",
+    partyLabel: "पार्टी: ", officialPagesHeading: "आधिकारिक पेज", mpDataAttribution: "डेटा ECI 2024 और sansad.in से। यह आधिकारिक पेज नहीं है।",
+    loadingLiveDetails: "Gemini से लाइव विवरण लोड हो रहा है…", loadingLiveDetailsSub: "करियर समयरेखा, चुनाव, संसद कार्य, नीतियाँ और सोशल हैंडल खोजे जा रहे हैं। 15–45 सेकंड लग सकते हैं।",
+    liveEnrichmentUnavailable: "लाइव जानकारी उपलब्ध नहीं: {msg}", connectGeminiForLiveDetails: "करियर समयरेखा, चुनाव इतिहास, संसद कार्य, नीतियाँ और सोशल मीडिया सहित लाइव विवरण के लिए Gemini कनेक्ट करें।",
+    noAdditionalLiveData: "इस व्यक्ति के लिए कोई अतिरिक्त लाइव डेटा नहीं मिला।", photoPageLabel: "फ़ोटो पेज: ", socialMediaHeading: "सोशल मीडिया",
+    liveDetailsHeading: "लाइव विवरण", geminiNotReviewedPill: "Gemini वेब खोज · समीक्षित नहीं",
+    careerTimelineHeading: "करियर समयरेखा", electionsHeading: "चुनाव", parliamentWorkHeading: "संसद कार्य", policiesSchemesHeading: "नीतियाँ और योजनाएँ",
+    liveResultsFooterNote: "{asOf} तक की जानकारी। लाइव खोज — परिणाम अलग हो सकते हैं। तथ्य स्रोत डोमेन से जुड़े हैं, हर वाक्य से नहीं।",
   },
   "मराठी": {
     nav1: "नागरिकांसाठी", nav2: "अधिकाऱ्यांसाठी", nav3: "कसे कार्य करते",
     heroEyebrow: "नागरिक", heroH1: "तुम्ही कशाचे हक्कदार आहात ते जाणा",
     heroLead: "तुम्ही एखाद्या योजनेसाठी पात्र आहात का ते तपासा, निर्णय घेणारा नेमका नियम पाहा, आणि तुमची समस्या कोण सोडवेल ते जाणा.",
     banner: "फक्त माहितीसाठी. हा कायदेशीर सल्ला किंवा अधिकृत निर्णय नाही. तुमचा डेटा साठवला जात नाही. भारताच्या खासदारांचा डेटा ECI 2024 आणि sansad.in वरून घेतला आहे; इतर देशांमध्ये प्रतिनिधींचा डेटा काल्पनिक असू शकतो. थेट क्षेत्र निकाल वेब शोधातून येतात आणि एखाद्या व्यक्तीने तपासलेले नाहीत.",
-    countryLabel: "देश", notesSummary: "या देशासाठी काय सत्यापित नाही",
+    countryLabel: "देश",
     featureNavLabel: "तुम्हाला काय करायचे आहे?",
     qualifyTitle: "मी पात्र आहे का?", qualifyDesc: "प्रकाशित योजनेनुसार टप्प्याटप्प्याने तपासा",
     decidesTitle: "माझी समस्या कोण सोडवेल?", decidesDesc: "योग्य कार्यालय आणि पुढील तक्रार प्रक्रिया शोधा",
@@ -525,6 +537,13 @@ const I18N = {
     notKnown: "माहीत नाही", demoDataPill: "डेमो डेटा",
     layoutOnlyNote: "फक्त मांडणीसाठी दाखवले आहे. खऱ्या कार्डात प्रत्येक तथ्याला स्रोत लिंक आणि तारीख असेल.",
     termsLabel: "कार्यकाळ: ", sourceAsOfMiddle: " · दिनांक ", changeAriaLabel: "बदला: {label}",
+    partyLabel: "पक्ष: ", officialPagesHeading: "अधिकृत पृष्ठे", mpDataAttribution: "डेटा ECI 2024 आणि sansad.in वरून. हे अधिकृत पृष्ठ नाही.",
+    loadingLiveDetails: "Gemini कडून थेट तपशील लोड होत आहे…", loadingLiveDetailsSub: "करिअर कालरेषा, निवडणुका, संसद कार्य, धोरणे आणि सोशल हँडल शोधले जात आहेत. 15–45 सेकंद लागू शकतात.",
+    liveEnrichmentUnavailable: "थेट माहिती उपलब्ध नाही: {msg}", connectGeminiForLiveDetails: "करिअर कालरेषा, निवडणूक इतिहास, संसद कार्य, धोरणे आणि सोशल मीडियासह थेट तपशीलांसाठी Gemini कनेक्ट करा.",
+    noAdditionalLiveData: "या व्यक्तीसाठी अतिरिक्त थेट डेटा आढळला नाही.", photoPageLabel: "फोटो पृष्ठ: ", socialMediaHeading: "सोशल मीडिया",
+    liveDetailsHeading: "थेट तपशील", geminiNotReviewedPill: "Gemini वेब शोध · पुनरावलोकन नाही",
+    careerTimelineHeading: "करिअर कालरेषा", electionsHeading: "निवडणुका", parliamentWorkHeading: "संसद कार्य", policiesSchemesHeading: "धोरणे आणि योजना",
+    liveResultsFooterNote: "{asOf} पर्यंतची माहिती. थेट शोध — निकाल वेगळे असू शकतात. तथ्ये स्रोत डोमेनशी जोडलेली आहेत, प्रत्येक वाक्याशी नाही.",
   },
 };
 
@@ -592,8 +611,6 @@ function renderProblem(p) {
 
 function renderReference() {
   $("status").innerHTML = "";
-  $("notes").innerHTML = pack.notes.length ? "<ul>" + pack.notes.map((n) => `<li>${esc(n)}</li>`).join("") + "</ul>" : "";
-  $("notesBox").hidden = pack.notes.length === 0;
   $("allProblems").innerHTML = pack.problems.length ? pack.problems.map(renderProblem).join("") : empty(t("noProblemsVerified"));
   $("matches").innerHTML = "";
   $("rights").innerHTML = pack.rights.length ? pack.rights.map((r) => `<div class="card"><h3>${esc(r.title)}</h3><p>${esc(r.summary)}</p><p class="muted">${t("howToUseLabel")}${esc(r.how_to_use)}</p>${r.law ? `<p class="muted">${t("lawLabel")}${esc(r.law)}</p>` : ""}${sourceChip(r.source)}</div>`).join("") : empty(t("noRightsVerified"));
@@ -774,7 +791,7 @@ let _liveEnabled = false;
 function openMpDetail(r) {
   $("mpDetailName").textContent = r.name;
   const badge = r.fictional
-    ? '<span class="pill warn">demo data</span>'
+    ? `<span class="pill warn">${t("demoDataPill")}</span>`
     : '<span class="pill good">ECI 2024</span>';
   const _HEADER_LABELS = new Set(["constituency", "state", "region", "party", "house", "lok sabha", "rajya sabha"]);
   const facts = r.record
@@ -782,7 +799,7 @@ function openMpDetail(r) {
     .map((f) =>
     `<tr><td style="padding:6px 12px 6px 0;font-weight:600;white-space:nowrap">${esc(f.label)}</td>
      <td style="padding:6px 0">${esc(f.value)}
-       <div class="muted" style="font-size:12px">Source: ${esc(f.source.title)} &middot; ${esc(f.source.url)} &middot; ${esc(f.source.as_of)}</div>
+       <div class="muted" style="font-size:12px">${t("sourceLabel")}${esc(f.source.title)} &middot; ${esc(f.source.url)} &middot; ${esc(f.source.as_of)}</div>
      </td></tr>`
   ).join("");
   const links = Object.entries(r.links || {}).map(([k, v]) =>
@@ -791,11 +808,11 @@ function openMpDetail(r) {
   $("mpDetailBundled").innerHTML = `
     <div style="margin-bottom:12px">${badge}
       <span class="muted" style="margin-left:8px">${esc(r.role)} &middot; ${esc(r.constituency)} &middot; ${esc(r.region)}</span>
-      ${r.party ? `<span class="muted" style="margin-left:8px">Party: <b>${esc(r.party)}</b></span>` : ""}
+      ${r.party ? `<span class="muted" style="margin-left:8px">${t("partyLabel")}<b>${esc(r.party)}</b></span>` : ""}
     </div>
     <table style="width:100%;border-collapse:collapse;margin-bottom:16px">${facts}</table>
-    ${links ? `<h3 style="margin:0 0 8px">Official pages</h3><ul style="margin:0;padding:0 0 0 18px">${links}</ul>` : ""}
-    <p class="muted" style="margin-top:16px;font-size:13px">Data from ECI 2024 and sansad.in. Not an official page.</p>`;
+    ${links ? `<h3 style="margin:0 0 8px">${t("officialPagesHeading")}</h3><ul style="margin:0;padding:0 0 0 18px">${links}</ul>` : ""}
+    <p class="muted" style="margin-top:16px;font-size:13px">${t("mpDataAttribution")}</p>`;
   $("mpDetail").hidden = false;
   $("mpDetail").removeAttribute("hidden");
   $("mpResults").hidden = true;
@@ -805,17 +822,17 @@ function openMpDetail(r) {
       <div class="live-loading" role="status" aria-live="polite">
         <span class="live-spinner" aria-hidden="true"></span>
         <div>
-          <p style="margin:0 0 4px;font-weight:600;color:var(--green-dark)">Loading live details from Gemini&hellip;</p>
-          <p style="margin:0;font-size:13px;color:var(--muted)">Searching career timeline, elections, parliament work, policies &amp; social handles. Takes 15–45 seconds.</p>
+          <p style="margin:0 0 4px;font-weight:600;color:var(--green-dark)">${t("loadingLiveDetails")}</p>
+          <p style="margin:0;font-size:13px;color:var(--muted)">${t("loadingLiveDetailsSub")}</p>
         </div>
       </div>`;
-    api("/api/civic/leaders/person", { country: $("country").value, name: r.name })
+    api("/api/civic/leaders/person", { country: $("country").value, name: r.name, language: LANG })
       .then((d) => renderMpLiveEnrichment(d))
       .catch((err) => {
-        $("mpDetailLive").innerHTML = `<p class="muted">Live enrichment unavailable: ${esc(err.message)}</p>`;
+        $("mpDetailLive").innerHTML = `<p class="muted">${t("liveEnrichmentUnavailable", { msg: esc(err.message) })}</p>`;
       });
   } else {
-    $("mpDetailLive").innerHTML = `<p class="muted" style="font-size:13px">Connect Gemini for live details including career timeline, election history, parliament work, policies, and social media.</p>`;
+    $("mpDetailLive").innerHTML = `<p class="muted" style="font-size:13px">${t("connectGeminiForLiveDetails")}</p>`;
   }
 }
 
@@ -836,24 +853,24 @@ function renderMpLiveEnrichment(d) {
     (d.parliament_work && d.parliament_work.length) || (d.policies && d.policies.length) ||
     d.photo_page || (d.handles && Object.keys(d.handles).length);
   if (!hasContent) {
-    $("mpDetailLive").innerHTML = `<p class="muted">No additional live data found for this person.</p>`;
+    $("mpDetailLive").innerHTML = `<p class="muted">${t("noAdditionalLiveData")}</p>`;
     return;
   }
   const photoHtml = d.photo_page
-    ? `<p style="margin:0 0 12px;font-size:13px" class="muted">Photo page: ${esc(d.photo_page)}</p>`
+    ? `<p style="margin:0 0 12px;font-size:13px" class="muted">${t("photoPageLabel")}${esc(d.photo_page)}</p>`
     : "";
   const handles = d.handles && Object.keys(d.handles).length
-    ? `<h4 style="margin:16px 0 6px">Social media</h4><ul style="margin:0;padding:0 0 0 18px">${Object.entries(d.handles).map(([k, v]) => `<li>${esc(k)}: @${esc(v)}</li>`).join("")}</ul>`
+    ? `<h4 style="margin:16px 0 6px">${t("socialMediaHeading")}</h4><ul style="margin:0;padding:0 0 0 18px">${Object.entries(d.handles).map(([k, v]) => `<li>${esc(k)}: @${esc(v)}</li>`).join("")}</ul>`
     : "";
   $("mpDetailLive").innerHTML = `
-    <h3 style="margin:0 0 12px">Live details <span class="pill warn">Gemini web search &middot; not reviewed</span></h3>
+    <h3 style="margin:0 0 12px">${t("liveDetailsHeading")} <span class="pill warn">${t("geminiNotReviewedPill")}</span></h3>
     ${photoHtml}
-    ${_detailSection("Career timeline", d.career)}
-    ${_detailSection("Elections", d.elections)}
-    ${_detailSection("Parliament work", d.parliament_work)}
-    ${_detailSection("Policies &amp; schemes", d.policies)}
+    ${_detailSection(t("careerTimelineHeading"), d.career)}
+    ${_detailSection(t("electionsHeading"), d.elections)}
+    ${_detailSection(t("parliamentWorkHeading"), d.parliament_work)}
+    ${_detailSection(t("policiesSchemesHeading"), d.policies)}
     ${handles}
-    <p class="muted" style="margin-top:16px;font-size:12px">As of ${esc(d.as_of)}. Live search &mdash; results vary. Facts link to the source domain, not each sentence.</p>`;
+    <p class="muted" style="margin-top:16px;font-size:12px">${t("liveResultsFooterNote", { asOf: esc(d.as_of) })}</p>`;
 }
 
 let _mpResults = [];
@@ -910,7 +927,7 @@ $("country").onchange = () => { fitSelectWidth($("country")); loadCountry($("cou
 
 function renderCountryOptions() {
   const current = $("country").value;
-  $("country").innerHTML = countryList.map((c) => `<option value="${esc(c.code)}">${esc(c.name)}${c.status === "partial" ? t("partialSuffix") : ""}</option>`).join("");
+  $("country").innerHTML = countryList.map((c) => `<option value="${esc(c.code)}">${esc(c.name)}${c.status === "partial" && c.code !== "in" ? t("partialSuffix") : ""}</option>`).join("");
   if (current) $("country").value = current;
   fitSelectWidth($("country"));
 }

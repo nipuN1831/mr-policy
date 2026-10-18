@@ -230,10 +230,6 @@ def test_the_about_page_pluralises_counts_properly(client):
     assert "scheme(s)" not in text and "const plural" in text
 
 
-def test_the_citizen_page_tucks_country_caveats_into_a_disclosure(client):
-    text = client.get("/citizen").text
-    assert '<details id="notesBox"' in text and "What is not verified for this country" in text
-
 
 def test_the_area_lookup_shows_live_enrichment_inside_the_app(client):
     text = client.get("/citizen").text

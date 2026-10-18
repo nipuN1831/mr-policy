@@ -442,6 +442,7 @@ PERSON_DETAIL_SEARCH = """Search the web and return a JSON object with detailed 
 
 Country: {country}
 Person: {name}
+Language: {language}
 
 Search for: career timeline, past and current roles held with years, elections contested (won/lost with vote counts), \
 parliament attendance and bills, major policies or schemes launched during their tenure, photo page URL, \
@@ -470,7 +471,8 @@ Rules:
 - Each array should have 3–8 items if data is available. Empty array only if nothing found.
 - handles: bare username without @ symbol. Only include platforms where an official account exists.
 - Do not include: phone, address, DOB, assets, criminal cases, family, opinions, praise or criticism.
-- photo_page: official page URL that contains their photo (sansad.in, wikipedia, pmindia.gov.in, etc.)."""
+- photo_page: official page URL that contains their photo (sansad.in, wikipedia, pmindia.gov.in, etc.).
+- Write every "label" and "value" text in the language given above (English, हिन्दी, or मराठी). JSON keys, handles, and URLs stay as specified — do not translate those."""
 
 BODY_SEARCH = """Using web search, find which government bodies decide everyday matters for this place.
 Country: {country}
@@ -617,8 +619,8 @@ def _clean_detail_section(raw_list: Any, _domains: set[str]) -> list[dict[str, s
     return out
 
 
-def lookup_person_detail(searcher: Searcher, country: str, name: str, as_of: str) -> dict[str, Any]:
-    result = searcher.search_structured(PERSON_DETAIL_SEARCH.format(country=country, name=name))
+def lookup_person_detail(searcher: Searcher, country: str, name: str, as_of: str, language: str = "English") -> dict[str, Any]:
+    result = searcher.search_structured(PERSON_DETAIL_SEARCH.format(country=country, name=name, language=language))
     raw = _parse(result.text)
     handles = _clean_handles(raw.get("handles"))
     photo_page = _short(raw.get("photo_page"), 500)

@@ -124,6 +124,7 @@ class LeaderLookupRequest(BaseModel):
 class PersonLookupRequest(BaseModel):
     country: str
     name: str = Field(max_length=200)
+    language: str = "English"
 
 
 class ApproveRequest(BaseModel):
@@ -173,7 +174,7 @@ def create_app(llm: Any = _UNSET, searcher: Any = _UNSET, *, enable_login_gate: 
     def _warm_hotshots_fn() -> None:
         as_of = datetime.date.today().isoformat()
         for country, name in _HOTSHOT_LEADERS:
-            key = (country.lower()[:2], "person", name.lower())
+            key = (country.lower()[:2], "person", name.lower(), "English")
             if key in lookup_cache:
                 continue
             cached = fs_cache.get(key)
@@ -182,7 +183,7 @@ def create_app(llm: Any = _UNSET, searcher: Any = _UNSET, *, enable_login_gate: 
                 _log.info("pre-cached %s (from Firestore)", name)
                 continue
             try:
-                detail = lookup_person_detail(searcher, country, name, as_of)
+                detail = lookup_person_detail(searcher, country, name, as_of, "English")
                 lookup_cache[key] = detail
                 fs_cache.put(key, detail)
                 _log.info("pre-cached %s (from Gemini)", name)
@@ -526,7 +527,7 @@ def create_app(llm: Any = _UNSET, searcher: Any = _UNSET, *, enable_login_gate: 
             refuse_if_judgement(name)
         except ResearchRefused as error:
             raise HTTPException(422, detail=str(error)) from error
-        key = (pack.code, "person", name.lower())
+        key = (pack.code, "person", name.lower(), request.language)
         if key not in lookup_cache:
             cached = fs_cache.get(key)
             if cached is not None:
@@ -534,7 +535,7 @@ def create_app(llm: Any = _UNSET, searcher: Any = _UNSET, *, enable_login_gate: 
             else:
                 as_of = datetime.date.today().isoformat()
                 try:
-                    detail = lookup_person_detail(searcher, pack.name, name, as_of)
+                    detail = lookup_person_detail(searcher, pack.name, name, as_of, request.language)
                 except Exception as error:  # noqa: BLE001
                     raise HTTPException(502, detail=f"The web search did not complete: {type(error).__name__}") from error
                 lookup_cache[key] = detail
