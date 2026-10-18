@@ -37,11 +37,16 @@ def test_problem_finder_returns_matching_problems(client):
     assert client.get("/api/civic/countries/in/problems", params={"text": "zzzz"}).json()["matches"] == []
 
 
-def test_representatives_endpoint_is_labelled_demo(client):
-    body = client.get("/api/civic/countries/in/representatives", params={"constituency": "demo nagar"}).json()
-    assert body["demo"] is True and body["representatives"]
-    assert all(r["fictional"] for r in body["representatives"])
-    assert "fictional" in body["notice"].lower()
+def test_representatives_endpoint_returns_real_mps(client):
+    body = client.get("/api/civic/countries/in/representatives", params={"constituency": "Varanasi"}).json()
+    assert body["representatives"]
+    assert body["demo"] is False
+    assert all(not r["fictional"] for r in body["representatives"])
+
+
+def test_representatives_endpoint_demo_flag_true_when_fictional(client):
+    body = client.get("/api/civic/countries/sg/representatives", params={"constituency": "Tanjong Pagar"}).json()
+    assert "notice" in body and "demo" in body
 
 
 def test_scheme_list_and_form(client):
@@ -96,4 +101,44 @@ def test_nothing_the_citizen_enters_is_kept(client):
 def test_citizen_page_is_served(client):
     page = client.get("/citizen")
     assert page.status_code == 200 and "Do I qualify?" in page.text
-    assert "fictional demo data" in page.text.lower()
+    assert "information only" in page.text.lower()
+
+
+def test_upcoming_policies_endpoint_returns_list(client):
+    body = client.get("/api/civic/countries/in/policies/upcoming").json()
+    assert "policies" in body and len(body["policies"]) >= 3
+    policy = body["policies"][0]
+    assert {"id", "title", "summary", "status", "projected_impacts"} <= policy.keys()
+
+
+def test_upcoming_policies_filter_by_status(client):
+    body = client.get("/api/civic/countries/in/policies/upcoming", params={"status": "proposed"}).json()
+    assert all(p["status"] == "proposed" for p in body["policies"])
+    assert body["policies"]
+
+
+def test_upcoming_policies_unknown_status_returns_empty(client):
+    body = client.get("/api/civic/countries/in/policies/upcoming", params={"status": "nonexistent"}).json()
+    assert body["policies"] == []
+
+
+def test_find_representatives_fuzzy_match(client):
+    body = client.get("/api/civic/countries/in/representatives", params={"constituency": "Gautam Buddha Nagar"}).json()
+    assert body["representatives"]
+
+
+def test_find_representatives_by_name(client):
+    body = client.get("/api/civic/countries/in/representatives", params={"constituency": "Narendra Modi"}).json()
+    assert body["representatives"]
+    assert any("Modi" in r["name"] for r in body["representatives"])
+
+
+def test_find_representatives_partial_name(client):
+    body = client.get("/api/civic/countries/in/representatives", params={"constituency": "Rahul Gandhi"}).json()
+    assert body["representatives"]
+    assert any("Gandhi" in r["name"] for r in body["representatives"])
+
+
+def test_find_representatives_empty_for_unknown(client):
+    body = client.get("/api/civic/countries/in/representatives", params={"constituency": "Nowhere Constituency"}).json()
+    assert body["representatives"] == []

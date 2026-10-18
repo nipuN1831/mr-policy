@@ -71,6 +71,8 @@ class Searcher(Protocol):
 
     def structure(self, prompt: str) -> str: ...
 
+    def search_structured(self, prompt: str) -> SearchResult: ...
+
 
 class GeminiSearcher:
     def __init__(self, model: str = DEFAULT_MODEL):
@@ -100,6 +102,17 @@ class GeminiSearcher:
         config = types.GenerateContentConfig(temperature=0.0, response_mime_type="application/json")
         response = self._get_client().models.generate_content(model=self.model, contents=prompt, config=config)
         return response.text or ""
+
+    def search_structured(self, prompt: str) -> SearchResult:
+        """Single grounded call that returns JSON directly — avoids domain mismatch of two-step."""
+        from google.genai import types
+
+        config = types.GenerateContentConfig(
+            temperature=0.0,
+            tools=[types.Tool(google_search=types.GoogleSearch())],
+        )
+        response = self._get_client().models.generate_content(model=self.model, contents=prompt, config=config)
+        return SearchResult(response.text or "", _grounding_sources(response), _grounding_supports(response))
 
 
 def _grounding_sources(response: Any) -> list[dict[str, str]]:
@@ -425,6 +438,40 @@ Rules:
 - Do not include phone numbers, addresses, dates of birth, emails, assets, criminal cases, family details or any opinion.
 - If the notes name nobody, return {{"representatives": []}}."""
 
+PERSON_DETAIL_SEARCH = """Search the web and return a JSON object with detailed information about this politician.
+
+Country: {country}
+Person: {name}
+
+Search for: career timeline, past and current roles held with years, elections contested (won/lost with vote counts), \
+parliament attendance and bills, major policies or schemes launched during their tenure, photo page URL, \
+official social media handles.
+
+Return ONLY valid JSON in exactly this shape:
+{{
+  "photo_page": "https://... (page with their photo, not image URL, or empty)",
+  "career": [
+    {{"label": "Role", "value": "Description with dates e.g. Prime Minister 2014–present"}}
+  ],
+  "elections": [
+    {{"label": "Year – Constituency", "value": "Won/Lost, party, votes e.g. Won 2024 Varanasi BJP 152513 votes"}}
+  ],
+  "parliament_work": [
+    {{"label": "Topic", "value": "Description e.g. Bills introduced, committee memberships, attendance rate"}}
+  ],
+  "policies": [
+    {{"label": "Policy/Scheme name", "value": "What it does and when launched"}}
+  ],
+  "handles": {{"x": "username", "facebook": "username", "instagram": "username"}}
+}}
+
+Rules:
+- Include ONLY verified facts from web search results. Do NOT guess or use training knowledge.
+- Each array should have 3–8 items if data is available. Empty array only if nothing found.
+- handles: bare username without @ symbol. Only include platforms where an official account exists.
+- Do not include: phone, address, DOB, assets, criminal cases, family, opinions, praise or criticism.
+- photo_page: official page URL that contains their photo (sansad.in, wikipedia, pmindia.gov.in, etc.)."""
+
 BODY_SEARCH = """Using web search, find which government bodies decide everyday matters for this place.
 Country: {country}
 Place: {place}
@@ -540,3 +587,52 @@ def lookup_government(searcher: Searcher, country: str, place: str, as_of: str) 
     raw_bodies = raw_bodies if isinstance(raw_bodies, list) else []
     bodies = [body for body in (_clean_body(raw, domains, as_of, result) for raw in raw_bodies[:MAX_BODIES]) if body]
     return {"bodies": bodies, "dropped": len(raw_bodies[:MAX_BODIES]) - len(bodies), "notice": NOTICE}
+
+
+MAX_DETAIL_FACTS = 12
+
+
+_PERSON_DETAIL_TRUSTED = REPUTABLE | frozenset({
+    "sansad.in", "eci.gov.in", "prsindia.org", "myneta.info", "wikipedia.org",
+    "pmindia.gov.in", "mha.gov.in", "mea.gov.in", "meaindia.in", "gov.in",
+})
+
+
+def _clean_detail_section(raw_list: Any, _domains: set[str]) -> list[dict[str, str]]:
+    if not isinstance(raw_list, list):
+        return []
+    out = []
+    for item in raw_list[:MAX_DETAIL_FACTS]:
+        if not isinstance(item, dict):
+            continue
+        label = _short(item.get("label"), 80)
+        value = _short(item.get("value"), 400)
+        if not label or not value:
+            continue
+        if SENSITIVE_LABEL.search(label) or JUDGEMENT_QUESTION.search(value):
+            continue
+        if ASPIRATION.search(value) or PRAISE.search(value):
+            continue
+        out.append({"label": label, "value": value})
+    return out
+
+
+def lookup_person_detail(searcher: Searcher, country: str, name: str, as_of: str) -> dict[str, Any]:
+    result = searcher.search_structured(PERSON_DETAIL_SEARCH.format(country=country, name=name))
+    raw = _parse(result.text)
+    handles = _clean_handles(raw.get("handles"))
+    photo_page = _short(raw.get("photo_page"), 500)
+    if photo_page and not photo_page.startswith("https://"):
+        photo_page = ""
+    return {
+        "name": name,
+        "country": country,
+        "photo_page": photo_page,
+        "career": _clean_detail_section(raw.get("career"), set()),
+        "elections": _clean_detail_section(raw.get("elections"), set()),
+        "parliament_work": _clean_detail_section(raw.get("parliament_work"), set()),
+        "policies": _clean_detail_section(raw.get("policies"), set()),
+        "handles": handles,
+        "as_of": as_of,
+        "notice": NOTICE,
+    }

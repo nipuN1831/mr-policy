@@ -1,3 +1,5 @@
+from policy_wind_tunnel.civic.data.india_mps import LOK_SABHA_18
+
 AS_OF = "2026-10-13"
 
 
@@ -29,7 +31,8 @@ PACK = {
     "status": "partial",
     "disclaimer": (
         "Information only. This is not legal advice and not an official decision. Rules differ by state. "
-        "Check the cited source and the issuing office before acting. Representatives shown here are fictional demo data."
+        "Check the cited source and the issuing office before acting. "
+        "MP data sourced from ECI 2024 results and sansad.in as of June 2024."
     ),
     "notes": [
         "Which body handles a task depends on what each state has devolved under the Eleventh and Twelfth Schedules.",
@@ -401,41 +404,7 @@ PACK = {
             "source": PMUY,
         }
     ],
-    "representatives": [
-        {
-            "id": "demo-in-1",
-            "name": "Asha Verma (demo)",
-            "role": "Member of Parliament (Lok Sabha)",
-            "body": "Lok Sabha",
-            "region": "Demo State",
-            "constituency": "Demo Nagar",
-            "party": "Demo Party",
-            "terms": 2,
-            "fictional": True,
-            "handles": {"x": "demo_asha_verma"},
-            "record": [
-                {"label": "Terms served", "value": "2", "source": source("https://sansad.in", "Source type for the real field: Sansad member record")},
-                {"label": "Qualification", "value": "Postgraduate", "source": source("https://sansad.in", "Source type for the real field: Sansad member record")},
-            ],
-            "links": {"Lok Sabha member page": "https://sansad.in", "PRS MP Track": "https://prsindia.org/mptrack"},
-        },
-        {
-            "id": "demo-in-2",
-            "name": "Ravi Menon (demo)",
-            "role": "Member of Legislative Assembly",
-            "body": "Demo State Legislative Assembly",
-            "region": "Demo State",
-            "constituency": "Demo Nagar",
-            "party": "Demo Alliance",
-            "terms": 1,
-            "fictional": True,
-            "handles": {},
-            "record": [
-                {"label": "Terms served", "value": "1", "source": source("https://sansad.in", "Source type for the real field: assembly member record")},
-            ],
-            "links": {},
-        },
-    ],
+    "representatives": LOK_SABHA_18,
 }
 
 CAA_SOURCE = {
@@ -444,6 +413,106 @@ CAA_SOURCE = {
     "as_of": "2020-01-10",
     "grounded": True,
 }
+
+PRS = source("https://prsindia.org", "PRS Legislative Research")
+BUDGET_2526 = source("https://www.indiabudget.gov.in", "Union Budget 2025-26, Ministry of Finance")
+UIDAI = source("https://uidai.gov.in", "UIDAI — Unique Identification Authority of India")
+NITI = source("https://niti.gov.in", "NITI Aayog")
+
+PACK["upcoming_policies"] = [
+    {
+        "id": "in_kyg_new_income_tax_2025",
+        "title": "New Income Tax Code 2025",
+        "summary": (
+            "The Income Tax Bill 2025, tabled in the Lok Sabha in February 2025, proposes to replace the Income Tax Act 1961. "
+            "It introduces plain-language drafting, simplified slabs, and consolidates more than 800 sections into about 530 clauses."
+        ),
+        "status": "proposed",
+        "expected_date": "2026",
+        "affects_you_if": "You earn a salary, run a business, or file income tax returns",
+        "projected_impacts": [
+            "Simplified tax slabs — income up to ₹12 lakh may attract zero tax under the new regime",
+            "Standard deduction retained; most exemptions under old regime remain",
+            "TDS and TCS rules consolidated — fewer compliance steps for salaried employees",
+            "New dispute resolution timelines; appeals to be decided within 18 months",
+        ],
+        "source": PRS,
+    },
+    {
+        "id": "in_kyg_digital_personal_data_2023",
+        "title": "Digital Personal Data Protection Act 2023 — Rules in progress",
+        "summary": (
+            "The DPDP Act 2023 is in force but the Rules under it are still being finalised by MeitY. "
+            "Once notified, organisations will have 18–24 months to comply. "
+            "The Rules will define consent frameworks, grievance officers, and the Data Protection Board."
+        ),
+        "status": "under_review",
+        "expected_date": "2025-2026",
+        "affects_you_if": "You share personal data with apps, banks, hospitals, or government services",
+        "projected_impacts": [
+            "You get the right to know what data is held about you and to ask for its deletion",
+            "Companies must get explicit consent before processing your data",
+            "A Data Protection Board will handle complaints — no court required for basic data disputes",
+            "Healthcare, financial, and educational platforms must appoint a Data Fiduciary",
+        ],
+        "source": source("https://meity.gov.in/data-protection-framework", "MeitY — Digital Personal Data Protection"),
+    },
+    {
+        "id": "in_kyg_pmay_urban_2_0",
+        "title": "PM Awas Yojana Urban 2.0 — 10 lakh new homes",
+        "summary": (
+            "PMAY-Urban 2.0 was announced in Budget 2024-25 with an outlay of ₹2.2 lakh crore "
+            "to build 1 crore homes for the urban poor and middle class over five years. "
+            "Beneficiaries who do not own a pucca house can apply for a subsidy."
+        ),
+        "status": "in_force",
+        "expected_date": "2024–2029",
+        "affects_you_if": "You live in an urban area and do not own a pucca house",
+        "projected_impacts": [
+            "Interest subsidy of up to ₹1.8 lakh on home loans for EWS and LIG categories",
+            "Direct benefit transfer for self-construction or enhancement of existing dwelling",
+            "Priority given to women-headed households, SC/ST, and persons with disability",
+        ],
+        "source": BUDGET_2526,
+    },
+    {
+        "id": "in_kyg_one_nation_one_election",
+        "title": "One Nation One Election — Constitution Amendment Bills",
+        "summary": (
+            "Two constitution amendment bills were introduced in December 2024 to hold simultaneous Lok Sabha and state assembly elections. "
+            "A JPC (Joint Parliamentary Committee) is examining them. "
+            "If passed, the first simultaneous election could happen in 2029."
+        ),
+        "status": "proposed",
+        "expected_date": "2028-2029 (if passed)",
+        "affects_you_if": "You are a voter — you would vote for Lok Sabha and your state assembly on the same day",
+        "projected_impacts": [
+            "Voters cast both Lok Sabha and state assembly votes on one day — fewer election disruptions per year",
+            "Government code-of-conduct freeze periods shortened — policies can be announced faster",
+            "Critics warn smaller regional parties may be disadvantaged alongside national campaigns",
+        ],
+        "source": PRS,
+    },
+    {
+        "id": "in_kyg_gig_workers_social_security",
+        "title": "Social Security for Gig and Platform Workers",
+        "summary": (
+            "Several states (Rajasthan, Karnataka, Jharkhand) have passed or are drafting laws giving "
+            "gig workers (delivery, cab, freelance platform workers) access to accident insurance, "
+            "maternity benefit, and pension. A central code is also expected."
+        ),
+        "status": "under_review",
+        "expected_date": "2025-2026",
+        "affects_you_if": "You work as a delivery partner, cab driver, freelancer, or on any app-based platform",
+        "projected_impacts": [
+            "Accident and life insurance funded by platform aggregators",
+            "Access to ESIC medical benefits and maternity benefits",
+            "Contributions to National Social Security Fund for gig workers",
+            "Platforms must register gig workers — currently many are classified as 'partners', not employees",
+        ],
+        "source": NITI,
+    },
+]
 
 PACK["schemes"] = PACK["schemes"][:0] + [
     {

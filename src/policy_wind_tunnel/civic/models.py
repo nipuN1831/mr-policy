@@ -3,7 +3,10 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-JUDGEMENT_WORDS = ("corrupt", "criminal", "best", "worst", "honest", "dishonest", "incompetent", "good ", "bad ")
+_JUDGEMENT_PATTERN = re.compile(
+    r"\b(?:corrupt|criminal|best|worst|honest|dishonest|incompetent|good|bad)\b",
+    re.IGNORECASE,
+)
 HANDLE_PATTERN = re.compile(r"^[A-Za-z0-9_.]{1,40}$")
 ALLOWED_PLATFORMS = ("x", "facebook", "instagram")
 
@@ -43,10 +46,9 @@ class Fact(Strict):
     @field_validator("value", "label")
     @classmethod
     def no_judgement(cls, value: str) -> str:
-        lowered = f" {value.lower()} "
-        for word in JUDGEMENT_WORDS:
-            if word in lowered:
-                raise ValueError(f"facts must be neutral; found {word.strip()!r}")
+        match = _JUDGEMENT_PATTERN.search(value)
+        if match:
+            raise ValueError(f"facts must be neutral; found {match.group()!r}")
         return value
 
 
@@ -133,6 +135,17 @@ class Scheme(Strict):
     source: Source
 
 
+class UpcomingPolicy(Strict):
+    id: str
+    title: str
+    summary: str
+    status: Literal["proposed", "passed", "in_force", "under_review"]
+    expected_date: str = ""
+    affects_you_if: str = ""
+    projected_impacts: list[str] = Field(default_factory=list)
+    source: Source
+
+
 class CountryPack(Strict):
     code: str
     name: str
@@ -142,6 +155,7 @@ class CountryPack(Strict):
     rights: list[Right]
     representatives: list[Representative]
     schemes: list[Scheme] = Field(default_factory=list)
+    upcoming_policies: list[UpcomingPolicy] = Field(default_factory=list)
     status: Literal["verified", "partial"] = "partial"
     notes: list[str] = Field(default_factory=list)
 

@@ -97,12 +97,16 @@ def test_problem_ids_are_unique_and_helplines_have_numbers():
                 assert line.number.strip(), (pack.code, problem.id)
 
 
-def test_every_bundled_representative_is_fictional_and_labelled():
+def test_bundled_representatives_have_correct_fictional_flag():
     for pack in all_packs():
         assert pack.representatives, pack.code
         for person in pack.representatives:
-            assert person.fictional is True, (pack.code, person.id)
-            assert "demo" in person.region.lower() or "fictional" in person.region.lower(), (pack.code, person.id)
+            if person.fictional:
+                assert "demo" in person.region.lower() or "fictional" in person.region.lower(), (pack.code, person.id)
+            else:
+                assert all(
+                    f.source.checked or f.source.grounded for f in person.record
+                ), (pack.code, person.id)
 
 
 def test_representative_cannot_carry_personal_fields():
@@ -153,12 +157,39 @@ def test_find_problems_limits_results():
     assert len(find_problems(pack, "complaint government bank consumer rights", limit=2)) <= 2
 
 
+def test_find_representatives_strips_natural_language_prefix():
+    pack = load_pack("in")
+    # "Rahul Gandhi" is a real MP in the pack — these natural-language queries should all find him
+    for query in ("tell me about rahul gandhi", "who is rahul gandhi", "show me rahul gandhi", "find rahul gandhi"):
+        results = find_representatives(pack, query)
+        assert results, f"Expected results for query: {query!r}"
+        assert any("Gandhi" in r.name for r in results), f"Expected Rahul Gandhi for: {query!r}"
+
+
+def test_find_representatives_plain_name_still_works():
+    pack = load_pack("in")
+    results = find_representatives(pack, "Rahul Gandhi")
+    assert results and any("Gandhi" in r.name for r in results)
+
+
 def test_find_representatives_by_constituency_is_case_insensitive():
     pack = load_pack("in")
     constituency = pack.representatives[0].constituency
     found = find_representatives(pack, constituency.upper())
     assert found and all(r.constituency.lower() == constituency.lower() or r.role for r in found)
     assert find_representatives(pack, "Nowhere") == []
+
+
+def test_find_representatives_by_name():
+    pack = load_pack("in")
+    found = find_representatives(pack, "Narendra Modi")
+    assert found and any("Modi" in r.name for r in found)
+
+
+def test_find_representatives_by_partial_name():
+    pack = load_pack("in")
+    found = find_representatives(pack, "Rahul Gandhi")
+    assert found and any("Gandhi" in r.name for r in found)
 
 
 def test_pack_model_rejects_duplicate_representative_ids():

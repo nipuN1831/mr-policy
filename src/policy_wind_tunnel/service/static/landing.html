@@ -255,6 +255,12 @@ h1 span { color: #6fcf97; }
 .cb-dismiss { background: transparent; border: 1.5px solid var(--line); border-radius: 11px; padding: 9px 16px; font-size: 14px; font-weight: 600; color: var(--muted); cursor: pointer; }
 .cb-dismiss:hover { background: #f4f7f3; }
 .cb-powered { font-size: 11px; color: var(--muted); margin-top: 10px; }
+.cb-misc { margin: 12px 0 14px; border: 1px solid #d4e8dc; border-radius: 10px; background: #f6fbf8; }
+.cb-misc summary { font-size: 13px; font-weight: 600; color: var(--green-dark); cursor: pointer; padding: 10px 14px; list-style: none; }
+.cb-misc summary::before { content: "▶ "; font-size: 10px; }
+.cb-misc[open] summary::before { content: "▼ "; }
+.cb-misc ul { margin: 0; padding: 0 14px 12px 28px; }
+.cb-misc ul li { font-size: 14px; color: var(--ink); line-height: 1.6; margin-bottom: 6px; }
 .chat-loading { text-align: center; padding: 18px 0; color: var(--muted); font-size: 14px; }
 .chat-loading .spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid #cde0d7; border-top-color: var(--green); border-radius: 50%; animation: spin .7s linear infinite; vertical-align: middle; margin-right: 8px; }
 @keyframes spin { to { transform: rotate(360deg); } }
@@ -788,10 +794,17 @@ function renderChat(data) {
   const redirectLabel = REDIRECT_LABELS[redirectPath] || "Go to checker";
   const poweredNote = data.powered_by === "gemini" ? "Powered by Gemini" : "Keyword match — connect Gemini for full answers";
   const href = esc(redirectPath) + (data.scheme_id ? '?scheme=' + esc(data.scheme_id) : '');
+  const misc = Array.isArray(data.misconceptions) ? data.misconceptions.filter(Boolean) : [];
+  const miscHtml = misc.length ? `
+    <details class="cb-misc">
+      <summary>Common misconceptions about this topic</summary>
+      <ul>${misc.map(m => `<li>${esc(m)}</li>`).join("")}</ul>
+    </details>` : "";
   chatAnswer.hidden = false;
   chatAnswer.innerHTML = `<div class="chat-bubble">
     <p class="cb-label"><span class="cb-dot"></span> Policy Wind Tunnel answer</p>
     <p>${esc(data.answer)}</p>
+    ${miscHtml}
     <div class="cb-actions">
       <a class="cb-redirect" id="cbRedirect" href="${href}">${esc(redirectLabel)} &rarr;</a>
       <button class="cb-dismiss" id="chatDismiss">Ask something else</button>

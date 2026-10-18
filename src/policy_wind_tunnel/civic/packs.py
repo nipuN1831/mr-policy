@@ -11,6 +11,8 @@ def _discover() -> dict[str, CountryPack]:
     if not _CACHE:
         for module_info in pkgutil.iter_modules(data.__path__):
             module = importlib.import_module(f"{data.__name__}.{module_info.name}")
+            if not hasattr(module, "PACK"):
+                continue
             pack = CountryPack.model_validate(module.PACK)
             _CACHE[pack.code] = pack
     return _CACHE

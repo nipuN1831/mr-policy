@@ -4,7 +4,18 @@ from policy_wind_tunnel.civic.models import CountryPack, Problem, Representative
 
 WORD = re.compile(r"[a-z0-9]+")
 STOP_WORDS = frozenset(
-    "a an the my is are was i me to of for and or in on at it this that with have has not no do does did can how what who why".split()
+    "a an the my is are was i me to of for and or in on at it this that with have has not no do does did can how what who why "
+    "tell show find search about info details representative mp mla leader".split()
+)
+
+_STRIP_PARENS = re.compile(r"\s*\([^)]*\)")
+
+# Prefixes that precede the actual name/place in natural-language queries
+_NL_PREFIXES = re.compile(
+    r"^\s*(?:tell\s+me\s+about|who\s+is|show\s+me|find|search|look\s+up|info\s+(?:on|about)|"
+    r"details?\s+(?:on|about|of)|about|mp\s+(?:for|from|of)|representative\s+(?:for|from|of)|"
+    r"my\s+(?:mp|representative|mla|leader)|representative\s+in|mp\s+in)\s+",
+    re.IGNORECASE,
 )
 
 
@@ -27,6 +38,30 @@ def find_problems(pack: CountryPack, text: str, limit: int = 3) -> list[Problem]
     return [problem for _, problem in ranked[:limit]]
 
 
+def _normalise(text: str) -> str:
+    return _STRIP_PARENS.sub("", text).strip().lower()
+
+
 def find_representatives(pack: CountryPack, constituency: str) -> list[Representative]:
-    wanted = constituency.strip().lower()
-    return [r for r in pack.representatives if wanted and r.constituency.lower() == wanted]
+    cleaned = _NL_PREFIXES.sub("", constituency).strip()
+    wanted = _normalise(cleaned)
+    if not wanted:
+        return []
+    # exact constituency match
+    exact = [r for r in pack.representatives if _normalise(r.constituency) == wanted]
+    if exact:
+        return exact
+    # exact name match
+    exact_name = [r for r in pack.representatives if _normalise(r.name) == wanted]
+    if exact_name:
+        return exact_name
+    # partial name match (all query words appear in name)
+    wanted_words = _words(wanted)
+    if not wanted_words:
+        return []
+    name_fuzzy = [r for r in pack.representatives if wanted_words.issubset(_words(_normalise(r.name)))]
+    if name_fuzzy:
+        return name_fuzzy
+    # fuzzy constituency match (all query words appear in constituency)
+    fuzzy = [r for r in pack.representatives if wanted_words.issubset(_words(_normalise(r.constituency)))]
+    return fuzzy

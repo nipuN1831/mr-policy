@@ -1,6 +1,20 @@
+import contextlib
 import datetime
+import logging
+import threading
 from pathlib import Path
 from typing import Any
+
+_log = logging.getLogger(__name__)
+
+# Pre-warm cache for these leaders so demo clicks load instantly
+_HOTSHOT_LEADERS = [
+    ("India", "Narendra Modi"),
+    ("India", "Rahul Gandhi"),
+    ("India", "Amit Shah"),
+    ("India", "Smriti Irani"),
+    ("India", "Arvind Kejriwal"),
+]
 
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse, Response
@@ -19,6 +33,7 @@ from policy_wind_tunnel.civic.research import (
     GeminiSearcher,
     ResearchRefused,
     lookup_government,
+    lookup_person_detail,
     lookup_representatives,
     refuse_if_judgement,
 )
@@ -91,6 +106,11 @@ class LeaderLookupRequest(BaseModel):
     place: str = Field(default="", max_length=120)
 
 
+class PersonLookupRequest(BaseModel):
+    country: str
+    name: str = Field(max_length=200)
+
+
 class ApproveRequest(BaseModel):
     contract: dict[str, Any]
     ambiguity_id: str
@@ -122,7 +142,26 @@ def create_app(llm: Any = _UNSET, searcher: Any = _UNSET) -> FastAPI:
     if searcher is _UNSET:
         searcher = GeminiSearcher(settings.model_name()) if model is not None else None
     lookup_cache: dict[tuple[str, str], dict[str, Any]] = {}
-    app = FastAPI(title="Policy Wind Tunnel")
+
+    @contextlib.asynccontextmanager
+    async def _lifespan(_app: FastAPI):
+        if searcher is not None:
+            threading.Thread(target=_warm_hotshots_fn, daemon=True, name="hotshot-warmup").start()
+        yield
+
+    app = FastAPI(title="Policy Wind Tunnel", lifespan=_lifespan)
+
+    def _warm_hotshots_fn() -> None:
+        as_of = datetime.date.today().isoformat()
+        for country, name in _HOTSHOT_LEADERS:
+            key = (country.lower()[:2], "person", name.lower())
+            if key in lookup_cache:
+                continue
+            try:
+                lookup_cache[key] = lookup_person_detail(searcher, country, name, as_of)
+                _log.info("pre-cached %s", name)
+            except Exception as exc:  # noqa: BLE001
+                _log.warning("warm-up failed for %s: %s", name, exc)
 
     _CHAT_SYSTEM = (
         "You are Policy Wind Tunnel, a civic information assistant for India and Singapore. "
@@ -138,7 +177,11 @@ def create_app(llm: Any = _UNSET, searcher: Any = _UNSET) -> FastAPI:
         "    - if intent is representatives → /citizen#leaders\n"
         "    - if intent is officials_whatif → /officials\n"
         "    - otherwise → /citizen\n"
-        "Never make up statistics or invent sources."
+        "  misconceptions: array of 2-3 short strings — the most common factual misunderstandings or misleading assumptions "
+        "people hold about this policy or topic. Each string is one plain sentence, 'read between the lines' style: "
+        "surface what is NOT obvious, what official announcements downplay, or where public understanding diverges from the "
+        "actual rule. Do NOT use leading labels like 'Myth:' or numbers. Do NOT include if no genuine misconception exists "
+        "(return empty array). Never make up statistics or invent sources."
     )
     _CHAT_KEYWORDS = {
         "caa": ("in_caa_2019", "/citizen", "The CAA 2019 fast-tracks citizenship for six religious minorities from Afghanistan, Bangladesh or Pakistan who entered India by 31 Dec 2014, after 5 years of residency. It does not apply to Muslims, Inner Line Permit states, or Sixth Schedule areas. Check your exact eligibility on the next page."),
@@ -153,6 +196,12 @@ def create_app(llm: Any = _UNSET, searcher: Any = _UNSET) -> FastAPI:
         "complaint": (None, "/citizen#decides", "For central government complaints, use CPGRAMS at pgportal.gov.in. For consumer disputes, call the National Consumer Helpline on 1915. For bank issues, contact the RBI Ombudsman after first raising it with your bank."),
         "rights": (None, "/citizen#rights", "Your key rights include the Right to Information (RTI Act 2005), Consumer Protection (Consumer Protection Act 2019), and Free Legal Services (Legal Services Authorities Act 1987). See the Rights tab for how to use each one."),
         "representative": (None, "/citizen#leaders", "You can look up your Member of Parliament, MLA, or local councillor from the My Area tab. For India, Sansad.in lists Lok Sabha members. The live search uses Gemini to find your area's current representatives."),
+        "who is my mp": (None, "/citizen#leaders", "Search your constituency in the 'My area: who represents me' tab. For India, we have all 543 Lok Sabha MPs from the 2024 election — search by constituency name or MP name."),
+        "my mp": (None, "/citizen#leaders", "Find your MP in the 'My area: who represents me' tab. Type your constituency name and we will show the elected representative with their party, constituency, and source links."),
+        " mp ": (None, "/citizen#leaders", "Find your Member of Parliament in the 'My area: who represents me' tab. All 543 Lok Sabha MPs from the 18th Lok Sabha (2024 election) are available."),
+        "mla": (None, "/citizen#leaders", "MLA information is available through state legislature websites. For Lok Sabha MPs, use the 'My area: who represents me' tab — we have all 543 MPs from the 2024 election."),
+        "lok sabha": (None, "/citizen#leaders", "All 543 Lok Sabha MPs from the 18th Lok Sabha (2024 general election) are in the 'My area: who represents me' tab. Search by constituency or MP name."),
+        "member of parliament": (None, "/citizen#leaders", "Find your Member of Parliament in the 'My area: who represents me' tab. All 543 18th Lok Sabha MPs sourced from ECI 2024 results and sansad.in."),
         "what if": (None, "/officials", "The Officials page lets you simulate a rule change — re-decide thousands of synthetic applicants and see who moves in or out. Try raising the income floor or changing a residency requirement."),
         "broker": (None, "/citizen#decides", "If a broker cheated you, file a complaint with SEBI at scores.sebi.gov.in (for stock brokers) or with the Insurance Ombudsman at ecoi.co.in (for insurance brokers). For real estate agents, file with the state RERA authority. Keep all payment records and communication as evidence."),
         "cheated": (None, "/citizen#decides", "If you were cheated, identify the authority: SEBI for financial brokers, RBI Ombudsman for banks, state RERA for real estate, or CPGRAMS for government services. File a police FIR and a consumer forum complaint (under Consumer Protection Act 2019) in parallel — consumer courts have no filing fee up to ₹5 lakh claims."),
@@ -202,12 +251,15 @@ def create_app(llm: Any = _UNSET, searcher: Any = _UNSET) -> FastAPI:
                         kw_hit = _keyword_match(q)
                         if kw_hit:
                             return {**kw_hit, "answer": answer_text, "powered_by": "gemini+keyword"}
+                    raw_misc = meta.get("misconceptions")
+                    misconceptions = [s for s in (raw_misc or []) if isinstance(s, str) and s.strip()][:3]
                     return {
                         "answer": answer_text,
                         "intent": meta.get("intent", "general"),
                         "scheme_id": meta.get("scheme_id"),
                         "redirect_path": redirect,
                         "powered_by": "gemini",
+                        "misconceptions": misconceptions,
                     }
             except Exception:
                 pass
@@ -332,9 +384,14 @@ def create_app(llm: Any = _UNSET, searcher: Any = _UNSET) -> FastAPI:
     def civic_representatives(code: str, constituency: str = ""):
         pack = _pack(code)
         found = find_representatives(pack, constituency) if constituency else pack.representatives
+        all_fictional = all(r.fictional for r in found)
         return {
-            "demo": True,
-            "notice": "These representatives are fictional demo data. No real person is shown.",
+            "demo": all_fictional,
+            "notice": (
+                "These representatives are fictional demo data. No real person is shown."
+                if all_fictional
+                else "Representative data sourced from ECI 2024 results and sansad.in."
+            ),
             "representatives": [r.model_dump() for r in found],
         }
 
@@ -380,6 +437,36 @@ def create_app(llm: Any = _UNSET, searcher: Any = _UNSET) -> FastAPI:
             lookup_cache[key] = found
         return lookup_cache[key]
 
+    @app.post("/api/civic/leaders/person")
+    def leaders_person(request: PersonLookupRequest):
+        if not _live():
+            raise HTTPException(503, detail="Live lookup needs Gemini to be connected, and is switched off otherwise.")
+        pack = _pack(request.country)
+        name = " ".join(request.name.split())
+        if not name:
+            raise HTTPException(422, detail="Enter a person's name.")
+        try:
+            refuse_if_judgement(name)
+        except ResearchRefused as error:
+            raise HTTPException(422, detail=str(error)) from error
+        key = (pack.code, "person", name.lower())
+        if key not in lookup_cache:
+            as_of = datetime.date.today().isoformat()
+            try:
+                detail = lookup_person_detail(searcher, pack.name, name, as_of)
+            except Exception as error:  # noqa: BLE001
+                raise HTTPException(502, detail=f"The web search did not complete: {type(error).__name__}") from error
+            lookup_cache[key] = detail
+        return lookup_cache[key]
+
+    @app.get("/api/civic/countries/{code}/policies/upcoming")
+    def civic_upcoming_policies(code: str, status: str = ""):
+        pack = _pack(code)
+        policies = pack.upcoming_policies
+        if status:
+            policies = [p for p in policies if p.status == status]
+        return {"policies": [p.model_dump() for p in policies]}
+
     @app.get("/api/civic/schemes")
     def civic_schemes():
         return civic_eligibility.list_schemes()
@@ -421,6 +508,10 @@ def create_app(llm: Any = _UNSET, searcher: Any = _UNSET) -> FastAPI:
     @app.get("/citizen", response_class=HTMLResponse)
     def citizen_page():
         return (STATIC_DIR / "citizen.html").read_text()
+
+    @app.get("/api/civic/leaders/hotshots")
+    def leaders_hotshots():
+        return {"leaders": [{"country": c, "name": n} for c, n in _HOTSHOT_LEADERS]}
 
     return app
 
